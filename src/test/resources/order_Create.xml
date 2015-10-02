@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed Materials - Property of IBM
+     IBM Sterling Selling and Fulfillment Suite
+     (C) Copyright IBM Corp. 2001, 2013 All Rights Reserved.
+     US Government Users Restricted Rights - Use, duplication or disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+<!--
+                     LIMITATION OF LIABILITY
+THIS SOFTWARE SAMPLE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED 
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+IN NO EVENT SHALL STERLING COMMERCE, Inc. BE LIABLE UNDER ANY THEORY OF 
+LIABILITY (INCLUDING, BUT NOT LIMITED TO, BREACH OF CONTRACT, BREACH 
+OF WARRANTY, TORT, NEGLIGENCE, STRICT LIABILITY, OR ANY OTHER THEORY 
+OF LIABILITY) FOR (i) DIRECT DAMAGES OR INDIRECT, SPECIAL, INCIDENTAL, 
+OR CONSEQUENTIAL DAMAGES SUCH AS, BUT NOT LIMITED TO, EXEMPLARY OR 
+PUNITIVE DAMAGES, OR ANY OTHER SIMILAR DAMAGES, WHETHER OR NOT 
+FORESEEABLE AND WHETHER OR NOT STERLING OR ITS REPRESENTATIVES HAVE 
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES, OR (ii) ANY OTHER 
+CLAIM, DEMAND OR DAMAGES WHATSOEVER RESULTING FROM OR ARISING OUT OF
+OR IN CONNECTION THE DELIVERY OR USE OF THIS INFORMATION.
+-->
+   <Order EnterpriseCode="DEFAULT" Division="DIV01" OrderNo="FERRY_1234" OrderName="Ferry" OrderDate="20150930" SCAC="UPS" 
+CarrierServiceCode="Next Day Air" CarrierAccountNo="SCAC"  SearchCriteria1="DEFAULT" SearchCriteria2="" 
+ReqShipDate="20151003" BuyerOrganizationCode="" SellerOrganizationCode="DEFAULT">
+      <OrderLines>
+         <OrderLine PrimeLineNo="001" SubLineNo="001" OrderedQty="5" ReqDeliveryDate="20010612"  ReceivingNode="">
+            <Item ItemID="HelloItem1" ItemWeight="10" />
+            <Instructions>
+               <Instruction InstructionText="Gift packing" InstructionType="Pack" InstructionURL="www.gift.com"></Instruction>
+            </Instructions>
+<AdditionalAddresses>
+<AdditionalAddress AddressType="INSTALL_LINE1">
+   <PersonInfo Title="Mr." FirstName="Hello" MiddleName="P" LastName="World" Suffix="Sr." Department="Development" Company="Sterling" JobTitle="Development Manager" 
+AddressLine1="One" AddressLine2="Park" AddressLine3="West" AddressLine4="line4" AddressLine5="line5" AddressLine6="line6" City="Tewksbury" State="MA" ZipCode="01876" 
+Country="US" DayPhone="978.513.6374" EveningPhone="617-625-1081" MobilePhone="NA" Beeper="Nope" OtherPhone="which one?" DayFaxNo="978.513.6006" EveningFaxNo="same" EmailID="HelloWorld@Stercomm.com" 
+AlternateEmailID="HelloWorld@yahoo.com" PersonID="007"/>
+</AdditionalAddress>
+<AdditionalAddress AddressType="INSTALL_LINE2">
+   <PersonInfo Title="Mr." FirstName="Donald" MiddleName="Q" LastName="Duk" Suffix="Sr." Department="Development" Company="Sterling" JobTitle="Development Manager" 
+AddressLine1="One" AddressLine2="Park" AddressLine3="West" AddressLine4="line4" AddressLine5="line5" AddressLine6="line6" City="Tewksbury" State="MA" ZipCode="01876" 
+Country="US" DayPhone="978.513.6374" EveningPhone="617-625-1081" MobilePhone="NA" Beeper="Nope" OtherPhone="which one?" DayFaxNo="978.513.6006" EveningFaxNo="same" EmailID="HelloWorld@Stercomm.com" 
+AlternateEmailID="vikky.rm@yahoo.com" PersonID="008"/>
+</AdditionalAddress>
+</AdditionalAddresses>
+         </OrderLine>
+      </OrderLines>
+   <PersonInfoShipTo Title="Mr." FirstName="Donald" MiddleName="P" LastName="Duk" Suffix="Sr." Department="Development" Company="Sterling" JobTitle="Development Manager" 
+AddressLine1="One" AddressLine2="Park" AddressLine3="West" AddressLine4="line4" AddressLine5="line5" AddressLine6="line6" City="Tewksbury" State="MA" ZipCode="01876" 
+Country="US" DayPhone="978.513.6374" EveningPhone="617-625-1081" MobilePhone="NA" Beeper="Nope" OtherPhone="which one?" DayFaxNo="978.513.6006" EveningFaxNo="same" EmailID="vDuk@stercomm.com" 
+AlternateEmailID="vikky.rm@yahoo.com" PersonID="009"/>
+   <PersonInfoBillTo Title="Mr." FirstName="Donald" MiddleName="P" LastName="Duk" Suffix="Sr." Department="Development" Company="Sterling" JobTitle="Development Manager" 
+AddressLine1="One" AddressLine2="Park" AddressLine3="West" AddressLine4="line4" AddressLine5="line5" AddressLine6="line6" City="Tewksbury" State="MA" ZipCode="01876" 
+Country="US" DayPhone="978.513.6374" EveningPhone="617-625-1081" MobilePhone="NA" Beeper="Nope" OtherPhone="which one?" DayFaxNo="978.513.6006" EveningFaxNo="same" EmailID="vDuk@stercomm.com" 
+AlternateEmailID="vikky.rm@yahoo.com" PersonID="010"/>
+      <PaymentMethods>
+         <PaymentMethod CustomerAccountNo="" CustomerPONo="" PaymentType="CREDIT_CARD" CreditCardType="Visa" 
+CreditCardName="Donald" CreditCardNo="1111-2222-3333-4444" CreditCardExpDate="May 09 2004" PaymentReference1="" PaymentReference2="" 
+PaymentReference3="" CheckNo="" CheckReference="" />
+         </PaymentMethods>
+<AdditionalAddresses>
+<AdditionalAddress AddressType="INSTALL">
+   <PersonInfo Title="Mr." FirstName="Donald" MiddleName="P" LastName="Duk" Suffix="Sr." Department="Development" Company="Sterling" JobTitle="Development Manager" 
+AddressLine1="One" AddressLine2="Park" AddressLine3="West" AddressLine4="line4" AddressLine5="line5" AddressLine6="line6" City="Tewksbury" State="MA" ZipCode="01876" 
+Country="US" DayPhone="978.513.6374" EveningPhone="617-625-1081" MobilePhone="NA" Beeper="Nope" OtherPhone="which one?" DayFaxNo="978.513.6006" EveningFaxNo="same" EMailID="vDuk@stercomm.com" 
+AlternateEmailID="vikky.rm@yahoo.com" PersonID="009"/>
+</AdditionalAddress>
+</AdditionalAddresses>
+    <Notes>
+        <Note NoteText="OrderNote"/>
+    </Notes>
+   </Order>
