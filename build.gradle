@@ -14,7 +14,26 @@ apply plugin: 'maven'
 apply plugin: 'war'
 apply plugin: 'jetty'
 
-// In this section you declare where to find the dependencies of your project
+
+archivesBaseName='Sterling'
+group='wars'
+httpPort=8002
+
+// Dynamically insert TeamCity build number if available
+if (hasProperty("teamcity")) {
+    version = teamcity["build.number"]
+        println "TeamCity build number passed into gradle is " + version
+    }
+    else {
+// Manually insert the version numbers here when building outside of TeamCity
+    version = '0.0.1-LocalBuild'
+}
+
+war {
+    manifest {
+        attributes 'Implementation-Title': 'Mozu Sterling Extension', 'Implementation-Version': version
+    }
+}// In this section you declare where to find the dependencies of your project
 task wrapper(type: Wrapper) {
     gradleVersion = '1.12'
 }
@@ -36,12 +55,32 @@ configurations.all {
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
+    ext {
+        springVersion='3.2.14.RELEASE'
+    }   
+    compile group: 'org.springframework', name: 'spring-aop', version: springVersion
+    compile group: 'org.springframework', name: 'spring-beans', version: springVersion
+    compile group: 'org.springframework', name: 'spring-context', version: springVersion
+    compile group: 'org.springframework', name: 'spring-core', version: springVersion
+    compile group: 'org.springframework', name: 'spring-expression', version: springVersion
+    compile group: 'org.springframework', name: 'spring-web', version: springVersion
+    compile group: 'org.springframework', name: 'spring-webmvc', version: springVersion
+
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile ("org.slf4j:slf4j-log4j12:1.7.12")
     compile ('log4j:log4j:1.2.17')
+
+    compile ("com.mozu:mozu-api-toolkit:1.1.1") {
+         exclude group: 'mysql'
+        exclude group: 'xerces'
+        exclude group: 'berkeleydb'
+        exclude group: 'hsqldb'
+        exclude group: 'tomcat'
+        
+        changing = true
+    }
  
-    compile 'xerces:xercesImpl:2.11.0'
     compile files('./lib/xapiclient.jar')
 
     // Declare the dependency for your favourite test framework you want to use in your tests.
@@ -49,6 +88,21 @@ dependencies {
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
-    
-    
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+           repository(url: "http://aus02bpnexs001.corp.volusion.com:8080/nexus/content/repositories/releases/") {
+             authentication(userName: "deployment", password: "deployment123")
+           }
+           snapshotRepository(url: "http://aus02bpnexs001.corp.volusion.com:8080/nexus/content/repositories/snapshots/") {
+               authentication(userName: "deployment", password: "deployment123")
+           }
+       }
+    }
 }

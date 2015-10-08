@@ -1,0 +1,42 @@
+    <div id="content" ng-controller="VersionController">
+        <div class="row">
+            <div class="tab-first-column">
+                <div style="margin-left: 10px;">
+                    <p>
+                        Mozu Sterling Order Management application provides integration with IBM Sterling Order Management .
+                    </p>  
+                    <p>
+                        Included with this application are synchronization of:
+                    </p>
+                    <ul>     
+                        <li>Inventory</li> 
+                        <li>Orders</li>
+                        <li>Customers</li> 
+                    </ul>
+                    <p>
+                    Once you set up your Mozu Sterling Order Management application application you'll be on your way to managing the orders from across your company in one place!   
+                    </p>
+                    <p>
+                        To manage your Sterling Order Management account,
+                        please visit contact your IBM sales representative.
+                    </p>
+                </div>
+            </div>
+            <div class="tab-second-column">
+                <div class="well-info text-center">
+                    <div>
+                        <img src="images/ibm.jpg" height="120" width="120"></img>
+                    </div>
+
+                    <div
+                        style="font-size: 15px; font-weight: bold; color: #333333; line-height: 17px;"
+                        class="mozulogo">Sterling Order Management Application by</div>
+                    <div style="font-size: 12px; color: #333333; line-height: 15px;">
+                        Version {{versionInfo.buildVersion}}
+                    </div>
+                    <div style="font-size: 12px; color: #333333; line-height: 15px;">Mozu
+                        API {{versionInfo.mozuSdkVersion}}</div>
+                </div>
+            </div>
+        </div>
+    </div>

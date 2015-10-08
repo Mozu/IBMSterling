@@ -1,0 +1,35 @@
+<div>
+	<div>
+		<label class="requiredContent"> <strong>Sterling Web Service URL</strong>
+		</label>
+		<div class="controls">
+			<input type="text" id="merchant_id"
+				class="input-medium" required="required"></input>
+		</div>
+		<label class="requiredContent"> <strong>Sterling User Name</strong>
+		</label>
+		<div class="controls">
+            <input type="text" id="sterlingUserName"
+                class="input-medium" required="required"></input>
+		</div>
+		<div style="margin-bottom: 10px;">
+			<input type="checkbox"
+				data-bind="checked: kountSettings.validationThresholdEnabled, click: enableSave"></input>
+			<span th:text="#{account.threshold.label}"></span>
+			<div data-bind="visible: kountSettings.validationThresholdEnabled">
+				<label><strong th:text="#{account.threshold.value}"></strong></label>
+				<input type="number" id="validate_amount"
+					data-bind="value: kountSettings.validateAmount, event: {keypress: enableSave}"
+					class="input-medium"></input>
+			</div>
+		</div>
+		<div style="margin-bottom: 10px;">
+			<span th:text="#{account.widget.help}"></span>
+		</div>
+	</div>
+	<div>
+		<strong><span th:text="#{account.kount.login}"></span></strong> <A
+			HREF="https://awc.kount.net" target="_blank"><strong><span
+				th:text="#{account.kount.console}"></span></strong></A>
+	</div>
+</div>
