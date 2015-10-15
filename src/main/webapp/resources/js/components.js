@@ -9,8 +9,8 @@ angular.module('components', [])
         var panes = $scope.panes = [];
  
         $scope.select = function(pane) {
-          angular.forEach(panes, function(pane) {
-            pane.selected = false;
+          angular.forEach(panes, function(pane2) {
+            pane2.selected = false;
           });
           pane.selected = true;
         }
@@ -21,14 +21,11 @@ angular.module('components', [])
         }
       },
       template:
-        '<div class="tabbable">' +
-          '<ul class="nav nav-tabs">' +
-            '<li ng-repeat="pane in panes" ng-class="{active:pane.selected}">'+
-              '<a href="" ng-click="select(pane)">{{pane.title}}</a>' +
-            '</li>' +
-          '</ul>' +
-          '<div class="tab-content" ng-transclude></div>' +
-        '</div>',
+        '<div class="tab-container">' +
+          '<div class="tabs">' +
+              '<a href="" ng-repeat="pane in panes" ng-class="{active:pane.selected}" class="button tab" ng-click="select(pane)">{{pane.title}}</a>' +
+          '</div>' + 
+        '<div class="tab-view" ng-transclude></div>',
       replace: true
     };
   })
@@ -43,7 +40,7 @@ angular.module('components', [])
         tabsController.addPane(scope);
       },
       template:
-        '<div class="tab-pane" ng-class="{active: selected}" ng-transclude>' +
+        '<div class="tab-section" ng-hide="!selected" ng-transclude>' +
         '</div>',
       replace: true
     };

@@ -4,10 +4,12 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"></meta>
 <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js" ></script>
-<script src="js/app.js"></script>
 <script src="js/components.js"></script>
+<script src="js/version.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/app.js"></script>
 
-<link rel="stylesheet" href="css/bootstrap.css"></link>
+<!-- <link rel="stylesheet" href="css/bootstrap.css"></link> -->
 <link rel="stylesheet" href="css/Site.css"></link>
 <script>
 	WebFont.load({
@@ -48,9 +50,16 @@
 					</div>
 				</div>
 				<tabs> 
-				    <pane title="Information"> <div ng-include="'html/info.html'"></div></pane> 
-				    <pane title="Settings"> Configuration Stuff! </pane> </tabs>
+				    <pane title="Information"><div ng-include="'html/info.html'"></div></pane> 
+				    <pane title="Settings"><div ng-include="'html/settings.html'"></div></pane> 
+				</tabs>
 				<div class="footer-actions">
+				    <div id="buttons" data-bind="visible:showButtons" style="display: block;float: right;">
+                        <a class="button primary-action" ng-click="cancelSetting()"
+                            id="cancelBtn" style="margin-left: 10px; background-color: black; border-color: black;">Cancel</a>&nbsp;
+                        <a class="button primary-action" ng-click="saveSetting()">Save</a> 
+                    </div>
+				
 					<div class="branding-text">Developed by Volusion, Inc. All
 						rights reserved.</div>
 				</div>
