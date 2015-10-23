@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -79,7 +80,7 @@ public class SterlingClientTest {
      * @exception Exception
      *                if an error occurs
      */
-    @Test
+    @Ignore
     public void testCreateOrder() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("order_Create2.xml").getFile());
@@ -110,7 +111,7 @@ public class SterlingClientTest {
         assertNotNull("GetExceptionList Cannot return a null document", getExceptionListReturn);
     }
 
-    @Test
+    @Ignore
     public void testGetOrganizationHierarchy() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("organizationList.xml").getFile());
