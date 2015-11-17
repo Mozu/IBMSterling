@@ -48,5 +48,54 @@
 	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
 		up static resources in the ${webappRoot}/resources directory -->
 	<resources mapping="/**" location="/resources/" />
-
+ 
+	<!-- WebSphere MQ Connection Factory -->
+<!--
+	<beans:bean id="mqConnectionFactory" class="com.ibm.mq.jms.MQQueueConnectionFactory">
+		<beans:property name="hostName">
+			<beans:value>${queue_hostname}</beans:value>
+		</beans:property>
+		<beans:property name="port">
+			<beans:value>${queue_port}</beans:value>
+		</beans:property>
+		<beans:property name="queueManager">
+			<beans:value>${queue_manager}</beans:value>
+		</beans:property>
+		<beans:property name="transportType">
+			<beans:value>1</beans:value>
+		</beans:property>
+	</beans:bean >
+ -->
+	<!-- JMS Queue Connection Factory -->
+<!-- 
+	<beans:bean   id="jmsQueueConnectionFactory"
+		class="org.springframework.jms.connection.SingleConnectionFactory">
+		<beans:property name="targetConnectionFactory">
+			<beans:ref bean="mqConnectionFactory" />
+		</beans:property>
+	</beans:bean >
+ -->
+	<!-- JMS Destination Resolver -->
+<!-- 
+	<beans:bean   id="jmsDestinationResolver"
+		class="org.springframework.jms.support.destination.DynamicDestinationResolver">
+	</beans:bean >
+ -->
+	<!-- JMS Queue Template -->
+<!-- 	
+	<beans:bean   id="jmsQueueTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<beans:property name="connectionFactory">
+			<beans:ref bean="jmsQueueConnectionFactory" />
+		</beans:property>
+		<beans:property name="destinationResolver">
+			<beans:ref bean="jmsDestinationResolver" />
+		</beans:property>
+		<beans:property name="pubSubDomain">
+			<beans:value>false</beans:value>
+		</beans:property>
+		<beans:property name="receiveTimeout">
+			<beans:value>20000</beans:value>
+		</beans:property>
+	</beans:bean >
+ -->	
 </beans:beans>

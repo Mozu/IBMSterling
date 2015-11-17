@@ -1,0 +1,12 @@
+<Order BuyerOrganizationCode="" DocumentType="0001"
+EnterpriseCode="Aurora-Corp" OrderDate="" OrderName="" OrderNo=""
+SellerOrganizationCode="Aurora-Corp" ShipNode="Auro_Store_1">
+<OrderLines>
+<OrderLine OrderedQty="2" ShipNode="Auro_Store_1">
+<Item ItemID="AuroraWMDRS-002" ProductClass="" UnitOfMeasure="EACH"/>
+<LinePriceInfo IsPriceLocked="Y" UnitPrice="121"/>
+</OrderLine>
+</OrderLines>
+<PersonInfoShipTo AddressID="" AddressLine1="100 Main St" AddressLine2="" AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6="" AlternateEmailID="" Beeper="" City="Boston" Company="" Country="" DayFaxNo="" DayPhone="" Department="" EMailID="" EveningFaxNo="" EveningPhone="" FirstName="John" IsCommercialAddress="" JobTitle="" LastName="Doe" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="MA" Suffix="" TaxGeoCode="" Title="" ZipCode=""/>
+<PersonInfoBillTo AddressLine1="100 Main St" AddressLine2="" AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6="" AlternateEmailID="" Beeper="" City="Boston" Company="" Country="" DayFaxNo="" DayPhone="" Department="" EMailID="" EveningFaxNo="" EveningPhone="" FirstName="John" IsCommercialAddress="" JobTitle="" LastName="Doe" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="MA" Suffix="" TaxGeoCode="" Title="" ZipCode=""/>
+</Order>

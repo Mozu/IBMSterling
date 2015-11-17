@@ -1,0 +1,246 @@
+<!ELEMENT ShipNodeList ( ShipNode* )>
+
+<!ELEMENT CanShipToNodeType EMPTY>
+<!ATTLIST CanShipToNodeType NodeTypeID CDATA #IMPLIED>
+
+<!ELEMENT ShipNodePersonInfo EMPTY>
+<!ATTLIST ShipNodePersonInfo AddressID CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo AddressLine1 CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo AddressLine2 CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo AddressLine3 CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo AddressLine4 CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo AddressLine5 CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo AddressLine6 CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Beeper CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo City CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Company CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Country CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo DayFaxNo CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo DayPhone CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Department CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo EMailID CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo ErrorTxt CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo EveningPhone CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo FirstName CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo HttpUrl CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo JobTitle CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo LastName CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Latitude CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Longitude CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo MiddleName CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo MobilePhone CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo OtherPhone CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo PersonID CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo PersonInfoKey CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo PreferredShipAddress CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo State CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Suffix CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo Title CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo UseCount CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo VerificationStatus CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo ZipCode CDATA #IMPLIED>
+<!ATTLIST ShipNodePersonInfo a-dtype NMTOKENS
+                                    "Latitude decimal
+                                     Longitude decimal
+                                     UseCount int">
+
+<!ELEMENT OwnerOrganization EMPTY>
+<!ATTLIST OwnerOrganization AccountWithHub CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization AuthorityType CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization BillingAddressKey CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization CapacityOrganizationCode CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization CatalogOrganizationCode CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization ContactAddressKey CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization CorporateAddressKey CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization CreatorOrganizationKey CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization DunsNumber CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization InheritOrgConfig CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization InventoryKeptExternally CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization InventoryOrganizationCode CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization InventoryPublished CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization IsHubOrganization CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization IsLegalEntity CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization IsSourcingKept CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization IssuingAuthority CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization ItemXrefRule CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization LocaleCode CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization OrganizationCode CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization OrganizationKey CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization OrganizationName CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization ParentOrganizationCode CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization PaymentProcessingReqd CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization PrimaryEnterpriseKey CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization PrimarySicCode CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization PrimaryUrl CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization SupplyKeptExternally CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization TaxExemptFlag CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization TaxExemptionCertificate CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization TaxJurisdiction CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization TaxpayerId CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization XrefAliasType CDATA #IMPLIED>
+<!ATTLIST OwnerOrganization XrefOrganizationCode CDATA #IMPLIED>
+
+<!ELEMENT ContactPersonInfo EMPTY>
+<!ATTLIST ContactPersonInfo AddressID CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo AddressLine1 CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo AddressLine2 CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo AddressLine3 CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo AddressLine4 CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo AddressLine5 CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo AddressLine6 CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Beeper CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo City CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Company CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Country CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo DayFaxNo CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo DayPhone CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Department CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo EMailID CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo ErrorTxt CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo EveningPhone CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo FirstName CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo HttpUrl CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo JobTitle CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo LastName CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Latitude CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Longitude CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo MiddleName CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo MobilePhone CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo OtherPhone CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo PersonID CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo PersonInfoKey CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo PreferredShipAddress CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo State CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Suffix CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo Title CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo UseCount CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo VerificationStatus CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo ZipCode CDATA #IMPLIED>
+<!ATTLIST ContactPersonInfo a-dtype NMTOKENS
+                                   "Latitude decimal
+                                    Longitude decimal
+                                    UseCount int">
+
+<!ELEMENT Organization EMPTY>
+<!ATTLIST Organization AccountWithHub CDATA #IMPLIED>
+<!ATTLIST Organization AuthorityType CDATA #IMPLIED>
+<!ATTLIST Organization BillingAddressKey CDATA #IMPLIED>
+<!ATTLIST Organization CapacityOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Organization CatalogOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Organization ContactAddressKey CDATA #IMPLIED>
+<!ATTLIST Organization CorporateAddressKey CDATA #IMPLIED>
+<!ATTLIST Organization CreatorOrganizationKey CDATA #IMPLIED>
+<!ATTLIST Organization DunsNumber CDATA #IMPLIED>
+<!ATTLIST Organization InheritOrgConfig CDATA #IMPLIED>
+<!ATTLIST Organization InventoryKeptExternally CDATA #IMPLIED>
+<!ATTLIST Organization InventoryOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Organization InventoryPublished CDATA #IMPLIED>
+<!ATTLIST Organization IsHubOrganization CDATA #IMPLIED>
+<!ATTLIST Organization IsLegalEntity CDATA #IMPLIED>
+<!ATTLIST Organization IsSourcingKept CDATA #IMPLIED>
+<!ATTLIST Organization IssuingAuthority CDATA #IMPLIED>
+<!ATTLIST Organization ItemXrefRule CDATA #IMPLIED>
+<!ATTLIST Organization LocaleCode CDATA #IMPLIED>
+<!ATTLIST Organization OrganizationCode CDATA #IMPLIED>
+<!ATTLIST Organization OrganizationKey CDATA #IMPLIED>
+<!ATTLIST Organization OrganizationName CDATA #IMPLIED>
+<!ATTLIST Organization ParentOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Organization PaymentProcessingReqd CDATA #IMPLIED>
+<!ATTLIST Organization PrimaryEnterpriseKey CDATA #IMPLIED>
+<!ATTLIST Organization PrimarySicCode CDATA #IMPLIED>
+<!ATTLIST Organization PrimaryUrl CDATA #IMPLIED>
+<!ATTLIST Organization SupplyKeptExternally CDATA #IMPLIED>
+<!ATTLIST Organization TaxExemptFlag CDATA #IMPLIED>
+<!ATTLIST Organization TaxExemptionCertificate CDATA #IMPLIED>
+<!ATTLIST Organization TaxJurisdiction CDATA #IMPLIED>
+<!ATTLIST Organization TaxpayerId CDATA #IMPLIED>
+<!ATTLIST Organization XrefAliasType CDATA #IMPLIED>
+<!ATTLIST Organization XrefOrganizationCode CDATA #IMPLIED>
+
+<!ELEMENT CanShipToNodeTypes ( CanShipToNodeType* )>
+
+<!ELEMENT ItemShipNode EMPTY>
+<!ATTLIST ItemShipNode CostCurrency CDATA #IMPLIED>
+<!ATTLIST ItemShipNode Inventorytype CDATA #IMPLIED>
+<!ATTLIST ItemShipNode ItemId CDATA #IMPLIED>
+<!ATTLIST ItemShipNode ItemType CDATA #IMPLIED>
+<!ATTLIST ItemShipNode ItemshipnodeKey CDATA #IMPLIED>
+<!ATTLIST ItemShipNode OwnerKey CDATA #IMPLIED>
+<!ATTLIST ItemShipNode Priority CDATA #IMPLIED>
+<!ATTLIST ItemShipNode ShipNodeItem CDATA #IMPLIED>
+<!ATTLIST ItemShipNode ShipnodeKey CDATA #IMPLIED>
+<!ATTLIST ItemShipNode UnitCost CDATA #IMPLIED>
+<!ATTLIST ItemShipNode a-dtype NMTOKENS
+                              "Priority decimal
+                               UnitCost decimal">
+
+<!ELEMENT ItemShipNodeList ( ItemShipNode? )>
+
+<!ELEMENT ShipNode ( OwnerOrganization?,Organization?,ShipNodePersonInfo?,ContactPersonInfo?,ItemShipNodeList?,CanShipToNodeTypes? )>
+<!ATTLIST ShipNode AcceptanceRequired CDATA #IMPLIED>
+<!ATTLIST ShipNode ActivateFlag CDATA #IMPLIED>
+<!ATTLIST ShipNode AgentCriteriaGroup CDATA #IMPLIED>
+<!ATTLIST ShipNode AllowGiftWrap CDATA #IMPLIED>
+<!ATTLIST ShipNode CanShipToAllNodes CDATA #IMPLIED>
+<!ATTLIST ShipNode CanShipToOtherAddresses CDATA #IMPLIED>
+<!ATTLIST ShipNode ContactAddressKey CDATA #IMPLIED>
+<!ATTLIST ShipNode CurrentBolNumber CDATA #IMPLIED>
+<!ATTLIST ShipNode DefaultDeclaredValue CDATA #IMPLIED>
+<!ATTLIST ShipNode Description CDATA #IMPLIED>
+<!ATTLIST ShipNode ExportLicenseExpDate CDATA #IMPLIED>
+<!ATTLIST ShipNode ExportLicenseNo CDATA #IMPLIED>
+<!ATTLIST ShipNode ExportTaxpayerId CDATA #IMPLIED>
+<!ATTLIST ShipNode GLN CDATA #IMPLIED>
+<!ATTLIST ShipNode GenerateBolNumber CDATA #IMPLIED>
+<!ATTLIST ShipNode IdentifiedByParentAs CDATA #IMPLIED>
+<!ATTLIST ShipNode InterfaceSubType CDATA #IMPLIED>
+<!ATTLIST ShipNode InterfaceType CDATA #IMPLIED>
+<!ATTLIST ShipNode InventoryTracked CDATA #IMPLIED>
+<!ATTLIST ShipNode Inventorytype CDATA #IMPLIED>
+<!ATTLIST ShipNode IsItemBasedAllocationAllowed CDATA #IMPLIED>
+<!ATTLIST ShipNode Latitude CDATA #IMPLIED>
+<!ATTLIST ShipNode Localecode CDATA #IMPLIED>
+<!ATTLIST ShipNode Longitude CDATA #IMPLIED>
+<!ATTLIST ShipNode MaintainInventoryCost CDATA #IMPLIED>
+<!ATTLIST ShipNode NodeOrgCode CDATA #IMPLIED>
+<!ATTLIST ShipNode NodeType CDATA #IMPLIED>
+<!ATTLIST ShipNode OwnerKey CDATA #IMPLIED>
+<!ATTLIST ShipNode OwnerType CDATA #IMPLIED>
+<!ATTLIST ShipNode PicklistType CDATA #IMPLIED>
+<!ATTLIST ShipNode ReceiptProcessingTime CDATA #IMPLIED>
+<!ATTLIST ShipNode ReceiptProcessingTimeForForwarding CDATA #IMPLIED>
+<!ATTLIST ShipNode ReceivingNode CDATA #IMPLIED>
+<!ATTLIST ShipNode RequireTransferAcceptance CDATA #IMPLIED>
+<!ATTLIST ShipNode ReturnCenterFlag CDATA #IMPLIED>
+<!ATTLIST ShipNode ReturnsNode CDATA #IMPLIED>
+<!ATTLIST ShipNode SerialTrackedInShipping CDATA #IMPLIED>
+<!ATTLIST ShipNode SerialTrackedOnTransfer CDATA #IMPLIED>
+<!ATTLIST ShipNode SerialTrackedReceiving CDATA #IMPLIED>
+<!ATTLIST ShipNode SerialTracking CDATA #IMPLIED>
+<!ATTLIST ShipNode ShipNode CDATA #IMPLIED>
+<!ATTLIST ShipNode ShipNodeAddressKey CDATA #IMPLIED>
+<!ATTLIST ShipNode ShipNodeClass CDATA #IMPLIED>
+<!ATTLIST ShipNode ShipnodeKey CDATA #IMPLIED>
+<!ATTLIST ShipNode ShipnodeType CDATA #IMPLIED>
+<!ATTLIST ShipNode ShippingNode CDATA #IMPLIED>
+<!ATTLIST ShipNode SupplierKey CDATA #IMPLIED>
+<!ATTLIST ShipNode ThreePlNode CDATA #IMPLIED>
+<!ATTLIST ShipNode TimeDiff CDATA #IMPLIED>
+<!ATTLIST ShipNode a-dtype NMTOKENS
+                          "DefaultDeclaredValue decimal
+                           ExportLicenseExpDate dateTime
+                           Latitude decimal
+                           Longitude decimal
+                           ReceiptProcessingTime decimal
+                           ReceiptProcessingTimeForForwarding decimal
+                           TimeDiff decimal">
+
+

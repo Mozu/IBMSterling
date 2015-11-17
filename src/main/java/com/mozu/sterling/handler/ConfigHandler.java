@@ -1,8 +1,12 @@
 package com.mozu.sterling.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,17 +14,30 @@ import com.mozu.api.ApiContext;
 import com.mozu.api.ApiError;
 import com.mozu.api.ApiException;
 import com.mozu.api.MozuApiContext;
+import com.mozu.api.contracts.location.Location;
+import com.mozu.api.contracts.location.LocationCollection;
 import com.mozu.api.contracts.mzdb.EntityList;
 import com.mozu.api.contracts.mzdb.IndexedProperty;
+import com.mozu.api.contracts.tenant.Site;
+import com.mozu.api.contracts.tenant.Tenant;
+import com.mozu.api.resources.commerce.admin.LocationResource;
+import com.mozu.api.resources.platform.TenantResource;
 import com.mozu.base.handlers.EntityHandler;
 import com.mozu.base.handlers.EntitySchemaHandler;
 import com.mozu.base.models.EntityDataTypes;
 import com.mozu.base.models.EntityScope;
 import com.mozu.base.utils.ApplicationUtils;
+import com.mozu.sterling.model.LocationMapping;
+import com.mozu.sterling.model.OptionUI;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.SettingUI;
+import com.mozu.sterling.model.SiteMapping;
+import com.mozu.sterling.model.organization.Organization;
+import com.mozu.sterling.model.organization.ShipNode;
+import com.mozu.sterling.service.SterlingOrganizationService;
 
 /**
- * Manage the Sterling configuration setting in the database
+ * Manage the Sterling configuration settings in the Mozu MZDB data store
  * 
  * @author bob_hewett
  *
@@ -34,6 +51,9 @@ public class ConfigHandler {
     EntitySchemaHandler entitySchemaHandler;
 
     EntityHandler<Setting> settingEntityHandler;
+    
+    @Autowired
+    SterlingOrganizationService locationService;
     
     public ConfigHandler() { 
         settingEntityHandler = new EntityHandler<Setting>(Setting.class);
@@ -54,6 +74,43 @@ public class ConfigHandler {
             setting = new Setting();
         }
         return setting;
+    }
+    
+    /**
+     * Get the settings from MZDB as well as the possible values for sites, locations, 
+     * shipNodes and Sterling organizations. 
+     * @param tenantId
+     * @return the object to be used by the web UI
+     * @throws Exception
+     */
+    public SettingUI getSettingUI (Integer tenantId) throws Exception{
+        SettingUI settingUI = new SettingUI();
+        Setting setting = getSetting(tenantId);
+        BeanUtils.copyProperties(setting, settingUI);
+        if (settingUI.getSiteMappings() == null || settingUI.getSiteMappings().size() == 0) {
+            List<SiteMapping> siteMappings = new ArrayList<>();
+            siteMappings.add(new SiteMapping());
+            settingUI.setSiteMappings(siteMappings);
+        }
+        // load empty records if nothing is selected.
+        if (settingUI.getLocationMappings() == null || settingUI.getLocationMappings().size() == 0) {
+            List<LocationMapping> locationMappings = new ArrayList<>();
+            locationMappings.add(new LocationMapping());
+            settingUI.setLocationMappings(locationMappings);
+        }
+        // load sites options from Mozu
+        settingUI.setSites(getSites(tenantId));
+
+        // load location values from Mozu
+        settingUI.setLocations(getLocations(tenantId));
+        
+        // load the organizations 
+        settingUI.setOrganizations(getOrganizationList(setting));
+        
+        // load shipping node values
+        settingUI.setShippingNodes(getShipNodes(setting));
+
+        return settingUI;
     }
     
     /**
@@ -113,5 +170,69 @@ public class ConfigHandler {
 
         entitySchemaHandler.installSchema(apiContext, entityList, EntityScope.Tenant, idProperty, null);
     }
+
+    /**
+     * Get the locations for the give Mozu tenant.
+     * @param tenantId
+     * @return list of locations in the Mozu system for the tenant.
+     * @throws Exception
+     */
+    protected List<OptionUI> getLocations (Integer tenantId) throws Exception {
+        List<OptionUI> locationOptions = new ArrayList<>();
+        
+        LocationResource locationResource = new LocationResource(new MozuApiContext(tenantId));
+        
+        LocationCollection locations  = locationResource.getLocations(0, 200, "name", null, "items(code,name)");
+        for (Location location : locations.getItems()) {
+            locationOptions.add(new OptionUI(location.getCode(), location.getName()));
+        }
+        
+        return locationOptions;
+    }
     
+    /**
+     * Get the sites for the tenant ID from Mozu
+     * @param tenantId the mozu tenant id
+     * @return the list of mozu sites.
+     * @throws Exception
+     */
+    protected List <OptionUI> getSites (Integer tenantId) throws Exception {
+        List<OptionUI> siteOptions = new ArrayList<>();
+        
+        TenantResource tenantResource = new TenantResource(new MozuApiContext(tenantId));
+        Tenant tenant = tenantResource.getTenant(tenantId,"sites");
+        
+        List<Site> sites = tenant.getSites(); 
+        if (sites != null && sites.size() > 0) {
+            for (Site site : sites) {
+                siteOptions.add(new OptionUI(String.valueOf(site.getId()), site.getName()));
+            }
+        }
+        
+        return siteOptions;
+    }
+    
+    protected List <OptionUI> getShipNodes (Setting setting) throws Exception {
+        List<OptionUI> shipNodeOptions = new ArrayList<>();
+        
+        List<ShipNode> shipNodes = locationService.getShipNodes(setting);
+        
+        for (ShipNode shipNode : shipNodes) {
+            shipNodeOptions.add(new OptionUI (shipNode.getShipnodeKey(), shipNode.getDescription()));
+        }
+        
+        return shipNodeOptions;
+    }
+
+    protected List <OptionUI> getOrganizationList (Setting setting) throws Exception {
+        List<OptionUI> shipNodeOptions = new ArrayList<>();
+        
+        List<Organization> organizations = locationService.getOrganizationList(setting);
+        
+        for (Organization org : organizations) {
+            shipNodeOptions.add(new OptionUI (org.getOrganizationCode(), org.getOrganizationName()));
+        }
+        
+        return shipNodeOptions;
+    }
 }

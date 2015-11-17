@@ -21,7 +21,6 @@ import javax.xml.parsers.DocumentBuilder;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -80,10 +79,10 @@ public class SterlingClientTest {
      * @exception Exception
      *                if an error occurs
      */
-    @Ignore
+    @Test
     public void testCreateOrder() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("order_Create2.xml").getFile());
+        File file = new File(classLoader.getResource("order_Create3.xml").getFile());
         Document createOrderDoc = docBuilder.parse(file);
 
         // Using api.invoke to call createOrder api
@@ -111,17 +110,30 @@ public class SterlingClientTest {
         assertNotNull("GetExceptionList Cannot return a null document", getExceptionListReturn);
     }
 
-    @Ignore
+    @Test
     public void testGetOrganizationHierarchy() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("organizationList.xml").getFile());
 
-        Document createOrderDoc = docBuilder.parse(file);
+        Document getOrganizationList = docBuilder.parse(file);
 
         // Using api.invoke to call createOrder api
-        Document getExceptionListReturn = sterlingClient.invoke("getOrganizationList", createOrderDoc, setting);
+        Document organizationListReturn = sterlingClient.invoke("getOrganizationList", getOrganizationList, setting);
 
-        assertNotNull("GetExceptionList Cannot return a null document", getExceptionListReturn);
+        assertNotNull("GetExceptionList Cannot return a null document", organizationListReturn);
+    }
+
+    @Test
+    public void testGetShipNodeList() throws Exception {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("ship_node.xml").getFile());
+
+        Document getShipNodeList = docBuilder.parse(file);
+
+        // Using api.invoke to call createOrder api
+        Document organizationListReturn = sterlingClient.invoke("getShipNodeList", getShipNodeList, setting);
+
+        assertNotNull("GetExceptionList Cannot return a null document", organizationListReturn);
     }
 
 }// TestJAXClient

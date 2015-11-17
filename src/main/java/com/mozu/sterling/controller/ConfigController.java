@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import com.mozu.api.ApiException;
 import com.mozu.base.controllers.AdminControllerHelper;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.SettingUI;
 
 @Controller
 @RequestMapping("/api/config")
@@ -30,25 +32,35 @@ public class ConfigController {
     ConfigHandler configHandler;
 
     @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody Setting getSettings(@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId,
+    public @ResponseBody SettingUI getSettings(@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId,
     		final HttpServletRequest request ) throws Exception {
         logger.info("Get Settings....");
         
-        Setting setting = configHandler.getSetting(tenantId);
+        SettingUI settingUI = null; 
+        try {
+            settingUI = configHandler.getSettingUI(tenantId);
+        } catch (Exception e) {
+            String msg = String.format("Error getting settings for tenant %d: %s", tenantId, e.getMessage());
+            logger.error (msg);
+            throw new Exception ("Error getting settings.  Please contact support.");
+        }
         
-        return setting;
+        return settingUI;
     }
 
     @RequestMapping(method=RequestMethod.POST)
-    public @ResponseBody void saveSettings(@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId, @RequestBody String settingStr) throws Exception 
+    public @ResponseBody SettingUI saveSettings(@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId, @RequestBody String settingStr) throws Exception 
     {
         ObjectMapper mapper = new ObjectMapper();
         logger.info("Saving settings for tenant : "+tenantId);
         logger.info(settingStr);
-        Setting setting = mapper.readValue(settingStr, Setting.class);
+        SettingUI settingUI = mapper.readValue(settingStr, SettingUI.class);
+        Setting setting = new Setting();
+        BeanUtils.copyProperties(settingUI, setting);
         
         configHandler.saveSettings(tenantId, setting);
         logger.info("Saving settings..done");
+        return settingUI;
     }
     
     @ExceptionHandler(ApiException.class)

@@ -1,7 +1,8 @@
-<div class="row" id="settings" ng-controller="SettingsController">
+<div class="row" id="settings">
     <div class="tab-full-column">
-	    <h4 class="title">Settings</h4>
+	    <h4>Settings</h4> 
 		<div>
+		  <form name="settingForm" ng-controller="SettingsController">
 			<label class="tab-field-label requiredContent"> <strong>Sterling OMS Web Service URL</strong>
 			</label>
 			<div class="controls">
@@ -20,7 +21,66 @@
 	            <input type="password" id="sterlingPW" ng-model="settings.sterlingPassword"
 	                class="tab-field" required="required"></input>
 	        </div>
+            <label class="tab-field-label requiredContent"> <strong>Sterling Enterprise Code</strong>
+            </label>
+            <div class="controls">
+                <input type="text" id="sterlingUserName" ng-model="settings.sterlingEnterpriseCode"
+                    class="tab-field" required="required"></input>
+            </div>
+            <div class="tab-full-column">
+                <div>
+                    <label class="tab-field-label">Map Mozu Site to Sterling Seller Organization</label>
+                    <a class="button primary-action" data-bind="click: $parent.addLocation"
+                       id="addLocationBtn"">Add Site</a>
+                </div>
+            </div>
+            <div class="tab-first-column">
+                <label class="tab-field-label" style=" for="field">Mozu Site</label> 
+            </div>                
+            <div class="tab-second-column">
+                <label class="tab-field-label">Sterling Organization</label>
+            </div>
+            <div class="controls" ng-repeat="siteMap in settings.siteMappings" >
+                <div class="tab-first-column">
+                    <select id="mozuSite" ng-model="siteMap.mozuSiteId" ng-options="site.id as site.name for site in settings.sites"
+                        class="tab-field" required="required">
+                    </select>
+                 </div>
+                <div class="tab-second-column">
+                    <select id="sterlingOrg" ng-model="siteMap.sterlingOrgCode" ng-options="org.id as org.name for org in settings.organizations"
+                        class="tab-field" required="required">
+                        <option value="">-- Select Sterling Organization --</option>
+                    </select>
+                </div>
+            </div>
+	        <div class="tab-full-column">
+                <div>
+                    <label class="tab-field-label">Map Mozu Locations to Sterling Ship Nodes</label>
+                    <a class="button primary-action" data-bind="click: $parent.addLocation"
+                       id="addLocationBtn"">Add Location</a>
+                </div>
+            </div>
+            <div class="tab-first-column">
+                <label class="tab-field-label" style=" for="field">Mozu Location</label> 
+            </div>                
+            <div class="tab-second-column">
+                <label class="tab-field-label">Sterling Ship Node</label>
+            </div>
+            <div class="controls" ng-repeat="locationMap in settings.locationMappings">
+                <div class="tab-first-column">
+                    <select id="mozuLocation" ng-model="locationMap.locationCode" ng-options="location.id as location.name for location in settings.locations"
+                        class="tab-field" required="required">
+                        <option value="">-- Select Mozu Location --</option>
+                    </select>
+                 </div>
+                <div class="tab-second-column">
+                    <select id="sterlingShipNode" ng-model="locationMap.shippingNodeCode" ng-options="shipNode.id as shipNode.name for shipNode in settings.shippingNodes"
+                        class="tab-field" required="required">
+                        <option value="">-- Select Sterling Ship Node --</option>
+                    </select>
+                </div>
+            </div>
+            </form>            
 	    </div>
-	    
 	</div>
 </div>

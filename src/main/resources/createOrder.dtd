@@ -1,0 +1,1153 @@
+<!ELEMENT Order ( OrderLines?,ProductServiceAssocs?,OrderLineRelationships?,Notes?,Instructions?,PersonInfoShipTo?,PersonInfoBillTo?,PersonInfoMarkFor?,PersonInfoContact?,AdditionalAddresses?,PriceInfo?,HeaderCharges?,HeaderTaxes?,References?,PaymentMethods?,OrderDates?,SpecialServices?,OrderHoldTypes?,AnswerSets?,Promotions?,Awards?,PersonInfoSoldTo?,OrderTags?,Opportunity?,FileAttachments?,CustomAttributes?,OrderSearchConditions?,OrderAudits?,ReturnOrderForExchange? )>
+<!ATTLIST Order AllocationRuleID CDATA #IMPLIED>
+<!ATTLIST Order ApplyDefaultTemplate CDATA #IMPLIED>
+<!ATTLIST Order ApplyOnlyItemLevelPricingRules CDATA #IMPLIED>
+<!ATTLIST Order AuditTransactionId CDATA #IMPLIED>
+<!ATTLIST Order AuthorizedClient CDATA #IMPLIED>
+<!ATTLIST Order AutoCancelDate CDATA #IMPLIED>
+<!ATTLIST Order BillToID CDATA #IMPLIED>
+<!ATTLIST Order BillToKey CDATA #IMPLIED>
+<!ATTLIST Order BuyerMarkForNodeId CDATA #IMPLIED>
+<!ATTLIST Order BuyerOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Order BuyerReceivingNodeId CDATA #IMPLIED>
+<!ATTLIST Order BuyerUserId CDATA #IMPLIED>
+<!ATTLIST Order BypassPricing (Y|N) #IMPLIED>
+<!ATTLIST Order CancelOrderOnBackorder (Y|N) #IMPLIED>
+<!ATTLIST Order CarrierAccountNo CDATA #IMPLIED>
+<!ATTLIST Order CarrierServiceCode CDATA #IMPLIED>
+<!ATTLIST Order ChargeActualFreightFlag CDATA #IMPLIED>
+<!ATTLIST Order CreatedAtNode CDATA #IMPLIED>
+<!ATTLIST Order CustCustPONo CDATA #IMPLIED>
+<!ATTLIST Order CustomerClassificationCode CDATA #IMPLIED>
+<!ATTLIST Order CustomerContactID CDATA #IMPLIED>
+<!ATTLIST Order CustomerDOB CDATA #IMPLIED>
+<!ATTLIST Order CustomerEMailID CDATA #IMPLIED>
+<!ATTLIST Order CustomerPONo CDATA #IMPLIED>
+<!ATTLIST Order CustomerRewardsNo CDATA #IMPLIED>
+<!ATTLIST Order DefaultCustomerInformation CDATA #IMPLIED>
+<!ATTLIST Order DefaultTemplate CDATA #IMPLIED>
+<!ATTLIST Order DeliveryCode CDATA #IMPLIED>
+<!ATTLIST Order DepartmentCode CDATA #IMPLIED>
+<!ATTLIST Order Division CDATA #IMPLIED>
+<!ATTLIST Order DoNotConsolidate CDATA #IMPLIED>
+<!ATTLIST Order DocumentType CDATA #IMPLIED>
+<!ATTLIST Order DraftOrderFlag CDATA #IMPLIED>
+<!ATTLIST Order EnteredBy CDATA #IMPLIED>
+<!ATTLIST Order EnterpriseCode CDATA #IMPLIED>
+<!ATTLIST Order EntryType CDATA #IMPLIED>
+<!ATTLIST Order ExchangeType CDATA #IMPLIED>
+<!ATTLIST Order ExpirationDate CDATA #IMPLIED>
+<!ATTLIST Order FreightTerms CDATA #IMPLIED>
+<!ATTLIST Order HasDerivedParent CDATA #IMPLIED>
+<!ATTLIST Order HoldFlag CDATA #IMPLIED>
+<!ATTLIST Order HoldReasonCode CDATA #IMPLIED>
+<!ATTLIST Order HoursBeforeNextIteration CDATA #IMPLIED>
+<!ATTLIST Order InStorePaymentRequired CDATA #IMPLIED>
+<!ATTLIST Order IsExpirationDateOverridden CDATA #IMPLIED>
+<!ATTLIST Order IsLineShipComplete (Y|N) #IMPLIED>
+<!ATTLIST Order IsLineShipSingleNode (Y|N) #IMPLIED>
+<!ATTLIST Order IsShipComplete (Y|N) #IMPLIED>
+<!ATTLIST Order IsShipSingleNode (Y|N) #IMPLIED>
+<!ATTLIST Order LevelOfService CDATA #IMPLIED>
+<!ATTLIST Order LinkedSourceKey CDATA #IMPLIED>
+<!ATTLIST Order NextIterationDate CDATA #IMPLIED>
+<!ATTLIST Order NextIterationSeqNo CDATA #IMPLIED>
+<!ATTLIST Order NotificationReference CDATA #IMPLIED>
+<!ATTLIST Order NotificationType CDATA #IMPLIED>
+<!ATTLIST Order NotifyAfterShipmentFlag CDATA #IMPLIED>
+<!ATTLIST Order OpportunityKey CDATA #IMPLIED>
+<!ATTLIST Order OptimizationType CDATA #IMPLIED>
+<!ATTLIST Order OrderDate CDATA #IMPLIED>
+<!ATTLIST Order OrderName CDATA #IMPLIED>
+<!ATTLIST Order OrderNo CDATA #IMPLIED>
+<!ATTLIST Order OrderPurpose CDATA #IMPLIED>
+<!ATTLIST Order OrderType CDATA #IMPLIED>
+<!ATTLIST Order OriginalContainerKey CDATA #IMPLIED>
+<!ATTLIST Order PaymentRuleId CDATA #IMPLIED>
+<!ATTLIST Order PaymentStatus CDATA #IMPLIED>
+<!ATTLIST Order PersonalizeCode CDATA #IMPLIED>
+<!ATTLIST Order PriceProgramKey CDATA #IMPLIED>
+<!ATTLIST Order PriceProgramName CDATA #IMPLIED>
+<!ATTLIST Order PricingClassificationCode CDATA #IMPLIED>
+<!ATTLIST Order PriorityCode CDATA #IMPLIED>
+<!ATTLIST Order PriorityNumber CDATA #IMPLIED>
+<!ATTLIST Order ProcessPaymentOnReturnOrder CDATA #IMPLIED>
+<!ATTLIST Order PurgeHistoryDate CDATA #IMPLIED>
+<!ATTLIST Order Purpose CDATA #IMPLIED>
+<!ATTLIST Order ReceivingNode CDATA #IMPLIED>
+<!ATTLIST Order ReqCancelDate CDATA #IMPLIED>
+<!ATTLIST Order ReqDeliveryDate CDATA #IMPLIED>
+<!ATTLIST Order ReqShipDate CDATA #IMPLIED>
+<!ATTLIST Order ReserveInventoryFlag CDATA #IMPLIED>
+<!ATTLIST Order ReturnByGiftRecipient CDATA #IMPLIED>
+<!ATTLIST Order ReturnOrderHeaderKeyForExchange CDATA #IMPLIED>
+<!ATTLIST Order SCAC CDATA #IMPLIED>
+<!ATTLIST Order ScacAndService CDATA #IMPLIED>
+<!ATTLIST Order ScacAndServiceKey CDATA #IMPLIED>
+<!ATTLIST Order SearchCriteria1 CDATA #IMPLIED>
+<!ATTLIST Order SearchCriteria2 CDATA #IMPLIED>
+<!ATTLIST Order SellerOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Order ShipNode CDATA #IMPLIED>
+<!ATTLIST Order ShipToID CDATA #IMPLIED>
+<!ATTLIST Order ShipToKey CDATA #IMPLIED>
+<!ATTLIST Order SkipBOMValidations (N|Y) #IMPLIED>
+<!ATTLIST Order SoldToKey CDATA #IMPLIED>
+<!ATTLIST Order SourceKey CDATA #IMPLIED>
+<!ATTLIST Order SourceType CDATA #IMPLIED>
+<!ATTLIST Order SourcingClassification CDATA #IMPLIED>
+<!ATTLIST Order TaxExemptFlag CDATA #IMPLIED>
+<!ATTLIST Order TaxExemptionCertificate CDATA #IMPLIED>
+<!ATTLIST Order TaxJurisdiction CDATA #IMPLIED>
+<!ATTLIST Order TaxPayerId CDATA #IMPLIED>
+<!ATTLIST Order TeamCode CDATA #IMPLIED>
+<!ATTLIST Order TermsCode CDATA #IMPLIED>
+<!ATTLIST Order ValidateExternalCoupons CDATA #IMPLIED>
+<!ATTLIST Order ValidateItem CDATA #IMPLIED>
+<!ATTLIST Order ValidatePromotionAward (Y|N) #IMPLIED>
+<!ATTLIST Order VendorID CDATA #IMPLIED>
+<!ATTLIST Order a-dtype NMTOKENS
+                       "AutoCancelDate dateTime
+                        ExpirationDate dateTime
+                        HoursBeforeNextIteration decimal
+                        NextIterationDate dateTime
+                        NextIterationSeqNo int
+                        OrderDate dateTime
+                        OriginalContainerKey int
+                        PricingClassificationCode int
+                        PriorityNumber int
+                        PurgeHistoryDate dateTime
+                        ReqCancelDate dateTime
+                        ReqDeliveryDate dateTime
+                        ReqShipDate dateTime
+                        SourceKey int">
+
+<!ELEMENT OrderLineOptions ( OrderLineOption? )>
+
+<!ELEMENT OrderAuditLevels ( OrderAuditLevel* )>
+
+<!ELEMENT AnswerSet ( Answers? )>
+<!ATTLIST AnswerSet PersonInfoKey CDATA #IMPLIED>
+<!ATTLIST AnswerSet QuestionType CDATA #REQUIRED>
+
+<!ELEMENT ProductServiceAssoc ( ProductLine?,ServiceLine? )>
+
+<!ELEMENT Answers ( Answer* )>
+
+<!ELEMENT KitLine ( KitLineTranQuantity? )>
+<!ATTLIST KitLine CustomerItem CDATA #IMPLIED>
+<!ATTLIST KitLine CustomerItemDesc CDATA #IMPLIED>
+<!ATTLIST KitLine DepartmentCode CDATA #IMPLIED>
+<!ATTLIST KitLine ItemDesc CDATA #IMPLIED>
+<!ATTLIST KitLine ItemID CDATA #REQUIRED>
+<!ATTLIST KitLine ItemShortDesc CDATA #IMPLIED>
+<!ATTLIST KitLine ItemWeight CDATA #IMPLIED>
+<!ATTLIST KitLine ItemWeightUOM CDATA #IMPLIED>
+<!ATTLIST KitLine KitQty CDATA #REQUIRED>
+<!ATTLIST KitLine ProductClass CDATA #IMPLIED>
+<!ATTLIST KitLine SupplierItem CDATA #IMPLIED>
+<!ATTLIST KitLine SupplierItemDesc CDATA #IMPLIED>
+<!ATTLIST KitLine UPCCode CDATA #IMPLIED>
+<!ATTLIST KitLine UnitCost CDATA #IMPLIED>
+<!ATTLIST KitLine UnitOfMeasure CDATA #IMPLIED>
+<!ATTLIST KitLine a-dtype NMTOKENS
+                         "ItemWeight decimal
+                          KitQty decimal
+                          UnitCost decimal">
+
+<!ELEMENT ReturnOrderForExchange EMPTY>
+<!ATTLIST ReturnOrderForExchange DocumentType CDATA #IMPLIED>
+<!ATTLIST ReturnOrderForExchange EnterpriseCode CDATA #IMPLIED>
+<!ATTLIST ReturnOrderForExchange OrderHeaderKey CDATA #IMPLIED>
+<!ATTLIST ReturnOrderForExchange OrderNo CDATA #IMPLIED>
+
+<!ELEMENT AdditionalLinePrice ( Promotions?,Awards? )>
+<!ATTLIST AdditionalLinePrice IsPriceLocked CDATA #IMPLIED>
+<!ATTLIST AdditionalLinePrice IsPriceTypeForInformationOnly CDATA #IMPLIED>
+<!ATTLIST AdditionalLinePrice Operation CDATA #IMPLIED>
+<!ATTLIST AdditionalLinePrice Price CDATA #IMPLIED>
+<!ATTLIST AdditionalLinePrice PriceTypeName CDATA #IMPLIED>
+<!ATTLIST AdditionalLinePrice a-dtype NMTOKENS
+                                     "Price decimal">
+
+<!ELEMENT Dependency EMPTY>
+<!ATTLIST Dependency DependentOnPrimeLineNo CDATA #IMPLIED>
+<!ATTLIST Dependency DependentOnSubLineNo CDATA #IMPLIED>
+<!ATTLIST Dependency DependentOnTransactionalLineId CDATA #IMPLIED>
+<!ATTLIST Dependency a-dtype NMTOKENS
+                            "DependentOnPrimeLineNo int
+                             DependentOnSubLineNo int">
+
+<!ELEMENT OrderLineInvAttRequest EMPTY>
+<!ATTLIST OrderLineInvAttRequest BatchNo CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest LotAttribute1 CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest LotAttribute2 CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest LotAttribute3 CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest LotKeyReference CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest LotNumber CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest ManufacturingDate CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest RevisionNo CDATA #IMPLIED>
+<!ATTLIST OrderLineInvAttRequest a-dtype NMTOKENS
+                                        "ManufacturingDate dateTime">
+
+<!ELEMENT Item EMPTY>
+<!ATTLIST Item AlternateItemID CDATA #IMPLIED>
+<!ATTLIST Item BundleFulfillmentMode CDATA #IMPLIED>
+<!ATTLIST Item CostCurrency CDATA #IMPLIED>
+<!ATTLIST Item CountryOfOrigin CDATA #IMPLIED>
+<!ATTLIST Item CustomerItem CDATA #IMPLIED>
+<!ATTLIST Item CustomerItemDesc CDATA #IMPLIED>
+<!ATTLIST Item ECCNNo CDATA #IMPLIED>
+<!ATTLIST Item HarmonizedCode CDATA #IMPLIED>
+<!ATTLIST Item ISBN CDATA #IMPLIED>
+<!ATTLIST Item ItemDesc CDATA #IMPLIED>
+<!ATTLIST Item ItemID CDATA #IMPLIED>
+<!ATTLIST Item ItemShortDesc CDATA #IMPLIED>
+<!ATTLIST Item ItemWeight CDATA #IMPLIED>
+<!ATTLIST Item ItemWeightUOM CDATA #IMPLIED>
+<!ATTLIST Item ManufacturerItem CDATA #IMPLIED>
+<!ATTLIST Item ManufacturerItemDesc CDATA #IMPLIED>
+<!ATTLIST Item ManufacturerName CDATA #IMPLIED>
+<!ATTLIST Item NMFCClass CDATA #IMPLIED>
+<!ATTLIST Item NMFCCode CDATA #IMPLIED>
+<!ATTLIST Item NMFCDescription CDATA #IMPLIED>
+<!ATTLIST Item ProductClass CDATA #IMPLIED>
+<!ATTLIST Item ProductLine CDATA #IMPLIED>
+<!ATTLIST Item ScheduleBCode CDATA #IMPLIED>
+<!ATTLIST Item SupplierItem CDATA #IMPLIED>
+<!ATTLIST Item SupplierItemDesc CDATA #IMPLIED>
+<!ATTLIST Item TaxProductCode CDATA #IMPLIED>
+<!ATTLIST Item UPCCode CDATA #IMPLIED>
+<!ATTLIST Item UnitCost CDATA #IMPLIED>
+<!ATTLIST Item UnitOfMeasure CDATA #IMPLIED>
+<!ATTLIST Item a-dtype NMTOKENS
+                      "ItemWeight decimal
+                       UnitCost decimal">
+
+<!ELEMENT OrderAudit ( OrderAuditLevels? )>
+<!ATTLIST OrderAudit AuditTransactionId CDATA #IMPLIED>
+<!ATTLIST OrderAudit Createts CDATA #IMPLIED>
+<!ATTLIST OrderAudit Createuserid CDATA #IMPLIED>
+<!ATTLIST OrderAudit Modifyuserid CDATA #IMPLIED>
+<!ATTLIST OrderAudit NewBuffer CDATA #IMPLIED>
+<!ATTLIST OrderAudit OldBuffer CDATA #IMPLIED>
+<!ATTLIST OrderAudit OrderHeaderKey CDATA #IMPLIED>
+<!ATTLIST OrderAudit ReasonCode CDATA #IMPLIED>
+<!ATTLIST OrderAudit ReasonText CDATA #IMPLIED>
+<!ATTLIST OrderAudit Reference1 CDATA #IMPLIED>
+<!ATTLIST OrderAudit Reference2 CDATA #IMPLIED>
+<!ATTLIST OrderAudit Reference3 CDATA #IMPLIED>
+<!ATTLIST OrderAudit Reference4 CDATA #IMPLIED>
+<!ATTLIST OrderAudit XMLFlag CDATA #IMPLIED>
+<!ATTLIST OrderAudit isHistory CDATA #IMPLIED>
+<!ATTLIST OrderAudit a-dtype NMTOKENS
+                            "Createts dateTime">
+
+<!ELEMENT KitLineTranQuantity EMPTY>
+<!ATTLIST KitLineTranQuantity KitQty CDATA #IMPLIED>
+<!ATTLIST KitLineTranQuantity TransactionalUOM CDATA #IMPLIED>
+<!ATTLIST KitLineTranQuantity a-dtype NMTOKENS
+                                     "KitQty decimal">
+
+<!ELEMENT References ( Reference* )>
+
+<!ELEMENT ScheduleTranQuantity EMPTY>
+<!ATTLIST ScheduleTranQuantity ChangeInQuantity CDATA #IMPLIED>
+<!ATTLIST ScheduleTranQuantity TransactionalUOM CDATA #IMPLIED>
+<!ATTLIST ScheduleTranQuantity a-dtype NMTOKENS
+                                      "ChangeInQuantity decimal">
+
+<!ELEMENT Attribute EMPTY>
+<!ATTLIST Attribute Extended (N|Y) #IMPLIED>
+<!ATTLIST Attribute ModificationType CDATA #IMPLIED>
+<!ATTLIST Attribute Name CDATA #IMPLIED>
+<!ATTLIST Attribute NewValue CDATA #IMPLIED>
+<!ATTLIST Attribute OldValue CDATA #IMPLIED>
+
+<!ELEMENT Awards ( Award* )>
+
+<!ELEMENT HeaderCharge EMPTY>
+<!ATTLIST HeaderCharge ChargeAmount CDATA #IMPLIED>
+<!ATTLIST HeaderCharge ChargeCategory CDATA #REQUIRED>
+<!ATTLIST HeaderCharge ChargeName CDATA #IMPLIED>
+<!ATTLIST HeaderCharge IsManual CDATA #IMPLIED>
+<!ATTLIST HeaderCharge Reference CDATA #IMPLIED>
+<!ATTLIST HeaderCharge a-dtype NMTOKENS
+                              "ChargeAmount decimal">
+
+<!ELEMENT CustomAttributes EMPTY>
+
+<!ELEMENT ModificationType EMPTY>
+<!ATTLIST ModificationType Name CDATA #IMPLIED>
+
+<!ELEMENT IDs ( ID* )>
+
+<!ELEMENT Instructions ( Instruction* )>
+
+<!ELEMENT ProductItem EMPTY>
+<!ATTLIST ProductItem ItemID CDATA #IMPLIED>
+<!ATTLIST ProductItem Quantity CDATA #IMPLIED>
+<!ATTLIST ProductItem UnitOfMeasure CDATA #IMPLIED>
+<!ATTLIST ProductItem a-dtype NMTOKENS
+                             "Quantity decimal">
+
+<!ELEMENT OrderSearchCondition EMPTY>
+<!ATTLIST OrderSearchCondition DocumentType CDATA #IMPLIED>
+<!ATTLIST OrderSearchCondition EnterpriseCode CDATA #IMPLIED>
+<!ATTLIST OrderSearchCondition EntityAttributeName CDATA #IMPLIED>
+<!ATTLIST OrderSearchCondition EntityAttributeValue CDATA #IMPLIED>
+<!ATTLIST OrderSearchCondition Operation (Manage|Delete) #IMPLIED>
+<!ATTLIST OrderSearchCondition OrderNo CDATA #IMPLIED>
+<!ATTLIST OrderSearchCondition OrderSearchConditionKey CDATA #IMPLIED>
+
+<!ELEMENT PaymentDetails EMPTY>
+<!ATTLIST PaymentDetails AuditTransactionId CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthAvs CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthCode CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthReturnCode CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthReturnFlag CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthReturnMessage CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthTime CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthorizationExpirationDate CDATA #IMPLIED>
+<!ATTLIST PaymentDetails AuthorizationID CDATA #IMPLIED>
+<!ATTLIST PaymentDetails CVVAuthCode CDATA #IMPLIED>
+<!ATTLIST PaymentDetails CallForAuthorizationStatus CDATA #IMPLIED>
+<!ATTLIST PaymentDetails CashBackAmount CDATA #IMPLIED>
+<!ATTLIST PaymentDetails ChargeType CDATA #REQUIRED>
+<!ATTLIST PaymentDetails CollectionDate CDATA #IMPLIED>
+<!ATTLIST PaymentDetails HoldAgainstBook CDATA #IMPLIED>
+<!ATTLIST PaymentDetails InPerson CDATA #IMPLIED>
+<!ATTLIST PaymentDetails InternalReturnCode CDATA #IMPLIED>
+<!ATTLIST PaymentDetails InternalReturnFlag CDATA #IMPLIED>
+<!ATTLIST PaymentDetails InternalReturnMessage CDATA #IMPLIED>
+<!ATTLIST PaymentDetails OfflineStatus CDATA #IMPLIED>
+<!ATTLIST PaymentDetails PaymentEntryType CDATA #IMPLIED>
+<!ATTLIST PaymentDetails ProcessedAmount CDATA #IMPLIED>
+<!ATTLIST PaymentDetails Reference1 CDATA #IMPLIED>
+<!ATTLIST PaymentDetails Reference2 CDATA #IMPLIED>
+<!ATTLIST PaymentDetails RequestAmount CDATA #IMPLIED>
+<!ATTLIST PaymentDetails RequestId CDATA #IMPLIED>
+<!ATTLIST PaymentDetails RequestProcessed CDATA #IMPLIED>
+<!ATTLIST PaymentDetails TranRequestTime CDATA #IMPLIED>
+<!ATTLIST PaymentDetails TranReturnCode CDATA #IMPLIED>
+<!ATTLIST PaymentDetails TranReturnFlag CDATA #IMPLIED>
+<!ATTLIST PaymentDetails TranReturnMessage CDATA #IMPLIED>
+<!ATTLIST PaymentDetails TranType CDATA #IMPLIED>
+<!ATTLIST PaymentDetails VoidTransaction CDATA #IMPLIED>
+<!ATTLIST PaymentDetails a-dtype NMTOKENS
+                                "AuthTime dateTime
+                                 AuthorizationExpirationDate dateTime
+                                 CashBackAmount decimal
+                                 CollectionDate dateTime
+                                 ProcessedAmount decimal
+                                 RequestAmount decimal
+                                 TranRequestTime dateTime">
+
+<!ELEMENT AdditionalLinePrices ( AdditionalLinePrice* )>
+
+<!ELEMENT LineCharges ( LineCharge* )>
+
+<!ELEMENT HeaderTax EMPTY>
+<!ATTLIST HeaderTax ChargeCategory CDATA #IMPLIED>
+<!ATTLIST HeaderTax ChargeName CDATA #IMPLIED>
+<!ATTLIST HeaderTax Reference1 CDATA #IMPLIED>
+<!ATTLIST HeaderTax Reference2 CDATA #IMPLIED>
+<!ATTLIST HeaderTax Reference3 CDATA #IMPLIED>
+<!ATTLIST HeaderTax Tax CDATA #IMPLIED>
+<!ATTLIST HeaderTax TaxName CDATA #REQUIRED>
+<!ATTLIST HeaderTax TaxPercentage CDATA #IMPLIED>
+<!ATTLIST HeaderTax TaxableFlag CDATA #IMPLIED>
+<!ATTLIST HeaderTax a-dtype NMTOKENS
+                           "Tax decimal
+                            TaxPercentage decimal">
+
+<!ELEMENT FileAttachments ( FileAttachment? )>
+<!ATTLIST FileAttachments TotalNumberOfRecords CDATA #IMPLIED>
+<!ATTLIST FileAttachments a-dtype NMTOKENS
+                                 "TotalNumberOfRecords decimal">
+
+<!ELEMENT AnswerSets ( AnswerSet* )>
+
+<!ELEMENT OrderLineRelationships ( OrderLineRelationship* )>
+
+<!ELEMENT OrderDates ( OrderDate* )>
+
+<!ELEMENT ModificationTypes ( ModificationType* )>
+
+<!ELEMENT FileAttachment EMPTY>
+<!ATTLIST FileAttachment FileAttachmentKey CDATA #IMPLIED>
+<!ATTLIST FileAttachment FileContentType CDATA #IMPLIED>
+<!ATTLIST FileAttachment FileDescription CDATA #IMPLIED>
+<!ATTLIST FileAttachment FileLocation CDATA #IMPLIED>
+<!ATTLIST FileAttachment FileName CDATA #IMPLIED>
+<!ATTLIST FileAttachment FileSize CDATA #IMPLIED>
+<!ATTLIST FileAttachment Operation CDATA #IMPLIED>
+<!ATTLIST FileAttachment a-dtype NMTOKENS
+                                "FileSize int">
+
+<!ELEMENT Schedules ( Schedule* )>
+
+<!ELEMENT DerivedFrom EMPTY>
+<!ATTLIST DerivedFrom DocumentType CDATA #IMPLIED>
+<!ATTLIST DerivedFrom EnterpriseCode CDATA #IMPLIED>
+<!ATTLIST DerivedFrom OrderHeaderKey CDATA #IMPLIED>
+<!ATTLIST DerivedFrom OrderLineKey CDATA #IMPLIED>
+<!ATTLIST DerivedFrom OrderNo CDATA #IMPLIED>
+<!ATTLIST DerivedFrom OrderReleaseKey CDATA #IMPLIED>
+<!ATTLIST DerivedFrom PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST DerivedFrom ReleaseNo CDATA #IMPLIED>
+<!ATTLIST DerivedFrom SubLineNo CDATA #IMPLIED>
+<!ATTLIST DerivedFrom a-dtype NMTOKENS
+                             "PrimeLineNo int
+                              ReleaseNo int
+                              SubLineNo int">
+
+<!ELEMENT Schedule ( ScheduleTranQuantity? )>
+<!ATTLIST Schedule BatchNo CDATA #IMPLIED>
+<!ATTLIST Schedule ChangeInQuantity CDATA #REQUIRED>
+<!ATTLIST Schedule LotNumber CDATA #IMPLIED>
+<!ATTLIST Schedule RevisionNo CDATA #IMPLIED>
+<!ATTLIST Schedule a-dtype NMTOKENS
+                          "ChangeInQuantity int">
+
+<!ELEMENT PriceInfo EMPTY>
+<!ATTLIST PriceInfo Currency CDATA #IMPLIED>
+<!ATTLIST PriceInfo EnterpriseCurrency CDATA #IMPLIED>
+<!ATTLIST PriceInfo ReportingConversionDate CDATA #IMPLIED>
+<!ATTLIST PriceInfo ReportingConversionRate CDATA #IMPLIED>
+<!ATTLIST PriceInfo a-dtype NMTOKENS
+                           "ReportingConversionDate dateTime
+                            ReportingConversionRate decimal">
+
+<!ELEMENT PersonInfoBillTo EMPTY>
+<!ATTLIST PersonInfoBillTo AddressID CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo AddressLine1 CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo AddressLine2 CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo AddressLine3 CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo AddressLine4 CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo AddressLine5 CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo AddressLine6 CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Beeper CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo City CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Company CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Country CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo DayFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo DayPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Department CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo EMailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo EveningPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo FirstName CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo IsAddressVerified CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo JobTitle CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo LastName CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Latitude CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Longitude CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo MiddleName CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo MobilePhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo OtherPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo PersonID CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo PersonInfoKey CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo State CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Suffix CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo Title CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo ZipCode CDATA #IMPLIED>
+<!ATTLIST PersonInfoBillTo a-dtype NMTOKENS
+                                  "Latitude decimal
+                                   Longitude decimal">
+
+<!ELEMENT OrderHoldTypes ( OrderHoldType* )>
+
+<!ELEMENT AdditionalAddress ( PersonInfo? )>
+<!ATTLIST AdditionalAddress AddressType CDATA #REQUIRED>
+
+<!ELEMENT OrderOverride EMPTY>
+<!ATTLIST OrderOverride QuantityLimitOverridden CDATA #IMPLIED>
+<!ATTLIST OrderOverride ValidateItem CDATA #IMPLIED>
+
+<!ELEMENT Answer EMPTY>
+<!ATTLIST Answer AnswerValue CDATA #IMPLIED>
+<!ATTLIST Answer QuestionID CDATA #IMPLIED>
+
+<!ELEMENT BuyerContactAddress EMPTY>
+<!ATTLIST BuyerContactAddress AddressID CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress AddressLine1 CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress AddressLine2 CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress AddressLine3 CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress AddressLine4 CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress AddressLine5 CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress AddressLine6 CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Beeper CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress City CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Company CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Country CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress DayFaxNo CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress DayPhone CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Department CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress EMailID CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress EveningPhone CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress FirstName CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress IsAddressVerified CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress JobTitle CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress LastName CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Latitude CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Longitude CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress MiddleName CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress MobilePhone CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress OtherPhone CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress PersonID CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress PersonInfoKey CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress State CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Suffix CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress Title CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress ZipCode CDATA #IMPLIED>
+<!ATTLIST BuyerContactAddress a-dtype NMTOKENS
+                                     "Latitude decimal
+                                      Longitude decimal">
+
+<!ELEMENT Promotions ( Promotion* )>
+<!ATTLIST Promotions Reset (N|Y) #IMPLIED>
+
+<!ELEMENT Note EMPTY>
+<!ATTLIST Note AuditTransactionId CDATA #IMPLIED>
+<!ATTLIST Note ContactReference CDATA #IMPLIED>
+<!ATTLIST Note ContactTime CDATA #IMPLIED>
+<!ATTLIST Note ContactType CDATA #IMPLIED>
+<!ATTLIST Note ContactUser CDATA #IMPLIED>
+<!ATTLIST Note CustomerSatIndicator CDATA #IMPLIED>
+<!ATTLIST Note NoteText CDATA #REQUIRED>
+<!ATTLIST Note Priority CDATA #IMPLIED>
+<!ATTLIST Note ReasonCode CDATA #IMPLIED>
+<!ATTLIST Note SequenceNo CDATA #IMPLIED>
+<!ATTLIST Note Tranid CDATA #IMPLIED>
+<!ATTLIST Note VisibleToAll CDATA #IMPLIED>
+<!ATTLIST Note a-dtype NMTOKENS
+                      "ContactTime dateTime
+                       Priority decimal
+                       SequenceNo int">
+
+<!ELEMENT LineTaxes ( LineTax* )>
+
+<!ELEMENT OrderLines ( OrderLine* )>
+
+<!ELEMENT CustomAuditDetails ( OrderAuditDetail* )>
+
+<!ELEMENT Attributes ( Attribute+ )>
+
+<!ELEMENT Promotion ( PromotionReferences? )>
+<!ATTLIST Promotion Action CDATA #IMPLIED>
+<!ATTLIST Promotion DenialReason CDATA #IMPLIED>
+<!ATTLIST Promotion ExclusivityId CDATA #IMPLIED>
+<!ATTLIST Promotion ExclusivityType CDATA #IMPLIED>
+<!ATTLIST Promotion IsExternal CDATA #IMPLIED>
+<!ATTLIST Promotion OverrideAdjustmentValue CDATA #IMPLIED>
+<!ATTLIST Promotion OverrideMaxAdjustment CDATA #IMPLIED>
+<!ATTLIST Promotion Priority CDATA #IMPLIED>
+<!ATTLIST Promotion PromotionApplied CDATA #IMPLIED>
+<!ATTLIST Promotion PromotionCategory CDATA #IMPLIED>
+<!ATTLIST Promotion PromotionGroup CDATA #IMPLIED>
+<!ATTLIST Promotion PromotionId CDATA #IMPLIED>
+<!ATTLIST Promotion PromotionType CDATA #IMPLIED>
+<!ATTLIST Promotion ValidateReferences CDATA #IMPLIED>
+<!ATTLIST Promotion a-dtype NMTOKENS
+                           "OverrideAdjustmentValue decimal
+                            OverrideMaxAdjustment decimal
+                            Priority int">
+
+<!ELEMENT ProductServiceAssocs ( ProductServiceAssoc* )>
+
+<!ELEMENT KitLines ( KitLine* )>
+
+<!ELEMENT ServiceLine EMPTY>
+<!ATTLIST ServiceLine OrderLineKey CDATA #IMPLIED>
+<!ATTLIST ServiceLine PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST ServiceLine SubLineNo CDATA #IMPLIED>
+<!ATTLIST ServiceLine TransactionalLineId CDATA #IMPLIED>
+<!ATTLIST ServiceLine a-dtype NMTOKENS
+                             "PrimeLineNo int
+                              SubLineNo int">
+
+<!ELEMENT ChildLine EMPTY>
+<!ATTLIST ChildLine OrderLineKey CDATA #IMPLIED>
+<!ATTLIST ChildLine PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST ChildLine SubLineNo CDATA #IMPLIED>
+<!ATTLIST ChildLine TransactionalLineId CDATA #IMPLIED>
+<!ATTLIST ChildLine a-dtype NMTOKENS
+                           "PrimeLineNo int
+                            SubLineNo int">
+
+<!ELEMENT OrderAuditLevel ( OrderLine?,OrderAuditDetails?,ModificationTypes? )>
+<!ATTLIST OrderAuditLevel ModificationLevel CDATA #IMPLIED>
+<!ATTLIST OrderAuditLevel ModificationType CDATA #IMPLIED>
+<!ATTLIST OrderAuditLevel OrderLineKey CDATA #IMPLIED>
+
+<!ELEMENT PersonInfoMarkFor EMPTY>
+<!ATTLIST PersonInfoMarkFor AddressID CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor AddressLine1 CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor AddressLine2 CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor AddressLine3 CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor AddressLine4 CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor AddressLine5 CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor AddressLine6 CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor Beeper CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor City CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor Company CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor Country CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor DayFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor DayPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor Department CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor EMailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor EveningPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor FirstName CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor JobTitle CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor LastName CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor MiddleName CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor MobilePhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor OtherPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor PersonID CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor State CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor Suffix CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor Title CDATA #IMPLIED>
+<!ATTLIST PersonInfoMarkFor ZipCode CDATA #IMPLIED>
+
+<!ELEMENT LineCharge EMPTY>
+<!ATTLIST LineCharge ChargeCategory CDATA #REQUIRED>
+<!ATTLIST LineCharge ChargeName CDATA #IMPLIED>
+<!ATTLIST LineCharge ChargePerLine CDATA #IMPLIED>
+<!ATTLIST LineCharge ChargePerUnit CDATA #IMPLIED>
+<!ATTLIST LineCharge IsManual CDATA #IMPLIED>
+<!ATTLIST LineCharge Reference CDATA #IMPLIED>
+<!ATTLIST LineCharge a-dtype NMTOKENS
+                            "ChargePerLine decimal
+                             ChargePerUnit decimal">
+
+<!ELEMENT ID EMPTY>
+<!ATTLIST ID Name CDATA #IMPLIED>
+<!ATTLIST ID Value CDATA #IMPLIED>
+
+<!ELEMENT PersonInfoContact EMPTY>
+<!ATTLIST PersonInfoContact AddressID CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact AddressLine1 CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact AddressLine2 CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact AddressLine3 CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact AddressLine4 CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact AddressLine5 CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact AddressLine6 CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact Beeper CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact City CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact Company CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact Country CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact DayFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact DayPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact Department CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact EMailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact EveningPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact FirstName CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact JobTitle CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact LastName CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact MiddleName CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact MobilePhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact OtherPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact PersonID CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact State CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact Suffix CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact Title CDATA #IMPLIED>
+<!ATTLIST PersonInfoContact ZipCode CDATA #IMPLIED>
+
+<!ELEMENT OrderHoldType EMPTY>
+<!ATTLIST OrderHoldType HoldType CDATA #REQUIRED>
+<!ATTLIST OrderHoldType ReasonText CDATA #IMPLIED>
+<!ATTLIST OrderHoldType ResolverUserId CDATA #IMPLIED>
+
+<!ELEMENT OrderSearchConditions ( OrderSearchCondition* )>
+<!ATTLIST OrderSearchConditions Reset (N|Y) #IMPLIED>
+
+<!ELEMENT ProductLine EMPTY>
+<!ATTLIST ProductLine OrderLineKey CDATA #IMPLIED>
+<!ATTLIST ProductLine PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST ProductLine SubLineNo CDATA #IMPLIED>
+<!ATTLIST ProductLine TransactionalLineId CDATA #IMPLIED>
+<!ATTLIST ProductLine a-dtype NMTOKENS
+                             "PrimeLineNo int
+                              SubLineNo int">
+
+<!ELEMENT OrderLineSourcingCntrl EMPTY>
+<!ATTLIST OrderLineSourcingCntrl InventoryCheckCode CDATA #IMPLIED>
+<!ATTLIST OrderLineSourcingCntrl Node CDATA #IMPLIED>
+<!ATTLIST OrderLineSourcingCntrl ReasonText CDATA #IMPLIED>
+<!ATTLIST OrderLineSourcingCntrl SuppressNodeCapacity (N|Y) #IMPLIED>
+<!ATTLIST OrderLineSourcingCntrl SuppressProcurement (Y|N) #IMPLIED>
+<!ATTLIST OrderLineSourcingCntrl SuppressSourcing (Y|N) #IMPLIED>
+
+<!ELEMENT LinePriceInfo EMPTY>
+<!ATTLIST LinePriceInfo DiscountPercentage CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo IsLinePriceForInformationOnly CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo IsPriceLocked CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo ListPrice CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo PricingQtyConversionFactor CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo PricingQuantityStrategy CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo PricingUOM CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo RetailPrice CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo TaxExemptionCertificate CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo TaxableFlag CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo UnitPrice CDATA #IMPLIED>
+<!ATTLIST LinePriceInfo a-dtype NMTOKENS
+                               "DiscountPercentage decimal
+                                ListPrice decimal
+                                PricingQtyConversionFactor decimal
+                                RetailPrice decimal
+                                UnitPrice decimal">
+
+<!ELEMENT ChainedFrom EMPTY>
+<!ATTLIST ChainedFrom DocumentType CDATA #IMPLIED>
+<!ATTLIST ChainedFrom EnterpriseCode CDATA #IMPLIED>
+<!ATTLIST ChainedFrom OrderHeaderKey CDATA #IMPLIED>
+<!ATTLIST ChainedFrom OrderLineKey CDATA #IMPLIED>
+<!ATTLIST ChainedFrom OrderNo CDATA #IMPLIED>
+<!ATTLIST ChainedFrom PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST ChainedFrom SubLineNo CDATA #IMPLIED>
+<!ATTLIST ChainedFrom a-dtype NMTOKENS
+                             "PrimeLineNo int
+                              SubLineNo int">
+
+<!ELEMENT PaymentMethod ( PaymentDetails*,PaymentDetailsList?,PersonInfoBillTo? )>
+<!ATTLIST PaymentMethod BillToKey CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CashBackAmount CDATA #IMPLIED>
+<!ATTLIST PaymentMethod ChargeSequence CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CheckNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CheckReference CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CreditCardExpDate CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CreditCardName CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CreditCardNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CreditCardType CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CustomerAccountNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod CustomerPONo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod DebitCardNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod DisplayCreditCardNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod DisplayCustomerAccountNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod DisplayDebitCardNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod DisplayPaymentReference1 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod DisplaySvcNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod EntryType CDATA #IMPLIED>
+<!ATTLIST PaymentMethod FirstName CDATA #IMPLIED>
+<!ATTLIST PaymentMethod LastName CDATA #IMPLIED>
+<!ATTLIST PaymentMethod MaxChargeLimit CDATA #IMPLIED>
+<!ATTLIST PaymentMethod MiddleName CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentKey CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference1 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference2 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference3 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference4 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference5 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference6 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference7 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference8 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentReference9 CDATA #IMPLIED>
+<!ATTLIST PaymentMethod PaymentType CDATA #REQUIRED>
+<!ATTLIST PaymentMethod PlannedRefundAmount CDATA #IMPLIED>
+<!ATTLIST PaymentMethod ReducePendingAsyncronousAmounts CDATA #IMPLIED>
+<!ATTLIST PaymentMethod SuspendAnyMoreCharges CDATA #IMPLIED>
+<!ATTLIST PaymentMethod SvcNo CDATA #IMPLIED>
+<!ATTLIST PaymentMethod UnlimitedCharges CDATA #IMPLIED>
+<!ATTLIST PaymentMethod a-dtype NMTOKENS
+                               "CashBackAmount decimal
+                                ChargeSequence int
+                                MaxChargeLimit decimal
+                                PlannedRefundAmount decimal">
+
+<!ELEMENT Notes ( Note* )>
+
+<!ELEMENT OrderLineReservations ( OrderLineReservation* )>
+
+<!ELEMENT PersonInfoSoldTo EMPTY>
+<!ATTLIST PersonInfoSoldTo AddressID CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo AddressLine1 CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo AddressLine2 CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo AddressLine3 CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo AddressLine4 CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo AddressLine5 CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo AddressLine6 CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Beeper CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo City CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Company CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Country CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo DayFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo DayPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Department CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo EMailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo EveningPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo FirstName CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo IsAddressVerified CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo JobTitle CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo LastName CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Latitude CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Longitude CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo MiddleName CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo MobilePhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo OtherPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo PersonID CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo PersonInfoKey CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo State CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Suffix CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo Title CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo ZipCode CDATA #IMPLIED>
+<!ATTLIST PersonInfoSoldTo a-dtype NMTOKENS
+                                  "Latitude decimal
+                                   Longitude decimal">
+
+<!ELEMENT SpecialServices ( SpecialService* )>
+
+<!ELEMENT Reference EMPTY>
+<!ATTLIST Reference Name CDATA #REQUIRED>
+<!ATTLIST Reference Value CDATA #IMPLIED>
+
+<!ELEMENT OrderLineReservation EMPTY>
+<!ATTLIST OrderLineReservation BatchNo CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation DemandType CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation ItemID CDATA #REQUIRED>
+<!ATTLIST OrderLineReservation LotNumber CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation Node CDATA #REQUIRED>
+<!ATTLIST OrderLineReservation ProductClass CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation Quantity CDATA #REQUIRED>
+<!ATTLIST OrderLineReservation RequestedReservationDate CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation ReservationID CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation RevisionNo CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation UnitOfMeasure CDATA #IMPLIED>
+<!ATTLIST OrderLineReservation a-dtype NMTOKENS
+                                      "Quantity decimal
+                                       RequestedReservationDate dateTime">
+
+<!ELEMENT HeaderCharges ( HeaderCharge* )>
+
+<!ELEMENT Award ( PromotionReferences? )>
+<!ATTLIST Award Action CDATA #IMPLIED>
+<!ATTLIST Award AwardAmount CDATA #IMPLIED>
+<!ATTLIST Award AwardApplied CDATA #IMPLIED>
+<!ATTLIST Award AwardId CDATA #IMPLIED>
+<!ATTLIST Award AwardQuantity CDATA #IMPLIED>
+<!ATTLIST Award AwardType CDATA #IMPLIED>
+<!ATTLIST Award ChargeCategory CDATA #IMPLIED>
+<!ATTLIST Award ChargeName CDATA #IMPLIED>
+<!ATTLIST Award DenialReason CDATA #IMPLIED>
+<!ATTLIST Award Description CDATA #IMPLIED>
+<!ATTLIST Award IsFreeGiftAward CDATA #IMPLIED>
+<!ATTLIST Award PosReasonCode CDATA #IMPLIED>
+<!ATTLIST Award PromotionId CDATA #IMPLIED>
+<!ATTLIST Award a-dtype NMTOKENS
+                       "AwardAmount decimal
+                        AwardQuantity decimal">
+
+<!ELEMENT Instruction EMPTY>
+<!ATTLIST Instruction InstructionText CDATA #REQUIRED>
+<!ATTLIST Instruction InstructionType CDATA #IMPLIED>
+<!ATTLIST Instruction InstructionURL CDATA #IMPLIED>
+<!ATTLIST Instruction SequenceNo CDATA #IMPLIED>
+<!ATTLIST Instruction a-dtype NMTOKENS
+                             "SequenceNo int">
+
+<!ELEMENT OrderTags ( OrderTag? )>
+
+<!ELEMENT BundleParentLine EMPTY>
+<!ATTLIST BundleParentLine OrderLineKey CDATA #IMPLIED>
+<!ATTLIST BundleParentLine PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST BundleParentLine SubLineNo CDATA #IMPLIED>
+<!ATTLIST BundleParentLine TransactionalLineId CDATA #IMPLIED>
+<!ATTLIST BundleParentLine a-dtype NMTOKENS
+                                  "PrimeLineNo int
+                                   SubLineNo int">
+
+<!ELEMENT OrderAudits ( OrderAudit* )>
+
+<!ELEMENT HeaderTaxes ( HeaderTax* )>
+
+<!ELEMENT LineTax EMPTY>
+<!ATTLIST LineTax ChargeCategory CDATA #IMPLIED>
+<!ATTLIST LineTax ChargeName CDATA #IMPLIED>
+<!ATTLIST LineTax Reference1 CDATA #IMPLIED>
+<!ATTLIST LineTax Reference2 CDATA #IMPLIED>
+<!ATTLIST LineTax Reference3 CDATA #IMPLIED>
+<!ATTLIST LineTax Tax CDATA #IMPLIED>
+<!ATTLIST LineTax TaxName CDATA #REQUIRED>
+<!ATTLIST LineTax TaxPercentage CDATA #IMPLIED>
+<!ATTLIST LineTax TaxableFlag CDATA #IMPLIED>
+<!ATTLIST LineTax a-dtype NMTOKENS
+                         "Tax decimal
+                          TaxPercentage decimal">
+
+<!ELEMENT PromotionReference EMPTY>
+<!ATTLIST PromotionReference IsUnique CDATA #IMPLIED>
+<!ATTLIST PromotionReference Operation CDATA #IMPLIED>
+<!ATTLIST PromotionReference ReferenceId CDATA #IMPLIED>
+<!ATTLIST PromotionReference ReferenceSequence CDATA #IMPLIED>
+<!ATTLIST PromotionReference a-dtype NMTOKENS
+                                    "ReferenceSequence int">
+
+<!ELEMENT OrderLineTranQuantity EMPTY>
+<!ATTLIST OrderLineTranQuantity FillQuantity CDATA #IMPLIED>
+<!ATTLIST OrderLineTranQuantity KitQty CDATA #IMPLIED>
+<!ATTLIST OrderLineTranQuantity OrderedQty CDATA #IMPLIED>
+<!ATTLIST OrderLineTranQuantity TransactionalUOM CDATA #IMPLIED>
+<!ATTLIST OrderLineTranQuantity a-dtype NMTOKENS
+                                       "FillQuantity decimal
+                                        KitQty int
+                                        OrderedQty decimal">
+
+<!ELEMENT PromotionReferences ( PromotionReference? )>
+
+<!ELEMENT Opportunity ( BuyerContactAddress?,Notes?,CustomAttributes? )>
+<!ATTLIST Opportunity BillToID CDATA #IMPLIED>
+<!ATTLIST Opportunity BuyerContactAddressKey CDATA #IMPLIED>
+<!ATTLIST Opportunity BuyerOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Opportunity CoOwnerUserID CDATA #IMPLIED>
+<!ATTLIST Opportunity CurrencyValue CDATA #IMPLIED>
+<!ATTLIST Opportunity CustomerContactID CDATA #IMPLIED>
+<!ATTLIST Opportunity Description CDATA #IMPLIED>
+<!ATTLIST Opportunity DocumentType CDATA #IMPLIED>
+<!ATTLIST Opportunity EnterpriseCode CDATA #REQUIRED>
+<!ATTLIST Opportunity ExpectedCloseDate CDATA #IMPLIED>
+<!ATTLIST Opportunity LeadOrigin CDATA #IMPLIED>
+<!ATTLIST Opportunity LostReasonCode CDATA #IMPLIED>
+<!ATTLIST Opportunity OpportunityDate CDATA #IMPLIED>
+<!ATTLIST Opportunity OpportunityID CDATA #IMPLIED>
+<!ATTLIST Opportunity OpportunityName CDATA #IMPLIED>
+<!ATTLIST Opportunity OwnerUserID CDATA #IMPLIED>
+<!ATTLIST Opportunity PipelineKey CDATA #IMPLIED>
+<!ATTLIST Opportunity ProbableSuccessRate CDATA #IMPLIED>
+<!ATTLIST Opportunity TeamCode CDATA #IMPLIED>
+<!ATTLIST Opportunity a-dtype NMTOKENS
+                             "CurrencyValue decimal
+                              ExpectedCloseDate dateTime
+                              OpportunityDate dateTime
+                              ProbableSuccessRate decimal">
+
+<!ELEMENT OrderLineSourcingControls ( OrderLineSourcingCntrl* )>
+
+<!ELEMENT ProductItems ( ProductItem? )>
+
+<!ELEMENT OrderLine ( OrderLineTranQuantity?,DerivedFrom?,ChainedFrom?,OrderLineOptions?,OrderLineSourcingControls?,Item?,PersonInfoShipTo?,PersonInfoMarkFor?,Instructions?,LinePriceInfo?,LineCharges?,LineTaxes?,References?,KitLines?,AdditionalAddresses?,Schedules?,Dependency?,OrderDates?,OrderLineInvAttRequest?,ProductItems?,OrderLineReservations?,Promotions?,Awards?,Notes?,BundleParentLine?,OrderHoldTypes?,OrderOverride?,AdditionalLinePrices?,CustomAttributes? )>
+<!ATTLIST OrderLine AllocationDate CDATA #IMPLIED>
+<!ATTLIST OrderLine BOMXML CDATA #IMPLIED>
+<!ATTLIST OrderLine CarrierAccountNo CDATA #IMPLIED>
+<!ATTLIST OrderLine CarrierServiceCode CDATA #IMPLIED>
+<!ATTLIST OrderLine CommittedQuantity CDATA #IMPLIED>
+<!ATTLIST OrderLine ConditionVariable1 CDATA #IMPLIED>
+<!ATTLIST OrderLine ConditionVariable2 CDATA #IMPLIED>
+<!ATTLIST OrderLine ConfigurationKey CDATA #IMPLIED>
+<!ATTLIST OrderLine CustomerLinePONo CDATA #IMPLIED>
+<!ATTLIST OrderLine CustomerPONo CDATA #IMPLIED>
+<!ATTLIST OrderLine DeliveryCode CDATA #IMPLIED>
+<!ATTLIST OrderLine DeliveryMethod CDATA #IMPLIED>
+<!ATTLIST OrderLine DepartmentCode CDATA #IMPLIED>
+<!ATTLIST OrderLine DependencyShippingRule CDATA #IMPLIED>
+<!ATTLIST OrderLine DistributionRuleId CDATA #IMPLIED>
+<!ATTLIST OrderLine EarliestScheduleDate CDATA #IMPLIED>
+<!ATTLIST OrderLine FillQuantity CDATA #IMPLIED>
+<!ATTLIST OrderLine FirstIterationSeqNo CDATA #IMPLIED>
+<!ATTLIST OrderLine FreightTerms CDATA #IMPLIED>
+<!ATTLIST OrderLine FulfillmentType CDATA #IMPLIED>
+<!ATTLIST OrderLine GiftFlag CDATA #IMPLIED>
+<!ATTLIST OrderLine GiftWrap CDATA #IMPLIED>
+<!ATTLIST OrderLine HoldFlag CDATA #IMPLIED>
+<!ATTLIST OrderLine HoldReasonCode CDATA #IMPLIED>
+<!ATTLIST OrderLine ImportLicenseExpDate CDATA #IMPLIED>
+<!ATTLIST OrderLine ImportLicenseNo CDATA #IMPLIED>
+<!ATTLIST OrderLine InStorePaymentRequired CDATA #IMPLIED>
+<!ATTLIST OrderLine IntentionalBackorder CDATA #IMPLIED>
+<!ATTLIST OrderLine IsFirmPredefinedNode CDATA #IMPLIED>
+<!ATTLIST OrderLine IsForwardingAllowed CDATA #IMPLIED>
+<!ATTLIST OrderLine IsProcurementAllowed CDATA #IMPLIED>
+<!ATTLIST OrderLine ItemGroupCode CDATA #IMPLIED>
+<!ATTLIST OrderLine ItemNotExist CDATA #IMPLIED>
+<!ATTLIST OrderLine KitCode CDATA #IMPLIED>
+<!ATTLIST OrderLine KitQty CDATA #IMPLIED>
+<!ATTLIST OrderLine LastIterationSeqNo CDATA #IMPLIED>
+<!ATTLIST OrderLine LevelOfService CDATA #IMPLIED>
+<!ATTLIST OrderLine LineType CDATA #IMPLIED>
+<!ATTLIST OrderLine MergeNode CDATA #IMPLIED>
+<!ATTLIST OrderLine MinShipByDate CDATA #IMPLIED>
+<!ATTLIST OrderLine OrderedQty CDATA #IMPLIED>
+<!ATTLIST OrderLine PackListType CDATA #IMPLIED>
+<!ATTLIST OrderLine PersonalizeCode CDATA #IMPLIED>
+<!ATTLIST OrderLine PickableFlag CDATA #IMPLIED>
+<!ATTLIST OrderLine PipelineId CDATA #IMPLIED>
+<!ATTLIST OrderLine PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST OrderLine ProcureFromNode CDATA #IMPLIED>
+<!ATTLIST OrderLine PromisedApptEndDate CDATA #IMPLIED>
+<!ATTLIST OrderLine PromisedApptStartDate CDATA #IMPLIED>
+<!ATTLIST OrderLine Purpose CDATA #IMPLIED>
+<!ATTLIST OrderLine ReceivingNode CDATA #IMPLIED>
+<!ATTLIST OrderLine ReqCancelDate CDATA #IMPLIED>
+<!ATTLIST OrderLine ReqDeliveryDate CDATA #IMPLIED>
+<!ATTLIST OrderLine ReqShipDate CDATA #IMPLIED>
+<!ATTLIST OrderLine ReservationID CDATA #IMPLIED>
+<!ATTLIST OrderLine ReservationMandatory (Y|N) #IMPLIED>
+<!ATTLIST OrderLine ReturnReason CDATA #IMPLIED>
+<!ATTLIST OrderLine SCAC CDATA #IMPLIED>
+<!ATTLIST OrderLine ScacAndService CDATA #IMPLIED>
+<!ATTLIST OrderLine ScacAndServiceKey CDATA #IMPLIED>
+<!ATTLIST OrderLine Segment CDATA #IMPLIED>
+<!ATTLIST OrderLine SegmentType CDATA #IMPLIED>
+<!ATTLIST OrderLine SerialNo CDATA #IMPLIED>
+<!ATTLIST OrderLine ShipNode CDATA #IMPLIED>
+<!ATTLIST OrderLine ShipToID CDATA #IMPLIED>
+<!ATTLIST OrderLine ShipToKey CDATA #IMPLIED>
+<!ATTLIST OrderLine ShipTogetherNo CDATA #IMPLIED>
+<!ATTLIST OrderLine SubLineNo CDATA #IMPLIED>
+<!ATTLIST OrderLine Timezone CDATA #IMPLIED>
+<!ATTLIST OrderLine TransactionalLineId CDATA #IMPLIED>
+<!ATTLIST OrderLine ValidateItem CDATA #IMPLIED>
+<!ATTLIST OrderLine a-dtype NMTOKENS
+                           "AllocationDate dateTime
+                            CommittedQuantity decimal
+                            EarliestScheduleDate dateTime
+                            FillQuantity decimal
+                            FirstIterationSeqNo int
+                            ImportLicenseExpDate dateTime
+                            KitQty decimal
+                            LastIterationSeqNo int
+                            MinShipByDate dateTime
+                            OrderedQty decimal
+                            PrimeLineNo int
+                            PromisedApptEndDate dateTime
+                            PromisedApptStartDate dateTime
+                            ReqCancelDate dateTime
+                            ReqDeliveryDate dateTime
+                            ReqShipDate dateTime
+                            SubLineNo int">
+
+<!ELEMENT OrderLineOption ( CustomAttributes? )>
+<!ATTLIST OrderLineOption IsPriceLocked CDATA #IMPLIED>
+<!ATTLIST OrderLineOption OptionDescription CDATA #IMPLIED>
+<!ATTLIST OrderLineOption OptionItemID CDATA #REQUIRED>
+<!ATTLIST OrderLineOption OptionUOM CDATA #IMPLIED>
+<!ATTLIST OrderLineOption PricingUOM CDATA #IMPLIED>
+<!ATTLIST OrderLineOption UnitPrice CDATA #IMPLIED>
+<!ATTLIST OrderLineOption a-dtype NMTOKENS
+                                 "UnitPrice decimal">
+
+<!ELEMENT OrderDate EMPTY>
+<!ATTLIST OrderDate ActualDate CDATA #IMPLIED>
+<!ATTLIST OrderDate CommittedDate CDATA #IMPLIED>
+<!ATTLIST OrderDate DateTypeId CDATA #REQUIRED>
+<!ATTLIST OrderDate ExpectedDate CDATA #IMPLIED>
+<!ATTLIST OrderDate RequestedDate CDATA #IMPLIED>
+<!ATTLIST OrderDate a-dtype NMTOKENS
+                           "ActualDate dateTime
+                            CommittedDate dateTime
+                            ExpectedDate dateTime
+                            RequestedDate dateTime">
+
+<!ELEMENT SpecialService EMPTY>
+<!ATTLIST SpecialService SpecialServicesCode CDATA #IMPLIED>
+
+<!ELEMENT OrderAuditDetails ( OrderAuditDetail* )>
+
+<!ELEMENT PaymentMethods ( PaymentMethod* )>
+
+<!ELEMENT PaymentDetailsList ( PaymentDetails* )>
+
+<!ELEMENT AdditionalAddresses ( AdditionalAddress* )>
+
+<!ELEMENT PersonInfoShipTo EMPTY>
+<!ATTLIST PersonInfoShipTo AddressID CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo AddressLine1 CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo AddressLine2 CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo AddressLine3 CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo AddressLine4 CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo AddressLine5 CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo AddressLine6 CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo Beeper CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo City CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo Company CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo Country CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo DayFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo DayPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo Department CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo EMailID CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo EveningPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo FirstName CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo JobTitle CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo LastName CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo MiddleName CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo MobilePhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo OtherPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo PersonID CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo State CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo Suffix CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo Title CDATA #IMPLIED>
+<!ATTLIST PersonInfoShipTo ZipCode CDATA #IMPLIED>
+
+<!ELEMENT OrderTag EMPTY>
+<!ATTLIST OrderTag TagId CDATA #IMPLIED>
+<!ATTLIST OrderTag TagType CDATA #IMPLIED>
+
+<!ELEMENT OrderLineRelationship ( ParentLine?,ChildLine? )>
+<!ATTLIST OrderLineRelationship RelationshipType CDATA #REQUIRED>
+
+<!ELEMENT ParentLine EMPTY>
+<!ATTLIST ParentLine OrderLineKey CDATA #IMPLIED>
+<!ATTLIST ParentLine PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST ParentLine SubLineNo CDATA #IMPLIED>
+<!ATTLIST ParentLine TransactionalLineId CDATA #IMPLIED>
+<!ATTLIST ParentLine a-dtype NMTOKENS
+                            "PrimeLineNo int
+                             SubLineNo int">
+
+<!ELEMENT PersonInfo EMPTY>
+<!ATTLIST PersonInfo AddressID CDATA #IMPLIED>
+<!ATTLIST PersonInfo AddressLine1 CDATA #IMPLIED>
+<!ATTLIST PersonInfo AddressLine2 CDATA #IMPLIED>
+<!ATTLIST PersonInfo AddressLine3 CDATA #IMPLIED>
+<!ATTLIST PersonInfo AddressLine4 CDATA #IMPLIED>
+<!ATTLIST PersonInfo AddressLine5 CDATA #IMPLIED>
+<!ATTLIST PersonInfo AddressLine6 CDATA #IMPLIED>
+<!ATTLIST PersonInfo AlternateEmailID CDATA #IMPLIED>
+<!ATTLIST PersonInfo Beeper CDATA #IMPLIED>
+<!ATTLIST PersonInfo City CDATA #IMPLIED>
+<!ATTLIST PersonInfo Company CDATA #IMPLIED>
+<!ATTLIST PersonInfo Country CDATA #IMPLIED>
+<!ATTLIST PersonInfo DayFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfo DayPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfo Department CDATA #IMPLIED>
+<!ATTLIST PersonInfo EMailID CDATA #IMPLIED>
+<!ATTLIST PersonInfo EveningFaxNo CDATA #IMPLIED>
+<!ATTLIST PersonInfo EveningPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfo FirstName CDATA #IMPLIED>
+<!ATTLIST PersonInfo IsCommercialAddress CDATA #IMPLIED>
+<!ATTLIST PersonInfo JobTitle CDATA #IMPLIED>
+<!ATTLIST PersonInfo LastName CDATA #IMPLIED>
+<!ATTLIST PersonInfo MiddleName CDATA #IMPLIED>
+<!ATTLIST PersonInfo MobilePhone CDATA #IMPLIED>
+<!ATTLIST PersonInfo OtherPhone CDATA #IMPLIED>
+<!ATTLIST PersonInfo PersonID CDATA #IMPLIED>
+<!ATTLIST PersonInfo State CDATA #IMPLIED>
+<!ATTLIST PersonInfo Suffix CDATA #IMPLIED>
+<!ATTLIST PersonInfo TaxGeoCode CDATA #IMPLIED>
+<!ATTLIST PersonInfo Title CDATA #IMPLIED>
+<!ATTLIST PersonInfo ZipCode CDATA #IMPLIED>
+
+<!ELEMENT OrderAuditDetail ( IDs?,Attributes?,CustomAuditDetails? )>
+<!ATTLIST OrderAuditDetail Action CDATA #IMPLIED>
+<!ATTLIST OrderAuditDetail AuditType CDATA #IMPLIED>

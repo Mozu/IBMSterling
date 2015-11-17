@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Order EnterpriseCode="DEFAULT" OrderDate="20151021" OrderNo="287">
+	<OrderLines>
+		<OrderLine OrderedQty="10">
+			<Item ItemID="BPICK-512" ItemShortDesc="Bag of BOB Plastic Picks"/>
+		</OrderLine>
+	</OrderLines>
+	<Notes/>
+	<PersonInfoShipTo AddressLine1="1835 Kramer Ln" AddressLine2="Suite 100" AddressLine3="" AddressLine4="" City="Austin" Company="" Country="US" DayPhone="" EMailID="elmer@ltunes.com" EveningPhone="" FirstName="Elmer" IsCommercialAddress="" LastName="Fudd" MiddleName="" MobilePhone="" PersonID="1118" State="TX" ZipCode="78758"/>
+	<PersonInfoBillTo AddressLine1="1835 Kramer Ln" AddressLine2="Suite 100" AddressLine3="" AddressLine4="" City="Austin" Company="" Country="US" DayPhone="" EMailID="elmer@ltunes.com" EveningPhone="" FirstName="Elmer" LastName="Fudd" MiddleName="" MobilePhone="" PersonID="1118" State="TX" ZipCode="78758"/>
+</Order>

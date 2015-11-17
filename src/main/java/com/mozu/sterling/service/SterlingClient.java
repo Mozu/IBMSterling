@@ -1,12 +1,18 @@
 package com.mozu.sterling.service;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,7 +39,27 @@ public class SterlingClient {
             throw pce;
         }
     }
-    
+
+    public Object convertXmlToObject(Document doc, Class<?> clazz) throws Exception {
+        JAXBContext jc = JAXBContext.newInstance(clazz);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+
+        Object obj = unmarshaller.unmarshal(doc);
+        
+        return obj;
+    }
+
+    public Document convertObjectToXml  (Object obj, Class<?> clazz) throws Exception {
+        DocumentBuilder docBuilder = getDocumentBuilder();
+        JAXBContext jc = JAXBContext.newInstance(clazz);
+        Marshaller marshaller = jc.createMarshaller();
+        Document document = docBuilder.newDocument();
+
+        marshaller.marshal(obj, document);
+        
+        return document;
+    }
+
     /**
      * invoke the sterling service using the given service name.
      * @param serviceName
@@ -67,10 +93,18 @@ public class SterlingClient {
 
             // Using api.invoke to call login api
             Document loginDoc = api.invoke(env, "login", loginInput);
-
+            
             env.setTokenID(loginDoc.getDocumentElement().getAttribute("UserToken"));
             sessionId = loginDoc.getDocumentElement().getAttribute("SessionId");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Sending XML Input to Sterling...");
+                logger.debug(printXmlDocument(inputDoc));
+            }
             outputDocument = api.invoke(env, serviceName, inputDoc);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Received XML Output from Sterling:");
+                logger.debug(printXmlDocument(outputDocument));
+            }
         } catch (Exception e) {
             logger.error("Unable to complete transaction to Sterling: " + e.getMessage());
             throw e;
@@ -93,5 +127,17 @@ public class SterlingClient {
     
     public DocumentBuilder getDocumentBuilder () {
         return this.docBuilder;
+    }
+    
+    public String printXmlDocument (Document doc) {
+        OutputFormat format = new OutputFormat(doc, "UTF-8", true);
+        StringWriter stringWriter = new StringWriter();
+        XMLSerializer serializer = new XMLSerializer(System.out, format);
+        try {
+            serializer.serialize(doc);
+        } catch (Exception e) {
+            logger.debug("Unable to print document to a string: " + e.getMessage());
+        }
+        return stringWriter.toString();
     }
 }

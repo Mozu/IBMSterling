@@ -5,14 +5,15 @@ angular.module('components', [])
       restrict: 'E',
       transclude: true,
       scope: {},
-      controller: function($scope, $element) {
+      controller: function($scope, $element, $rootScope) {
         var panes = $scope.panes = [];
  
         $scope.select = function(pane) {
           angular.forEach(panes, function(pane2) {
             pane2.selected = false;
           });
-          pane.selected = true;
+          pane.selected = true
+          $rootScope.showBtns = pane.showButtons != null;
         }
  
         this.addPane = function(pane) {
@@ -35,7 +36,7 @@ angular.module('components', [])
       require: '^tabs',
       restrict: 'E',
       transclude: true,
-      scope: { title: '@' },
+      scope: { title: '@', showButtons: '@' },
       link: function(scope, element, attrs, tabsController) {
         tabsController.addPane(scope);
       },

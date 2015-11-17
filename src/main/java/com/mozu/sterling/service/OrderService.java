@@ -2,10 +2,6 @@ package com.mozu.sterling.service;
 
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.parsers.DocumentBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -47,17 +43,22 @@ import com.mozu.sterling.model.order.PersonInfoShipTo;
  *
  */
 @Service
-public class OrderService {
+public class OrderService extends SterlingClient {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     public final static String ORDER_SERVICE_NAME = "createOrder";
+    public final static String STERLING_BOOLEAN_VALUE_YES = "Y";
+    public final static String STERLING_BOOLEAN_VALUE_NO = "N";
 
     @Autowired
     SterlingClient sterlingClient;
 
     @Autowired
-    ConfigHandler configHandler = new ConfigHandler();
+    ConfigHandler configHandler;
 
+    public OrderService () throws Exception {
+        super();
+    }
     /**
      * Create an order in mozu based on a Mozu event.
      * 
@@ -86,21 +87,21 @@ public class OrderService {
      * @return
      */
     public boolean createOrder(ApiContext apiContext, Order mozuOrder) throws Exception {
-        com.mozu.sterling.model.order.Order sterlingOrder = mapOrderToSterling(mozuOrder);
-        DocumentBuilder docBuilder = sterlingClient.getDocumentBuilder();
-        JAXBContext jc = JAXBContext.newInstance(com.mozu.sterling.model.order.Order.class);
-        Marshaller marshaller = jc.createMarshaller();
-        Document document = docBuilder.newDocument();
-
-        marshaller.marshal(sterlingOrder, document);
-        marshaller.marshal(sterlingOrder, System.out);
-
         Setting setting = configHandler.getSetting(apiContext.getTenantId());
-        sterlingClient.invoke(ORDER_SERVICE_NAME, document, setting);
+        com.mozu.sterling.model.order.Order sterlingOrder = mapOrderToSterling(mozuOrder, setting);
 
-        return true;
+        Document inDoc = this.convertObjectToXml(sterlingOrder, com.mozu.sterling.model.order.Order.class);
+        
+        Document outDoc = sterlingClient.invoke(ORDER_SERVICE_NAME, inDoc, setting);
+        
+        return outDoc != null;
     }
 
+    /**
+     * Update orders in Mozu from a Sterling order.
+     * @param sterlingOrder
+     * @return
+     */
     public boolean updateOrder (com.mozu.sterling.model.order.Order sterlingOrder) {
         // stub for updating status of orders from Sterling.
         
@@ -112,12 +113,12 @@ public class OrderService {
      * @param mozuOrder
      * @return
      */
-    private com.mozu.sterling.model.order.Order mapOrderToSterling(Order mozuOrder) {
+    private com.mozu.sterling.model.order.Order mapOrderToSterling(Order mozuOrder, Setting setting) {
         com.mozu.sterling.model.order.Order sterlingOrder = new com.mozu.sterling.model.order.Order();
 
         String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
         sterlingOrder.setOrderNo(orderNoStr);
-        sterlingOrder.setEnterpriseCode("DEFAULT");
+        sterlingOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
         sterlingOrder.setOrderDate(mozuOrder.getAuditInfo().getCreateDate().toString("yyyyMMdd"));
         sterlingOrder.setOrderLines(getOrderLines(mozuOrder.getItems()));
         sterlingOrder.setPersonInfoShipTo(getPersonInfoShipTo(mozuOrder.getFulfillmentInfo()));
@@ -158,6 +159,7 @@ public class OrderService {
     private LinePriceInfo getLinePriceInfo(OrderItem orderItem, ProductPrice productPrice) {
         LinePriceInfo linePriceInfo = new LinePriceInfo();
         CommerceUnitPrice unitPrice = orderItem.getUnitPrice();
+        linePriceInfo.setIsPriceLocked(STERLING_BOOLEAN_VALUE_YES);
         if (unitPrice != null) {
             linePriceInfo.setUnitPrice(String.format("%.2f", unitPrice.getExtendedAmount()));
             linePriceInfo.setListPrice(String.format("%.2f", unitPrice.getListAmount()));
