@@ -1,5 +1,6 @@
 package com.mozu.sterling.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -51,13 +52,18 @@ public class SterlingOrganizationService extends SterlingClient {
         ShipNodeList shipNodeList = null;
         if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
             Document inDoc = convertObjectToXml(new ShipNode(), ShipNode.class);
-            Document outDoc = this.invoke(SHIP_NODE_SERVICE_NAME, inDoc, setting);
+            Document outDoc = null;
+            try {
+                outDoc = this.invoke(SHIP_NODE_SERVICE_NAME, inDoc, setting);
+                shipNodeList = (ShipNodeList) convertXmlToObject(outDoc, ShipNodeList.class);
+            } catch (Exception e) {
+                logger.warn("Unable to get ship node list from Sterling: " + e.getMessage());
+            }
             
-            shipNodeList = (ShipNodeList) convertXmlToObject(outDoc, ShipNodeList.class);
         } else {
             logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
         }
-        return shipNodeList != null ? shipNodeList.getShipNode() : null; 
+        return shipNodeList != null ? shipNodeList.getShipNode() : new ArrayList<>(); 
     }
     
     public List<Organization> getOrganizationList (Integer tenantId) throws Exception {
@@ -69,13 +75,19 @@ public class SterlingOrganizationService extends SterlingClient {
         OrganizationList organizationList = null;
         if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
             Document inDoc = convertObjectToXml(new ShipNode(), ShipNode.class);
-            Document outDoc = this.invoke(ORGANIZATION_LIST_SERVICE_NAME, inDoc, setting);
+            Document outDoc = null;
             
-            organizationList = (OrganizationList) convertXmlToObject(outDoc, OrganizationList.class);
+            try {
+                outDoc = this.invoke(ORGANIZATION_LIST_SERVICE_NAME, inDoc, setting);
+                organizationList = (OrganizationList) convertXmlToObject(outDoc, OrganizationList.class);
+            } catch (Exception e) {
+                logger.warn("Unable to get the organization list from Sterling: " + e.getMessage());
+            }
+            
         } else {
             logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
         }
-        return organizationList != null ? organizationList.getOrganization() : null; 
+        return organizationList != null ? organizationList.getOrganization() : new ArrayList<>(); 
     }
 
 }

@@ -6,6 +6,7 @@
 	src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.js"></script>
 <script src="js/components.js"></script>
 <script src="js/version.js"></script>
 <script src="js/settings.js"></script>
@@ -32,7 +33,7 @@
 					<img class="help-icon" src="images/help-icon.png" alt="Help"></img>
 				</a>
 			</div>
-			<div class="tab-container">
+			<div class="tab-container" ng-controller="tabController">
 				<div data-ng-if="loading"
 					style="position: absolute; z-index: 10; width: 99%; height: 92%; background-color: rgba(255, 255, 255, .5);"
 					id="progressIndicator">
@@ -51,19 +52,25 @@
 						</div>
 					</div>
 				</div>
-				<tabs> <pane title="Information">
-				<div ng-include="'html/info.html'"></div>
-				</pane> <pane title="Settings" show-buttons>
-				<div ng-include="'html/settings.html'"></div>
-				</pane> </tabs>
+                <div class="tab-container">
+                    <div class="tabs">
+                     <a ng-repeat="t in tabs" href="{{t.route}}" ng-class="{active:t.active}" class="button tab" ng-click="selectTab(t)">{{t.heading}}</a>
+                    </div>
+                     
+                    <div class="tab-view">
+                        <form name="settingForm" id="settingForm" ng-controller="SettingsController">
+	                        <div class="tab-section" ng-view>
+	                        </div>
+                        </form>
+                   </div>
+				
+<!-- 				
+				<tabs> 
+				    <pane title="Information"><div ng-include="'html/info.html'"></div></pane>
+				    <pane title="Settings" show-buttons><div ng-view></div></pane> 
+				</tabs>
+ -->				
 				<div class="footer-actions">
-					<div id="buttons" ng-show="showBtns"
-						style="display: block; float: right;">
-						<button class="mz-button primary" ng-disabled="!buttonEnabled()"
-							ng-click="saveSetting()">Save</button>
-						<button class="mz-button" ng-disabled="!buttonEnabled()"
-							ng-click="resetSettings()">Reset</button>
-					</div>
 
 					<div class="branding-text">Developed by Volusion, Inc. All
 						rights reserved.</div>

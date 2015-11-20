@@ -25,10 +25,6 @@ var SettingsController = function($scope, $http, $rootScope) {
 		});
 	}
 
-	$scope.closeError = function() {
-		this.errorsExist = false;
-	}
-
 	$rootScope.resetSettings = function() {
 		$scope.settings = angular.copy($scope.initialSetting);
 		$scope.settingForm.$setPristine(true);
@@ -39,3 +35,4 @@ var SettingsController = function($scope, $http, $rootScope) {
 	}
 
 };
+
