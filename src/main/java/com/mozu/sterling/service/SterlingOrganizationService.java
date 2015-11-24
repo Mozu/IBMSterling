@@ -82,7 +82,7 @@ public class SterlingOrganizationService extends SterlingClient {
         } else {
             logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
         }
-        return shipNodeList != null ? shipNodeList.getShipNode() : new ArrayList<>(); 
+        return shipNodeList != null ? shipNodeList.getShipNode() : new ArrayList<ShipNode>(); 
     }
     
     public List<Organization> getOrganizationList (Integer tenantId) throws Exception {
@@ -106,7 +106,7 @@ public class SterlingOrganizationService extends SterlingClient {
         } else {
             logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
         }
-        return organizationList != null ? organizationList.getOrganization() : new ArrayList<>(); 
+        return organizationList != null ? organizationList.getOrganization() : new ArrayList<Organization>(); 
     }
     
     /**
