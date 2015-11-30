@@ -47,8 +47,6 @@ public class OrderService extends SterlingClient {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     public final static String ORDER_SERVICE_NAME = "createOrder";
-    public final static String STERLING_BOOLEAN_VALUE_YES = "Y";
-    public final static String STERLING_BOOLEAN_VALUE_NO = "N";
 
     @Autowired
     SterlingClient sterlingClient;

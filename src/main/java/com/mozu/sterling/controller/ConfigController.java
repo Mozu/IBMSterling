@@ -60,7 +60,7 @@ public class ConfigController {
         
         configHandler.saveSettings(tenantId, setting);
         logger.info("Saving settings..done");
-        return settingUI;
+        return configHandler.getSettingUI(tenantId);
     }
     
     @ExceptionHandler(ApiException.class)

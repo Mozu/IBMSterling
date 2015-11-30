@@ -51,40 +51,48 @@ public class ConfigHandler {
     EntitySchemaHandler entitySchemaHandler;
 
     EntityHandler<Setting> settingEntityHandler;
-    
+
     @Autowired
     SterlingOrganizationService locationService;
-    
-    public ConfigHandler() { 
+
+    public ConfigHandler() {
         settingEntityHandler = new EntityHandler<Setting>(Setting.class);
     }
 
     /**
      * Get the Sterling settings for the tenant
-     * @param tenantId id of the tenant
-     * @param contextPath context path of the request
-     * @param serverPort port of the server
-     * @param serverName server name
+     * 
+     * @param tenantId
+     *            id of the tenant
+     * @param contextPath
+     *            context path of the request
+     * @param serverPort
+     *            port of the server
+     * @param serverName
+     *            server name
      * @return settings data
      * @throws Exception
      */
     public Setting getSetting(Integer tenantId) throws Exception {
-        Setting setting = settingEntityHandler.getEntity(new MozuApiContext(tenantId), TENANT_MZDB_ENTITY, String.valueOf(tenantId));
+        Setting setting = settingEntityHandler.getEntity(new MozuApiContext(tenantId), TENANT_MZDB_ENTITY,
+                String.valueOf(tenantId));
         if (setting == null) {
             setting = new Setting();
         }
         return setting;
     }
-    
+
     /**
-     * Get the settings from MZDB as well as the possible values for sites, locations, 
-     * shipNodes and Sterling organizations. 
+     * Get the settings from MZDB as well as the possible values for sites,
+     * locations, shipNodes and Sterling organizations.
+     * 
      * @param tenantId
      * @return the object to be used by the web UI
      * @throws Exception
      */
-    public SettingUI getSettingUI (Integer tenantId) throws Exception{
+    public SettingUI getSettingUI(Integer tenantId) throws Exception {
         SettingUI settingUI = new SettingUI();
+        settingUI.setIsConnected(false);
         Setting setting = getSetting(tenantId);
         BeanUtils.copyProperties(setting, settingUI);
         if (settingUI.getSiteMappings() == null || settingUI.getSiteMappings().size() == 0) {
@@ -103,52 +111,62 @@ public class ConfigHandler {
 
         // load location values from Mozu
         settingUI.setLocations(getLocations(tenantId));
-        
-        // load the organizations 
-        settingUI.setOrganizations(getOrganizationList(setting));
-        
-        // load shipping node values
-        settingUI.setShippingNodes(getShipNodes(setting));
 
+        if (StringUtils.isNotBlank(setting.getSterlingUrl()) 
+                || StringUtils.isNotBlank(setting.getSterlingUserId())
+                || StringUtils.isNotBlank(setting.getSterlingPassword())) {
+
+            // set the organization lists
+            try {
+                settingUI.setSellers(getSellerList(setting));
+                settingUI.setEnterprises(getEnterpriseList(setting));
+                settingUI.setShippingNodes(getShipNodes(setting));
+                settingUI.setIsConnected(true);
+            } catch (Exception e) {
+                settingUI.setIsConnected(false);
+                settingUI.setErrorMsg(
+                        "Unable to connect to Sterling.  Please check that your connection settings are correct.");
+            }
+        }
         return settingUI;
     }
-    
+
     /**
      * Save Sterling configuration settings for the tenant
      * 
-     * @param tenantId tenant id
-     * @param setting the populated settings data
+     * @param tenantId
+     *            tenant id
+     * @param setting
+     *            the populated settings data
      * @throws Exception
      */
     public void saveSettings(Integer tenantId, Setting setting) throws Exception {
-        
+
         logger.debug("Saving settings into MZDB for " + tenantId);
         MozuApiContext apiContext = new MozuApiContext(tenantId);
         setting.setId(String.valueOf(tenantId));
 
         try {
             settingEntityHandler.upsertEntity(apiContext, TENANT_MZDB_ENTITY, String.valueOf(tenantId), setting);
-        
+
         } catch (Exception e) {
-                if (e instanceof ApiException) {
-                    ApiError apiError = ((ApiException)e).getApiError();
-                    logger.warn("Exception updating application settings:" + 
-                            " App name: " + ((apiError.getApplicationName()!=null)?apiError.getApplicationName():"") +
-                            " Correlation ID: " + ((apiError.getCorrelationId()!=null)?apiError.getCorrelationId():"") + 
-                            " Error Code " + apiError.getErrorCode() + 
-                            " Message: " + ((apiError.getExceptionDetail().getMessage()!=null)?
-                            		apiError.getExceptionDetail().getMessage():"")
-                            );
-                }
-                throw e;
+            if (e instanceof ApiException) {
+                ApiError apiError = ((ApiException) e).getApiError();
+                logger.warn("Exception updating application settings:" + " App name: "
+                        + ((apiError.getApplicationName() != null) ? apiError.getApplicationName() : "")
+                        + " Correlation ID: "
+                        + ((apiError.getCorrelationId() != null) ? apiError.getCorrelationId() : "") + " Error Code "
+                        + apiError.getErrorCode() + " Message: " + ((apiError.getExceptionDetail().getMessage() != null)
+                                ? apiError.getExceptionDetail().getMessage() : ""));
+            }
+            throw e;
         }
-        if (StringUtils.isNotEmpty(setting.getSterlingUrl()) &&
-            StringUtils.isNotEmpty(setting.getSterlingUserId()) &&
-            StringUtils.isNotEmpty(setting.getSterlingPassword())) {
-              ApplicationUtils.setApplicationToInitialized(apiContext);
+        if (StringUtils.isNotEmpty(setting.getSterlingUrl()) && StringUtils.isNotEmpty(setting.getSterlingUserId())
+                && StringUtils.isNotEmpty(setting.getSterlingPassword())) {
+            ApplicationUtils.setApplicationToInitialized(apiContext);
         }
     }
-    
+
     /**
      * Install Schema with indexed properties for storing the Sterling settings
      * 
@@ -163,76 +181,90 @@ public class ConfigHandler {
         entityList.setIsSandboxDataCloningSupported(false);
         entityList.setIsShopperSpecific(false);
         entityList.setIsVisibleInStorefront(false);
-        
+
         ApiContext apiContext = new MozuApiContext(tenantId);
-        IndexedProperty idProperty = entitySchemaHandler.getIndexedProperty("id",
-                EntityDataTypes.String);
+        IndexedProperty idProperty = entitySchemaHandler.getIndexedProperty("id", EntityDataTypes.String);
 
         entitySchemaHandler.installSchema(apiContext, entityList, EntityScope.Tenant, idProperty, null);
     }
 
     /**
      * Get the locations for the give Mozu tenant.
+     * 
      * @param tenantId
      * @return list of locations in the Mozu system for the tenant.
      * @throws Exception
      */
-    protected List<OptionUI> getLocations (Integer tenantId) throws Exception {
+    protected List<OptionUI> getLocations(Integer tenantId) throws Exception {
         List<OptionUI> locationOptions = new ArrayList<>();
-        
+
         LocationResource locationResource = new LocationResource(new MozuApiContext(tenantId));
-        
-        LocationCollection locations  = locationResource.getLocations(0, 200, "name", null, "items(code,name)");
+
+        LocationCollection locations = locationResource.getLocations(0, 200, "name", null, "items(code,name)");
         for (Location location : locations.getItems()) {
             locationOptions.add(new OptionUI(location.getCode(), location.getName()));
         }
-        
+
         return locationOptions;
     }
-    
+
     /**
      * Get the sites for the tenant ID from Mozu
-     * @param tenantId the mozu tenant id
+     * 
+     * @param tenantId
+     *            the mozu tenant id
      * @return the list of mozu sites.
      * @throws Exception
      */
-    protected List <OptionUI> getSites (Integer tenantId) throws Exception {
+    protected List<OptionUI> getSites(Integer tenantId) throws Exception {
         List<OptionUI> siteOptions = new ArrayList<>();
-        
+
         TenantResource tenantResource = new TenantResource(new MozuApiContext(tenantId));
-        Tenant tenant = tenantResource.getTenant(tenantId,"sites");
-        
-        List<Site> sites = tenant.getSites(); 
+        Tenant tenant = tenantResource.getTenant(tenantId, "sites");
+
+        List<Site> sites = tenant.getSites();
         if (sites != null && sites.size() > 0) {
             for (Site site : sites) {
                 siteOptions.add(new OptionUI(String.valueOf(site.getId()), site.getName()));
             }
         }
-        
+
         return siteOptions;
     }
-    
-    protected List <OptionUI> getShipNodes (Setting setting) throws Exception {
+
+    protected List<OptionUI> getShipNodes(Setting setting) throws Exception {
         List<OptionUI> shipNodeOptions = new ArrayList<>();
-        
+
         List<ShipNode> shipNodes = locationService.getShipNodes(setting);
-        
+
         for (ShipNode shipNode : shipNodes) {
-            shipNodeOptions.add(new OptionUI (shipNode.getShipnodeKey(), shipNode.getDescription()));
+            shipNodeOptions.add(new OptionUI(shipNode.getShipnodeKey(), shipNode.getDescription()));
         }
-        
+
         return shipNodeOptions;
     }
 
-    protected List <OptionUI> getOrganizationList (Setting setting) throws Exception {
+    protected List<OptionUI> getEnterpriseList(Setting setting) throws Exception {
         List<OptionUI> shipNodeOptions = new ArrayList<>();
-        
-        List<Organization> organizations = locationService.getOrganizationList(setting);
-        
+
+        List<Organization> organizations = locationService.getEnterpriseOrganizations(setting);
+
         for (Organization org : organizations) {
-            shipNodeOptions.add(new OptionUI (org.getOrganizationCode(), org.getOrganizationName()));
+            shipNodeOptions.add(new OptionUI(org.getOrganizationCode(), org.getOrganizationName()));
         }
-        
+
+        return shipNodeOptions;
+    }
+
+    protected List<OptionUI> getSellerList(Setting setting) throws Exception {
+        List<OptionUI> shipNodeOptions = new ArrayList<>();
+
+        List<Organization> organizations = locationService.getSellerOrganizations(setting);
+
+        for (Organization org : organizations) {
+            shipNodeOptions.add(new OptionUI(org.getOrganizationCode(), org.getOrganizationName()));
+        }
+
         return shipNodeOptions;
     }
 }

@@ -10,10 +10,14 @@ sterlingApp.controller("tabController", function($rootScope, $scope) {
 		route : "#/info",
 		active : true
 	}, {
-		heading : "Setting",
+		heading : "Connection",
 		route : "#/connection",
 		active : false
-	}, ];
+	}, {
+		heading : "Site Mapping",
+		route : "#/site",
+		active : false
+	}];
 
 	$scope.selectTab = function(tab) {
 		angular.forEach($scope.tabs, function(tab2) {

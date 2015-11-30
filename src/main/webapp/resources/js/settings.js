@@ -13,6 +13,10 @@ var SettingsController = function($scope, $http, $rootScope) {
 	this.getData().then(function(dataResponse) {
 		$scope.initialSetting = dataResponse.data;
 		$rootScope.resetSettings();
+		if (dataResponse.data.errorMsg) {
+			$rootScope.errorMessage = "Error: " + dataResponse.data.errorMsg;
+			$rootScope.errorsExist = true;
+		}
 	});
 
 
@@ -21,7 +25,12 @@ var SettingsController = function($scope, $http, $rootScope) {
 		$http.post('api/config', $scope.settings).success(function(data) {
 			$scope.initialSetting = data;
 			$rootScope.resetSettings();
-			alert("Settings successfully saved!");
+			if (data.errorMsg) {
+				$rootScope.errorMessage = "Error: " + errorMsg;
+				$rootScope.errorsExist = true;
+			} else {
+				alert("Settings successfully saved!");
+			}
 		});
 	}
 

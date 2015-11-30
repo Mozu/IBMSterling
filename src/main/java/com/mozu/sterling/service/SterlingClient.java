@@ -27,6 +27,8 @@ import com.mozu.sterling.model.Setting;
 @Service
 public class SterlingClient {
     private static final Logger logger = LoggerFactory.getLogger(SterlingClient.class);
+    public final static String STERLING_BOOLEAN_VALUE_YES = "Y";
+    public final static String STERLING_BOOLEAN_VALUE_NO = "N";
 
     private DocumentBuilder docBuilder;
 

@@ -87,13 +87,38 @@ public class SterlingOrganizationService extends SterlingClient {
     
     public List<Organization> getOrganizationList (Integer tenantId) throws Exception {
         Setting setting = configHandler.getSetting(tenantId);
-        return getOrganizationList(setting);
-        
+        return getOrganizationList(setting, null);
     }
-    public List<Organization> getOrganizationList (Setting setting) throws Exception {
+    
+    public List<Organization> getAllOrganizations (Setting setting) throws Exception {
+        return getOrganizationList(setting, new Organization()); 
+    }
+    
+    public List<Organization> getHubOrganizations (Setting setting) throws Exception {
+        Organization organization = new Organization();
+        organization.setIsHubOrganization("Y");
+        return getOrganizationList(setting, organization); 
+    }
+
+    public List<Organization> getEnterpriseOrganizations (Setting setting) throws Exception {
+        Organization organization = new Organization();
+        organization.setIsEnterprise("Y");
+        return getOrganizationList(setting, organization); 
+    }
+
+    public List<Organization> getSellerOrganizations (Setting setting) throws Exception {
+        Organization organization = new Organization();
+        organization.setIsSeller("Y");
+        return getOrganizationList(setting, organization); 
+    }
+
+    public List<Organization> getOrganizationList (Setting setting, Organization organizationLookup) throws Exception {
         OrganizationList organizationList = null;
+        if (organizationLookup == null) {
+            organizationLookup = new Organization();
+        }
         if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
-            Document inDoc = convertObjectToXml(new ShipNode(), ShipNode.class);
+            Document inDoc = convertObjectToXml(organizationLookup, Organization.class);
             Document outDoc = null;
             
             try {
@@ -101,6 +126,7 @@ public class SterlingOrganizationService extends SterlingClient {
                 organizationList = (OrganizationList) convertXmlToObject(outDoc, OrganizationList.class);
             } catch (Exception e) {
                 logger.warn("Unable to get the organization list from Sterling: " + e.getMessage());
+                throw e;
             }
             
         } else {
