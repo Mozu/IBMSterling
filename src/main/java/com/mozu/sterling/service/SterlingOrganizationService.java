@@ -136,6 +136,7 @@ public class SterlingOrganizationService extends SterlingClient {
     }
     
     /**
+     * Add locationType to Mozu
      * @param apiContext
      * @param locationTypeCode
      * @return
@@ -153,6 +154,7 @@ public class SterlingOrganizationService extends SterlingClient {
     }
     
     /**
+     * Add Location to Mozu
      * @param shipNode
      * @param apiContext
      * @return
@@ -161,7 +163,7 @@ public class SterlingOrganizationService extends SterlingClient {
     public Location createLocation(ShipNode shipNode, ApiContext apiContext ) throws Exception {
     	Location location = getMozuLocation(shipNode.getNodeOrgCode(), apiContext);
 		if(location == null){
-    		mapLocation(apiContext,shipNode, new Location());	
+			location=mapLocation(apiContext,shipNode, new Location());	
     		location=addMozuLocation(location,apiContext );
 		}else{
 			logger.info("Location with code "+location.getCode()+" already exists. So skipping the record");
@@ -169,6 +171,15 @@ public class SterlingOrganizationService extends SterlingClient {
 		return location;
     	
     }
+    
+    /**
+     * Map Sterling ShipNode to Mozu Location
+     * @param apiContext
+     * @param shipNode
+     * @param location
+     * @return Location
+     * @throws Exception
+     */
     
     public Location mapLocation(ApiContext apiContext ,ShipNode shipNode, Location location) throws Exception{
     	logger.info("Map Sterling location to Mozu location");
@@ -231,7 +242,7 @@ public class SterlingOrganizationService extends SterlingClient {
 		return location;
     }
     
-    public void createAndAutoMapLocations(Integer tenantId) throws Exception{
+    public Setting createAndAutoMapLocations(Integer tenantId) throws Exception{
     	List<ShipNode> shipNodes = getShipNodes(tenantId);
     	ApiContext apiContext = new MozuApiContext(tenantId);
     	Setting setting = configHandler.getSetting(apiContext.getTenantId());
@@ -256,8 +267,10 @@ public class SterlingOrganizationService extends SterlingClient {
    	    }
     	if(setting!=null){
     		setting.setLocationMappings(locationMappings);
+    		logger.info("Save locationMappings to setting");
     		configHandler.saveSettings(tenantId, setting);
     	}
+		return setting;
     }
     
     public Location addMozuLocation(Location location , ApiContext apiContext) throws Exception{
@@ -274,6 +287,7 @@ public class SterlingOrganizationService extends SterlingClient {
     }
     
     public LocationMapping autoMapLocation(Location location){
+    	logger.info("Auto map location with code "+location.getCode());
     	LocationMapping locationMapping=new LocationMapping();
     	locationMapping.setLocationCode(location.getCode());
     	locationMapping.setShippingNodeCode(location.getCode());
@@ -281,6 +295,7 @@ public class SterlingOrganizationService extends SterlingClient {
     }
     
     public LocationType addLocationType(ApiContext apiContext, LocationType locationType) throws Exception{
+    	logger.info("Add location type with code "+locationType.getCode()+" to Mozu");
     	LocationTypeResource locationTypeResource = new LocationTypeResource(apiContext);
     	return locationTypeResource.addLocationType(locationType);
     }
