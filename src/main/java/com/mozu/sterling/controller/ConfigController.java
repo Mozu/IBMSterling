@@ -5,8 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mozu.api.ApiException;
 import com.mozu.base.controllers.AdminControllerHelper;
 import com.mozu.sterling.handler.ConfigHandler;
-import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.SettingUI;
+import com.mozu.sterling.service.LocationService;
 
 @Controller
 @RequestMapping("/api/config")
@@ -31,6 +31,10 @@ public class ConfigController {
     @Autowired
     ConfigHandler configHandler;
 
+    @Autowired
+    @Qualifier("locationService")
+    LocationService locationService;
+    
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody SettingUI getSettings(@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId,
     		final HttpServletRequest request ) throws Exception {
@@ -55,11 +59,18 @@ public class ConfigController {
         logger.info("Saving settings for tenant : "+tenantId);
         logger.info(settingStr);
         SettingUI settingUI = mapper.readValue(settingStr, SettingUI.class);
-        Setting setting = new Setting();
-        BeanUtils.copyProperties(settingUI, setting);
         
-        configHandler.saveSettings(tenantId, setting);
+        configHandler.saveSettingUI(tenantId, settingUI);
         logger.info("Saving settings..done");
+        return configHandler.getSettingUI(tenantId);
+    }
+    
+    @RequestMapping(value="locationImport", method=RequestMethod.POST)
+    public @ResponseBody SettingUI importLocations (@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId, @RequestBody String settingStr) throws Exception { 
+        logger.info("Import and map shipping nodes....");
+        
+        locationService.createAndAutoMapLocations(tenantId);
+        
         return configHandler.getSettingUI(tenantId);
     }
     

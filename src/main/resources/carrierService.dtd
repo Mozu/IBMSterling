@@ -1,0 +1,20 @@
+<!ELEMENT CarrierServiceList ( CarrierService* )>
+
+<!ELEMENT CarrierService EMPTY>
+<!ATTLIST CarrierService CarrierServiceCode CDATA #IMPLIED>
+<!ATTLIST CarrierService CarrierServiceDesc CDATA #IMPLIED>
+<!ATTLIST CarrierService CarrierServiceKey CDATA #IMPLIED>
+<!ATTLIST CarrierService MaximumNontransitDays CDATA #IMPLIED>
+<!ATTLIST CarrierService MaximumTransitDays CDATA #IMPLIED>
+<!ATTLIST CarrierService MinimumTransitDays CDATA #IMPLIED>
+<!ATTLIST CarrierService OrganizationCode CDATA #IMPLIED>
+<!ATTLIST CarrierService SCAC CDATA #IMPLIED>
+<!ATTLIST CarrierService SCACAndService CDATA #IMPLIED>
+<!ATTLIST CarrierService SCACAndServiceDesc CDATA #IMPLIED>
+<!ATTLIST CarrierService SCACDesc CDATA #IMPLIED>
+<!ATTLIST CarrierService UsedForOrdering CDATA #IMPLIED>
+<!ATTLIST CarrierService a-dtype NMTOKENS
+                                "MaximumNontransitDays int
+                                 MaximumTransitDays int
+                                 MinimumTransitDays int">
+                                 

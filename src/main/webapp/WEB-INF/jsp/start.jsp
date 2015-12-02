@@ -54,22 +54,24 @@
 				</div>
                 <div class="tab-container">
                     <div class="tabs">
-                     <a ng-repeat="t in tabs" href="{{t.route}}" ng-class="{active:t.active}" class="button tab" ng-click="selectTab(t)">{{t.heading}}</a>
+                     <a ng-repeat="t in tabs" href="{{t.route}}" ng-class="{active:t.active}" ng-show="!t.check_conn || (t.check_conn && isConnected)" class="button tab" ng-click="selectTab(t)">{{t.heading}}</a>
                     </div>
                      
                     <div class="tab-view">
                         <form name="settingForm" id="settingForm" ng-controller="SettingsController">
 	                        <div class="tab-section" ng-view>
 	                        </div>
+		                    <div id="buttons" ng-show="showBtns"
+		                        style="display: block; float: right;">
+		                        <button class="mz-button primary" ng-disabled="!buttonEnabled()"
+		                            ng-click="saveSetting()">Save</button>
+		                        <button class="mz-button" ng-disabled="!buttonEnabled()"
+		                            ng-click="resetSettings()">Reset</button>
+		                    </div>
+	                        
                         </form>
                    </div>
 				
-<!-- 				
-				<tabs> 
-				    <pane title="Information"><div ng-include="'html/info.html'"></div></pane>
-				    <pane title="Settings" show-buttons><div ng-view></div></pane> 
-				</tabs>
- -->				
 				<div class="footer-actions">
 
 					<div class="branding-text">Developed by Volusion, Inc. All

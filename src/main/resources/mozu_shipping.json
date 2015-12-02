@@ -1,0 +1,212 @@
+[
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx 1 Day Freight",
+	    "code" : "FEDEX_FEDEX_1_DAY_FREIGHT"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx 2 Day",
+	    "code" : "FEDEX_FEDEX_2_DAY"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx 2 Day AM",
+	    "code" : "FEDEX_FEDEX_2_DAY_AM"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx 2 Day Freight",
+	    "code" : "FEDEX_FEDEX_2_DAY_FREIGHT"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx 3 Day Freight",
+	    "code" : "FEDEX_FEDEX_3_DAY_FREIGHT"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx Express Saver",
+	    "code" : "FEDEX_FEDEX_EXPRESS_SAVER"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx First Freight",
+	    "code" : "FEDEX_FEDEX_FIRST_FREIGTH"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx Freight Economy",
+	    "code" : "FEDEX_FEDEX_FREIGHT_ECONOMY"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx Freight Priority",
+	    "code" : "FEDEX_FEDEX_FREIGHT_PRIORITY"
+	},
+	{
+	    "name" : "FedEx",
+	    "description" : "FedEx Ground",
+	    "code" : "FEDEX_FEDEX_GROUND"
+	}, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx First Overnight",
+        "code" : "FEDEX_FIRST_OVERNIGHT"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx Home Delivery",
+        "code" : "FEDEX_GROUND_HOME_DELIVERY"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx International Economy",
+        "code" : "FEDEX_INTERNATIONAL_ECONOMY"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx International Economy Freight",
+        "code" : "FEDEX_INTERNATIONAL_ECONOMY_FREIGHT"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx International First",
+        "code" : "FEDEX_INTERNATIONAL_FIRST"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx International Priority",
+        "code" : "FEDEX_INTERNATIONAL_PRIORITY"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx International Priority Freight",
+        "code" : "FEDEX_INTERNATIONAL_PRIORITY_FREIGHT"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx Priority Overnight",
+        "code" : "FEDEX_PRIORITY_OVERNIGHT"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx SmartPost",
+        "code" : "FEDEX_SMART_POST"
+    }, 
+    {
+        "name" : "FedEx",
+        "description" : "FedEx Standard Overnight",
+        "code" : "FEDEX_STANDARD_OVERNIGHT"
+    }, 
+    {
+        "name" : "UPS",
+        "description" : "UPS Express",
+        "code" : "ups_UPS_EXPRESS"
+    }, 
+    {
+        "name" : "UPS",
+        "description" : "UPS Ground",
+        "code" : "ups_UPS_GROUND"
+    }, 
+    {
+        "name" : "UPS",
+        "description" : "UPS Next Day Air",
+        "code" : "ups_UPS_NEXT_DAY_AIR"
+    }, 
+    {
+        "name" : "UPS",
+        "description" : "UPS Next Day Air Early",
+        "code" : "ups_UPS_NEXT_DAY_AIR_EARLY"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Next Day Air Saver",
+        "code" : "ups_UPS_NEXT_DAY_AIR_SAVER"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Saver",
+        "code" : "ups_UPS_SAVER"
+    },    
+    {
+        "name" : "UPS",
+        "description" : "UPS Second Day Air",
+        "code" : "ups_UPS_SECOND_DAY_AIR"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Second Day Air AM",
+        "code" : "ups_UPS_SECOND_DAY_AIR_AM"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Standard",
+        "code" : "ups_UPS_STANDARD"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Three Day Select",
+        "code" : "ups_UPS_THREE_DAY_SELECT"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Worldwide Expedited",
+        "code" : "ups_UPS_WORLDWIDE_EXPEDITED"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Worldwide Express Freight",
+        "code" : "ups_UPS_WORLDWIDE_EXPRESS_FREIGHT"
+    },
+    {
+        "name" : "UPS",
+        "description" : "UPS Worldwide Express Plus",
+        "code" : "ups_UPS_WORLDWIDE_EXPRESS_PLUS"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal Express",
+        "code" : "usps_EXPRESS"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal Express International",
+        "code" : "usps_EXPRESS INTERNATIONAL"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal First Class",
+        "code" : "usps_FIRST CLASS"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal First Class International",
+        "code" : "usps_FIRST CLASS INTERNATIONAL"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal Library",
+        "code" : "usps_LIBRARY"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal Media",
+        "code" : "usps_MEDIA"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal Priority",
+        "code" : "usps_PRIORITY"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal Express",
+        "code" : "usps_PRIORITY INTERNATIONAL"
+    },
+    {
+        "name" : "USPS",
+        "description" : "US Postal Standard",
+        "code" : "usps_STANDARD POST"
+    }
+]

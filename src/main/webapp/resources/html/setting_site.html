@@ -1,72 +1,43 @@
 <div class="row" id="settings">
     <div class="tab-full-column">
-	    <h4>Site Mapping Settings</h4> 
+	    <h4>Map Enterprises and Sites</h4> 
 		<div>
-            <div class="controls">
-                <input type="text" id="sterlingUserName" ng-model="settings.sterlingEnterpriseCode"
-                    class="tab-field" required="required"></input>
-            </div>
-            <div class="tab-full-column">
-                <div>
-                    <label class="tab-field-label">Map Mozu Site to Sterling Seller Organization</label>
-                    <a class="button primary-action" data-bind="click: $parent.addLocation"
-                       id="addLocationBtn"">Add Site</a>
-                </div>
-            </div>
-            <div class="tab-first-column">
-                <label class="tab-field-label" style=" for="field">Mozu Site</label> 
+             <div class="tab-first-column">
+                <label class="tab-field-label" style=" for="field">Sterling Top-Level Organization</label> 
             </div>                
             <div class="tab-second-column">
-                <label class="tab-field-label">Sterling Organization</label>
+               <select type="text" id="sterlingEnterpriseCode" ng-model="settings.sterlingEnterpriseCode"
+                    ng-options="org.id as org.name for org in settings.enterprises"
+                    class="tab-field" required="required">
+                    <option value="">-- Select Sterling Enterprise --</option>
+               </select>
             </div>
-            <div class="controls" ng-repeat="siteMap in settings.siteMappings" >
-                <div class="tab-first-column">
-                    <select id="mozuSite" ng-model="siteMap.mozuSiteId" ng-options="site.id as site.name for site in settings.sites"
-                        class="tab-field" required="required">
-                    </select>
-                 </div>
-                <div class="tab-second-column">
-                    <select id="sterlingOrg" ng-model="siteMap.sterlingOrgCode" ng-options="org.id as org.name for org in settings.sellers"
-                        class="tab-field" required="required">
-                        <option value="">-- Select Sterling Seller --</option>
-                    </select>
-                </div>
+
+            <div class="scrollable">
+                <table class="table table-striped"
+                    style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
+                </table>
             </div>
-	        <div class="tab-full-column">
-                <div>
-                    <label class="tab-field-label">Map Mozu Locations to Sterling Ship Nodes</label>
-                    <a class="button primary-action" data-bind="click: $parent.addLocation"
-                       id="addLocationBtn"">Add Location</a>
-                </div>
+            <div class="bodycontainer scrollable"
+                style="height: 320px; overflow: auto; ">
+                <table class="table table-striped"
+                    style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
+                    <thead>
+                        <th class="col-xs-6">Sterling Seller Organization</th>
+                        <th class="col-xs-6">Mozu Site</th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="seller in settings.sellerMap">
+                            <td class="col-xs-6">{{seller.sterlingOrgName}}</td>
+                            <td class="col-xs-6"><select
+                                ng-model="seller.mozuSiteId"
+                                ng-options="site.id as site.name for site in settings.sites"
+                                class="tab-field" required="required"></select></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="tab-first-column">
-                <label class="tab-field-label" style=" for="field">Mozu Location</label> 
-            </div>                
-            <div class="tab-second-column">
-                <label class="tab-field-label">Sterling Ship Node</label>
-            </div>
-            <div class="controls" ng-repeat="locationMap in settings.locationMappings">
-                <div class="tab-first-column">
-                    <select id="mozuLocation" ng-model="locationMap.locationCode" ng-options="location.id as location.name for location in settings.locations"
-                        class="tab-field" required="required">
-                        <option value="">-- Select Mozu Location --</option>
-                    </select>
-                 </div>
-                <div class="tab-second-column">
-                    <select id="sterlingShipNode" ng-model="locationMap.shippingNodeCode" ng-options="shipNode.id as shipNode.name for shipNode in settings.shippingNodes"
-                        class="tab-field" required="required">
-                        <option value="">-- Select Sterling Ship Node --</option>
-                    </select>
-                </div>
-            </div>
-	    </div>
-	</div>
-</div>
-<div id="buttons" style="display: block; float: right;">
-    <button class="mz-button primary" ng-disabled="!buttonEnabled()"
-        ng-click="saveSetting()">Save</button>
-    <a class="mz-button" href="#/connection">Back</A>
-    <button class="mz-button" ng-disabled="!buttonEnabled()"
-        ng-click="resetSettings()">Reset</button>
+        </div>
+ 	</div>
 </div>
 

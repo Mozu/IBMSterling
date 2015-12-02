@@ -1,0 +1,32 @@
+<div class="row" id="settings">
+	<div class="tab-full-column">
+		<h4>Shipping Settings</h4>
+		<div>
+			<div class="scrollable">
+				<table class="table table-striped"
+					style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
+				</table>
+			</div>
+			<div class="bodycontainer scrollable"
+				style="height: 320px; overflow: auto; ">
+				<table class="table table-striped"
+					style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
+					<thead>
+						<th class="col-xs-6">Sterling Shipping Carrier</th>
+						<th class="col-xs-6">Mozu Shipping Carrier/Method</th>
+					</thead>
+					<tbody>
+						<tr ng-repeat="carrier in settings.carrierMap">
+							<td class="col-xs-6">{{carrier.sterlingCarrierName}}</td>
+							<td class="col-xs-6"><select
+								ng-model="carrier.mozuShipCode"
+                                ng-options="mCarrier.id as mCarrier.name for mCarrier in settings.mozuCarriers"
+								class="tab-field" required="required"></select></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+

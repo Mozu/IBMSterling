@@ -1,13 +1,16 @@
 package com.mozu.sterling.handler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.mozu.api.ApiContext;
@@ -27,13 +30,16 @@ import com.mozu.base.handlers.EntitySchemaHandler;
 import com.mozu.base.models.EntityDataTypes;
 import com.mozu.base.models.EntityScope;
 import com.mozu.base.utils.ApplicationUtils;
-import com.mozu.sterling.model.LocationMapping;
+import com.mozu.sterling.model.CarrierMap;
+import com.mozu.sterling.model.LocationMap;
 import com.mozu.sterling.model.OptionUI;
 import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.SettingUI;
-import com.mozu.sterling.model.SiteMapping;
+import com.mozu.sterling.model.SiteMap;
 import com.mozu.sterling.model.organization.Organization;
 import com.mozu.sterling.model.organization.ShipNode;
+import com.mozu.sterling.model.shipping.CarrierService;
+import com.mozu.sterling.service.MozuShippingService;
 import com.mozu.sterling.service.SterlingOrganizationService;
 
 /**
@@ -53,8 +59,11 @@ public class ConfigHandler {
     EntityHandler<Setting> settingEntityHandler;
 
     @Autowired
-    SterlingOrganizationService locationService;
+    @Qualifier("sterlingOrganizationService")
+    SterlingOrganizationService organizationService;
 
+    @Autowired
+    MozuShippingService mozuShippingService;
     public ConfigHandler() {
         settingEntityHandler = new EntityHandler<Setting>(Setting.class);
     }
@@ -95,22 +104,14 @@ public class ConfigHandler {
         settingUI.setIsConnected(false);
         Setting setting = getSetting(tenantId);
         BeanUtils.copyProperties(setting, settingUI);
-        if (settingUI.getSiteMappings() == null || settingUI.getSiteMappings().size() == 0) {
-            List<SiteMapping> siteMappings = new ArrayList<>();
-            siteMappings.add(new SiteMapping());
-            settingUI.setSiteMappings(siteMappings);
-        }
-        // load empty records if nothing is selected.
-        if (settingUI.getLocationMappings() == null || settingUI.getLocationMappings().size() == 0) {
-            List<LocationMapping> locationMappings = new ArrayList<>();
-            locationMappings.add(new LocationMapping());
-            settingUI.setLocationMappings(locationMappings);
-        }
         // load sites options from Mozu
         settingUI.setSites(getSites(tenantId));
 
         // load location values from Mozu
         settingUI.setLocations(getLocations(tenantId));
+        
+        // load mozu shipping methods
+        settingUI.setMozuCarriers(mozuShippingService.getMozuShippingCarrierOptions());
 
         if (StringUtils.isNotBlank(setting.getSterlingUrl()) 
                 || StringUtils.isNotBlank(setting.getSterlingUserId())
@@ -118,9 +119,10 @@ public class ConfigHandler {
 
             // set the organization lists
             try {
-                settingUI.setSellers(getSellerList(setting));
                 settingUI.setEnterprises(getEnterpriseList(setting));
-                settingUI.setShippingNodes(getShipNodes(setting));
+                settingUI.setSellerMap(getSellerList(setting));
+                settingUI.setShipNodeMap(getShipNodeMap(setting));
+                settingUI.setCarrierMap(getCarrierMapList(setting));
                 settingUI.setIsConnected(true);
             } catch (Exception e) {
                 settingUI.setIsConnected(false);
@@ -131,6 +133,7 @@ public class ConfigHandler {
         return settingUI;
     }
 
+
     /**
      * Save Sterling configuration settings for the tenant
      * 
@@ -140,6 +143,44 @@ public class ConfigHandler {
      *            the populated settings data
      * @throws Exception
      */
+    public void saveSettingUI(Integer tenantId, SettingUI settingUI) throws Exception {
+        Setting setting = new Setting();
+        BeanUtils.copyProperties(settingUI, setting);
+        
+        List<SiteMap> siteMapList = settingUI.getSellerMap();
+        List<LocationMap> locationMapList = settingUI.getShipNodeMap();
+        List<CarrierMap> carrierMapList = settingUI.getCarrierMap();
+        Map <String, String> configMap = null;
+        if (siteMapList != null) {
+            configMap = new HashMap<>();
+
+            for (SiteMap siteMap : siteMapList) {
+                if (StringUtils.isNotBlank(siteMap.getMozuSiteId())) {
+                    configMap.put(siteMap.getMozuSiteId(), siteMap.getSterlingOrgCode());
+                } 
+            }
+            setting.setSiteMap(configMap);
+        }
+        if (locationMapList != null) {
+            configMap = new HashMap<>();
+            for (LocationMap locationMap : locationMapList) {
+                if (StringUtils.isNotBlank(locationMap.getLocationCode())) {
+                    configMap.put(locationMap.getLocationCode(), locationMap.getShippingNodeCode());
+                }
+            }
+            setting.setLocationMap(configMap);
+        }
+        if (carrierMapList != null) {
+            configMap = new HashMap<>();
+            for (CarrierMap carrierMap : carrierMapList) {
+                if (StringUtils.isNotBlank(carrierMap.getMozuShipCode())) {
+                    configMap.put(carrierMap.getMozuShipCode(), carrierMap.getSterlingCarrierCode());
+                }
+            }
+            setting.setShipMethodMap(configMap);
+        }
+        saveSettings(tenantId, setting);
+    }
     public void saveSettings(Integer tenantId, Setting setting) throws Exception {
 
         logger.debug("Saving settings into MZDB for " + tenantId);
@@ -232,22 +273,24 @@ public class ConfigHandler {
         return siteOptions;
     }
 
-    protected List<OptionUI> getShipNodes(Setting setting) throws Exception {
-        List<OptionUI> shipNodeOptions = new ArrayList<>();
+    protected List<LocationMap> getShipNodeMap(Setting setting) throws Exception {
+        List<LocationMap> shipNodeMap = new ArrayList<>();
 
-        List<ShipNode> shipNodes = locationService.getShipNodes(setting);
+        List<ShipNode> shipNodes = organizationService.getShipNodes(setting);
 
+        Map <String, String> locationMap = setting.getLocationMap();
         for (ShipNode shipNode : shipNodes) {
-            shipNodeOptions.add(new OptionUI(shipNode.getShipnodeKey(), shipNode.getDescription()));
+            String mozuSiteId = getMappedMozuCode (shipNode.getShipnodeKey(), locationMap);
+            shipNodeMap.add(new LocationMap(shipNode.getShipnodeKey(), shipNode.getDescription(), mozuSiteId));
         }
 
-        return shipNodeOptions;
+        return shipNodeMap;
     }
 
     protected List<OptionUI> getEnterpriseList(Setting setting) throws Exception {
         List<OptionUI> shipNodeOptions = new ArrayList<>();
 
-        List<Organization> organizations = locationService.getEnterpriseOrganizations(setting);
+        List<Organization> organizations = organizationService.getEnterpriseOrganizations(setting);
 
         for (Organization org : organizations) {
             shipNodeOptions.add(new OptionUI(org.getOrganizationCode(), org.getOrganizationName()));
@@ -256,15 +299,55 @@ public class ConfigHandler {
         return shipNodeOptions;
     }
 
-    protected List<OptionUI> getSellerList(Setting setting) throws Exception {
-        List<OptionUI> shipNodeOptions = new ArrayList<>();
+    protected List<SiteMap> getSellerList(Setting setting) throws Exception {
+        List<SiteMap> siteMappings = new ArrayList<>();
 
-        List<Organization> organizations = locationService.getSellerOrganizations(setting);
+        List<Organization> organizations = organizationService.getSellerOrganizations(setting);
 
+        Map <String, String> shipMap = setting.getSiteMap();
         for (Organization org : organizations) {
-            shipNodeOptions.add(new OptionUI(org.getOrganizationCode(), org.getOrganizationName()));
+            String mozuSiteId = getMappedMozuCode (org.getOrganizationCode(), shipMap);
+            siteMappings.add(new SiteMap(org.getOrganizationCode(), org.getOrganizationName(), mozuSiteId));
         }
 
-        return shipNodeOptions;
+        return siteMappings;
+    }
+    
+    /**
+     * 
+     * @param setting
+     * @return
+     * @throws Exception
+     */
+    private List<CarrierMap> getCarrierMapList(Setting setting) throws Exception {
+        List <CarrierService> sterlingCarriers = organizationService.getCarrierList(setting);
+        List <CarrierMap> carrierMapList = new ArrayList<>();
+        Map<String, String> shipMethodMap = setting.getShipMethodMap();
+        for (CarrierService carrier : sterlingCarriers) {
+            String mozuCarrierCode = getMappedMozuCode (carrier.getCarrierServiceCode(), shipMethodMap);
+            carrierMapList.add(new CarrierMap(carrier.getSCACAndServiceDesc(), carrier.getCarrierServiceCode(), mozuCarrierCode));
+        }
+        
+        return carrierMapList;
+    }
+
+
+    /**
+     * 
+     * @param sterlingCode
+     * @param mozuMap
+     * @return
+     */
+    private String getMappedMozuCode(String sterlingCode, Map<String, String> mozuMap) {
+        String mozuCarrierCode = null;
+        if (mozuMap != null && mozuMap.size() > 0) {
+            for (Map.Entry<String,String> shipMethod : mozuMap.entrySet()) {
+                if (shipMethod.getValue().equals(sterlingCode)) {
+                    mozuCarrierCode =shipMethod.getKey();
+                    break;
+                }
+            }
+        }
+        return mozuCarrierCode;
     }
 }

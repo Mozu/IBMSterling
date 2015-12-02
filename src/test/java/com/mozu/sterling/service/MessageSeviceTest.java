@@ -1,15 +1,6 @@
 package com.mozu.sterling.service;
 
-import static org.junit.Assert.assertEquals;
-
-import javax.jms.Connection;
-import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.junit.Before;
 import org.junit.Test;

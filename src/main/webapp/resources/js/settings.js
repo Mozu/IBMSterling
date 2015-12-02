@@ -12,7 +12,8 @@ var SettingsController = function($scope, $http, $rootScope) {
 	
 	this.getData().then(function(dataResponse) {
 		$scope.initialSetting = dataResponse.data;
-		$rootScope.resetSettings();
+		$scope.resetSettings();
+		$rootScope.isConnected = $scope.initialSetting.isConnected;
 		if (dataResponse.data.errorMsg) {
 			$rootScope.errorMessage = "Error: " + dataResponse.data.errorMsg;
 			$rootScope.errorsExist = true;
@@ -21,25 +22,41 @@ var SettingsController = function($scope, $http, $rootScope) {
 
 
 	// save function
-	$rootScope.saveSetting = function() {
+	$scope.saveSetting = function() {
 		$http.post('api/config', $scope.settings).success(function(data) {
 			$scope.initialSetting = data;
-			$rootScope.resetSettings();
+			$scope.resetSettings();
+			$rootScope.isConnected = $scope.initialSetting.isConnected;
 			if (data.errorMsg) {
-				$rootScope.errorMessage = "Error: " + errorMsg;
+				$rootScope.errorMessage = "Error: " + data.errorMsg;
 				$rootScope.errorsExist = true;
 			} else {
 				alert("Settings successfully saved!");
 			}
 		});
 	}
+	
+	$scope.importLocations = function () {
+		$http.post('api/config/locationImport', $scope.settings).success(function(data) {
+			$scope.initialSetting = data;
+			$scope.resetSettings();
+			$rootScope.isConnected = $scope.initialSetting.isConnected;
+			if (data.errorMsg) {
+				$rootScope.errorMessage = "Error: " + data.errorMsg;
+				$rootScope.errorsExist = true;
+			} else {
+				alert("Locations imported and mapped successfully!");
+			}
+		});
+	}
+	
 
-	$rootScope.resetSettings = function() {
+	$scope.resetSettings = function() {
 		$scope.settings = angular.copy($scope.initialSetting);
 		$scope.settingForm.$setPristine(true);
 	}
 
-	$rootScope.buttonEnabled = function() {
+	$scope.buttonEnabled = function() {
 		return $scope.settingForm.$dirty;
 	}
 

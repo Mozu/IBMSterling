@@ -4,26 +4,52 @@ var sterlingApp = angular.module(moduleName, [ 'components', 'ngRoute' ])
 				"SettingsController", SettingsController);
 
 sterlingApp.controller("tabController", function($rootScope, $scope) {
-
+	$scope.showBtns = false;
+	
 	$scope.tabs = [ {
 		heading : "Information",
 		route : "#/info",
-		active : true
+		active : true,
+		check_conn: false,
+		show_button: false
 	}, {
 		heading : "Connection",
 		route : "#/connection",
-		active : false
+		active : false,
+		check_conn: false,
+		show_button: true
 	}, {
 		heading : "Site Mapping",
 		route : "#/site",
-		active : false
+		active : false,
+		check_conn: true,
+		show_button: true
+	}, {
+		heading : "Locations",
+		route : "#/location",
+		active : false,
+		check_conn: true,
+		show_button: true
+	}, {
+		heading : "Shipping",
+		route : "#/shipping",
+		active : false,
+		check_conn: true,
+		show_button: true
+	}, {
+		heading : "Import",
+		route : "#/import",
+		active : false,
+		check_conn: true,
+		show_button: false
 	}];
 
 	$scope.selectTab = function(tab) {
 		angular.forEach($scope.tabs, function(tab2) {
 			tab2.active = false;
 		});
-		tab.active = true
+		tab.active = true;
+		$scope.showBtns = tab.show_button; 
 	};
 	
 	$scope.closeError = function() {
@@ -39,10 +65,6 @@ sterlingApp.config([ '$routeProvider', function($routeProvider) {
 		templateUrl : 'html/info.html',
 	})
 
-	.when('/setting', {
-		templateUrl : 'html/settings.html',
-	})
-
 	// nested states
 	// each of these sections will have their own view
 	// url will be nested (/form/profile)
@@ -55,6 +77,17 @@ sterlingApp.config([ '$routeProvider', function($routeProvider) {
 		templateUrl : 'html/setting_site.html'
 	})
 
+	.when('/location', {
+		templateUrl : 'html/setting_location.html'
+	})
+
+	.when('/shipping', {
+		templateUrl : 'html/setting_shipping.html'
+	})
+	
+	.when('/import', {
+		templateUrl : 'html/import.html'
+	})
 	.otherwise({
 		redirectTo : '/info'
 	});

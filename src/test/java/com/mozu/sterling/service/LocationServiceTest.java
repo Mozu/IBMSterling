@@ -25,7 +25,7 @@ public class LocationServiceTest {
 	protected static final int TENANT_ID = 419;
 	
     @Autowired
-    SterlingOrganizationService locationService;
+    LocationService locationService;
     
     @Test
     public void getShipNodesTest () throws Exception {
@@ -45,7 +45,7 @@ public class LocationServiceTest {
     	List<ShipNode> shipNodes = locationService.getShipNodes(TENANT_ID);
     	Location location=null;
     	for (ShipNode shipNode : shipNodes) {
-    		location=locationService.createLocation(shipNode, apiContext);
+    		location=locationService.createOrUpdateLocation(shipNode, apiContext);
 		 }
     	assertNotNull(location);
     }
@@ -53,7 +53,7 @@ public class LocationServiceTest {
     @Test
     public void createAndAutoMapLocationsTest() throws Exception{
     	Setting setting = locationService.createAndAutoMapLocations(TENANT_ID);
-    	assertNotNull(setting.getLocationMappings());
+    	assertNotNull(setting.getLocationMap());
     }
     
 }

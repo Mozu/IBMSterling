@@ -1,0 +1,39 @@
+<div class="row" id="settings">
+    <div class="tab-full-column">
+	    <h4>Location Mapping Settings</h4> 
+	        <div class="tab-full-column">
+                <div>
+                    <button class="mz-button primary"
+                                    ng-click="importLocations()">Import and Map Locations</button>
+                    
+                </div>
+            </div>
+            
+            <div class="scrollable">
+                <table class="table table-striped"
+                    style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
+                </table>
+            </div>
+            <div class="bodycontainer scrollable"
+                style="height: 320px; overflow: auto; ">
+                <table class="table table-striped"
+                    style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
+                    <thead>
+                        <th class="col-xs-6">Sterling Ship Node</th>
+                        <th class="col-xs-6">Mozu Location</th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="shipNode in settings.shipNodeMap">
+                            <td class="col-xs-6">{{shipNode.shippingNodeName}}</td>
+                            <td class="col-xs-6"><select
+                                ng-model="shipNode.locationCode"
+                                ng-options="location.id as location.name for location in settings.locations"
+                                class="tab-field" required="required"></select></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+	    </div>
+	</div>
+</div>
+
