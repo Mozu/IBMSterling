@@ -117,6 +117,16 @@ public class OrderService extends SterlingClient {
         String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
         sterlingOrder.setOrderNo(orderNoStr);
         sterlingOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
+        if (setting.getSiteMap() != null) {
+            String sellerCode = setting.getSiteMap().get(mozuOrder.getSiteId().toString());
+            sterlingOrder.setSellerOrganizationCode(sellerCode);
+        }
+        
+        if (setting.getShipMethodMap() != null && mozuOrder.getFulfillmentInfo() != null) {
+            String mozuShippingCode = mozuOrder.getFulfillmentInfo().getShippingMethodCode();
+            String serviceCode = setting.getSiteMap().get(mozuShippingCode);
+            sterlingOrder.setCarrierServiceCode(serviceCode);
+        }
         sterlingOrder.setOrderDate(mozuOrder.getAuditInfo().getCreateDate().toString("yyyyMMdd"));
         sterlingOrder.setOrderLines(getOrderLines(mozuOrder.getItems()));
         sterlingOrder.setPersonInfoShipTo(getPersonInfoShipTo(mozuOrder.getFulfillmentInfo()));
