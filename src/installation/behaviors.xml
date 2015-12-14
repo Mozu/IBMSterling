@@ -1,0 +1,27 @@
+<Behaviors xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://developer.mozu.com/v1">
+  <Behavior>Product Create</Behavior>
+  <Behavior>Product Update</Behavior>
+  <Behavior>Product Delete</Behavior>
+  <Behavior>Product Read</Behavior>
+  <Behavior>Product Category Read</Behavior>
+  <Behavior>Product Category Create</Behavior>
+  <Behavior>Product Category Delete</Behavior>
+  <Behavior>Product Category Update</Behavior>
+  <Behavior>Tenant Read</Behavior>
+  <Behavior>Order Read</Behavior>
+  <Behavior>Order Update</Behavior>
+  <Behavior>Order Fulfill</Behavior>
+  <Behavior>Order Cancel</Behavior>
+  <Behavior>Application Status Read</Behavior>
+  <Behavior>Application Status Update</Behavior>
+  <Behavior>Application Status Create</Behavior>
+  <Behavior>Application Status Delete</Behavior>
+  <Behavior>Application Status Enable</Behavior>
+  <Behavior>Location Create</Behavior>
+  <Behavior>Location Update</Behavior>
+  <Behavior>Location Read</Behavior>
+  <Behavior>Create EntityList Definition</Behavior>
+  <Behavior>Update EntityList Definition</Behavior>
+  <Behavior>Delete EntityList Definition</Behavior>
+  <Behavior>Product Code Change</Behavior>
+</Behaviors>

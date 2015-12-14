@@ -1,0 +1,15 @@
+<!ELEMENT MasterCatalogList ( MasterCatalog* )>
+<!ATTLIST MasterCatalogList LastMasterCatalogKey CDATA #IMPLIED>
+<!ATTLIST MasterCatalogList LastRecordSet CDATA #IMPLIED>
+<!ATTLIST MasterCatalogList TotalMasterCatalogList CDATA #IMPLIED>
+<!ATTLIST MasterCatalogList a-dtype NMTOKENS
+                                   "TotalMasterCatalogList int">
+
+<!ELEMENT MasterCatalog EMPTY>
+<!ATTLIST MasterCatalog Description CDATA #IMPLIED>
+<!ATTLIST MasterCatalog MasterCatalogID CDATA #IMPLIED>
+<!ATTLIST MasterCatalog MasterCatalogKey CDATA #IMPLIED>
+<!ATTLIST MasterCatalog OrganizationCode CDATA #IMPLIED>
+<!ATTLIST MasterCatalog ShortDescription CDATA #IMPLIED>
+
+

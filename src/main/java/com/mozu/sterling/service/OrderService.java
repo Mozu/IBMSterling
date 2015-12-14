@@ -1,7 +1,9 @@
 package com.mozu.sterling.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +37,8 @@ import com.mozu.sterling.model.order.OrderLines;
 import com.mozu.sterling.model.order.PersonInfo;
 import com.mozu.sterling.model.order.PersonInfoBillTo;
 import com.mozu.sterling.model.order.PersonInfoShipTo;
+import com.mozu.sterling.model.organization.ShipNode;
+import com.mozu.sterling.model.organization.ShipNodeList;
 
 /**
  * Service for reading, mapping, and sending Orders from to Mozu to Sterling.
@@ -47,6 +51,7 @@ public class OrderService extends SterlingClient {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     public final static String ORDER_SERVICE_NAME = "createOrder";
+    public final static String GET_ORDER_SERVICE_NAME = "getOrderList";
 
     @Autowired
     SterlingClient sterlingClient;
@@ -57,6 +62,30 @@ public class OrderService extends SterlingClient {
     public OrderService () throws Exception {
         super();
     }
+    
+    public List<com.mozu.sterling.model.order.Order> getSterlingOrders (Setting setting) {
+        Orde shipNodeList = null;
+        if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
+            ShipNode inShipNode = new ShipNode();
+            if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
+                inShipNode.setOwnerKey(setting.getSterlingEnterpriseCode());
+            }
+
+            Document inDoc = convertObjectToXml(inShipNode, ShipNode.class);
+            Document outDoc = null;
+            try {
+                outDoc = this.invoke(SHIP_NODE_SERVICE_NAME, inDoc, setting);
+                shipNodeList = (ShipNodeList) convertXmlToObject(outDoc, ShipNodeList.class);
+            } catch (Exception e) {
+                logger.warn("Unable to get ship node list from Sterling: " + e.getMessage());
+            }
+            
+        } else {
+            logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
+        }
+        return shipNodeList != null ? shipNodeList.getShipNode() : new ArrayList<ShipNode>(); 
+     }
+    
     /**
      * Create an order in mozu based on a Mozu event.
      * 

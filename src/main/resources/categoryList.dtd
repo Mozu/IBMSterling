@@ -1,0 +1,38 @@
+<!ELEMENT CategoryList ( Category* )>
+<!ATTLIST CategoryList LastListKey CDATA #IMPLIED>
+<!ATTLIST CategoryList LastRecordSet CDATA #IMPLIED>
+<!ATTLIST CategoryList TotalCategoryList CDATA #IMPLIED>
+<!ATTLIST CategoryList TotalNumberOfRecords CDATA #IMPLIED>
+<!ATTLIST CategoryList a-dtype NMTOKENS
+                              "TotalCategoryList int
+                               TotalNumberOfRecords int">
+
+<!ELEMENT CategoryLocaleList ( CategoryLocale? )>
+<!ATTLIST CategoryLocaleList TotalNumberOfRecords CDATA #IMPLIED>
+
+<!ELEMENT Category ( CategoryLocaleList? )>
+<!ATTLIST Category AuthorizedSubCatalogOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Category CategoryDomainKey CDATA #IMPLIED>
+<!ATTLIST Category CategoryID CDATA #IMPLIED>
+<!ATTLIST Category CategoryKey CDATA #IMPLIED>
+<!ATTLIST Category CategoryPath CDATA #IMPLIED>
+<!ATTLIST Category Description CDATA #IMPLIED>
+<!ATTLIST Category OrganizationCode CDATA #IMPLIED>
+<!ATTLIST Category ParentCategoryKey CDATA #IMPLIED>
+<!ATTLIST Category SequenceNo CDATA #IMPLIED>
+<!ATTLIST Category ShortDescription CDATA #IMPLIED>
+<!ATTLIST Category Status CDATA #IMPLIED>
+<!ATTLIST Category SubCatalogOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Category a-dtype NMTOKENS
+                          "SequenceNo int">
+
+<!ELEMENT CategoryLocale EMPTY>
+<!ATTLIST CategoryLocale CategoryKey CDATA #IMPLIED>
+<!ATTLIST CategoryLocale CategoryLocaleKey CDATA #IMPLIED>
+<!ATTLIST CategoryLocale Country CDATA #IMPLIED>
+<!ATTLIST CategoryLocale Description CDATA #IMPLIED>
+<!ATTLIST CategoryLocale Language CDATA #IMPLIED>
+<!ATTLIST CategoryLocale ShortDescription CDATA #IMPLIED>
+<!ATTLIST CategoryLocale Variant CDATA #IMPLIED>
+
+

@@ -69,6 +69,9 @@ public class Item {
     @XmlAttribute(name = "ItemKey")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String itemKey;
+    @XmlAttribute(name = "CallingOrganizationCode")
+    @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+    protected String callingOrganizationCode;
     @XmlAttribute(name = "OrganizationCode")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String organizationCode;
@@ -917,6 +920,14 @@ public class Item {
      */
     public void setChildItemList(ChildItemList value) {
         this.childItemList = value;
+    }
+
+    public String getCallingOrganizationCode() {
+        return callingOrganizationCode;
+    }
+
+    public void setCallingOrganizationCode(String callingOrganizationCode) {
+        this.callingOrganizationCode = callingOrganizationCode;
     }
 
 }

@@ -1,0 +1,20 @@
+<!ELEMENT Page ( Output? )>
+<!ATTLIST Page GeneratedOn CDATA #IMPLIED>
+<!ATTLIST Page IsFirstPage (Y|N) #IMPLIED>
+<!ATTLIST Page IsLastPage (Y|N) #IMPLIED>
+<!ATTLIST Page IsValidPage (Y|N) #IMPLIED>
+<!ATTLIST Page PageNumber CDATA #IMPLIED>
+<!ATTLIST Page PageSetToken CDATA #IMPLIED>
+<!ATTLIST Page PageSize CDATA #IMPLIED>
+<!ATTLIST Page StartRowNumber CDATA #IMPLIED>
+<!ATTLIST Page TotalNumberOfPages CDATA #IMPLIED>
+<!ATTLIST Page a-dtype NMTOKENS
+                      "GeneratedOn dateTime
+                       PageNumber int
+                       PageSize int
+                       StartRowNumber int
+                       TotalNumberOfPages int">
+
+<!ELEMENT Output ANY>
+
+

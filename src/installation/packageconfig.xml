@@ -1,0 +1,7 @@
+<PackageConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://developer.mozu.com/v1">
+  <PackageName>release</PackageName>
+  <ConfigUrl>https://integrations2-{su}.mozu.com/Sterling/</ConfigUrl>
+  <Description />
+  <ApplicationKey>a0842dd.ibm_sterling.1.0.0.release</ApplicationKey>
+  <Extends />
+</PackageConfig>

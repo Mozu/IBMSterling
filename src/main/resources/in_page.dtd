@@ -1,0 +1,30 @@
+<!ELEMENT Page ( ReferenceData?,PreviousPage?,API? )>
+<!ATTLIST Page PageNumber CDATA #IMPLIED>
+<!ATTLIST Page PageSetToken CDATA #IMPLIED>
+<!ATTLIST Page PageSize CDATA #IMPLIED>
+<!ATTLIST Page PaginationStrategy (GENERIC|ROWNUM|RESULTSET|NEXTPAGE) #IMPLIED>
+<!ATTLIST Page Refresh (Y|N) #IMPLIED>
+<!ATTLIST Page StartRowNumber CDATA #IMPLIED>
+<!ATTLIST Page XMLPath CDATA #IMPLIED>
+<!ATTLIST Page a-dtype NMTOKENS
+                      "PageNumber int
+                       PageSize int
+                       StartRowNumber int">
+
+<!ELEMENT Input ANY>
+
+<!ELEMENT API ( Input,Template? )>
+<!ATTLIST API IsFlow CDATA #IMPLIED>
+<!ATTLIST API Name CDATA #REQUIRED>
+<!ATTLIST API Version CDATA #IMPLIED>
+
+<!ELEMENT ReferenceData ANY>
+
+<!ELEMENT Template ANY>
+
+<!ELEMENT PreviousPage ANY>
+<!ATTLIST PreviousPage PageNumber CDATA #IMPLIED>
+<!ATTLIST PreviousPage a-dtype NMTOKENS
+                              "PageNumber int">
+
+

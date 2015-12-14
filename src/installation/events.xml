@@ -1,0 +1,14 @@
+<Events xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://developer.mozu.com/v1">
+  <EventsHandler>
+    <EndPoint>https://integrations2-{su}.mozu.com/Sterling/events</EndPoint>
+    <Event>Application Installed</Event>
+    <Event>Application Uninstalled</Event>
+    <Event>Application Upgraded</Event>
+    <Event>Order Cancelled</Event>
+    <Event>Order Closed</Event>
+    <Event>Order Fulfilled</Event>
+    <Event>Order Opened</Event>
+    <Event>Order Updated</Event>
+    <Event>Shipment Fulfilled</Event>
+  </EventsHandler>
+</Events>
