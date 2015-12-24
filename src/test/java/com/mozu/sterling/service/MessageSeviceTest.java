@@ -62,22 +62,22 @@ public class MessageSeviceTest
         connectionFactory.setProviderEndpoints("50.23.47.110:7276:BootstrapBasicMessaging");
         connectionFactory.setBusName("mozuJMS");
         Connection connection = connectionFactory.createConnection();
-        //connection.start();
+        connection.start();
         Destination destination = jmsFactoryFactory.createQueue("qd_mozu");
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createConsumer(destination);
-        //consumer.getMessageListener().onMessage(message);
+        
+
         if (true) {
-            //Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        	Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer = session.createProducer(destination);
             TextMessage hello = session.createTextMessage("hello");
             producer.send(hello);
             producer.setTimeToLive(500000);
             producer.close();
-            //session.close();
+            session.close();
         }
         if (true) {
-
+        	Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer consumer = session.createConsumer(destination);
             Message receive = consumer.receiveNoWait();
             while (receive != null) {
                 if (receive instanceof TextMessage) {
