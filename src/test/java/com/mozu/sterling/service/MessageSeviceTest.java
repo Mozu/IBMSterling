@@ -1,13 +1,20 @@
 package com.mozu.sterling.service;
 
+import javax.jms.Connection;
+import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-//import com.ibm.websphere.sib.api.jms.JmsConnectionFactory;
-//import com.ibm.websphere.sib.api.jms.JmsFactoryFactory;
+import com.ibm.websphere.sib.api.jms.JmsConnectionFactory;
+import com.ibm.websphere.sib.api.jms.JmsFactoryFactory;
 /**
  * Unit tests for <code>MessageService</code>.
  *
@@ -50,36 +57,40 @@ public class MessageSeviceTest
     
     @Test
     public void testNoSpringJMSConnection () throws Exception {
-//        JmsFactoryFactory jmsFactoryFactory = JmsFactoryFactory.getInstance();
-//        JmsConnectionFactory connectionFactory = jmsFactoryFactory.createConnectionFactory();
-//        connectionFactory.setProviderEndpoints("iiop://50.23.47.110:2809");
-//        connectionFactory.setBusName("mozuJMS");
-//        Connection connection = connectionFactory.createConnection();
-//        connection.start();
-//        Destination destination = jmsFactoryFactory.createQueue("QUEUE1");
-//        if (true) {
-//            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//            MessageProducer producer = session.createProducer(destination);
-//            TextMessage hello = session.createTextMessage("hello");
-//            producer.send(hello);
-//            session.close();
-//        }
-//        if (true) {
-//            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//            MessageConsumer consumer = session.createConsumer(destination);
-//            Message receive = consumer.receiveNoWait();
-//            while (receive != null) {
-//                if (receive instanceof TextMessage) {
-//                    TextMessage textMessage = (TextMessage) receive;
-//                    System.out.println("textMessage.getText() = " + textMessage.getText());
-//                } else {
-//                    System.out.println("message = " + receive.getClass().getName());
-//                }
-//                receive = consumer.receiveNoWait();
-//            }
-//            session.close();
-//        }
-//        connection.stop();
-//        connection.close();
+        JmsFactoryFactory jmsFactoryFactory = JmsFactoryFactory.getInstance();
+        JmsConnectionFactory connectionFactory = jmsFactoryFactory.createConnectionFactory();
+        connectionFactory.setProviderEndpoints("50.23.47.110:7276:BootstrapBasicMessaging");
+        connectionFactory.setBusName("mozuJMS");
+        Connection connection = connectionFactory.createConnection();
+        //connection.start();
+        Destination destination = jmsFactoryFactory.createQueue("qd_mozu");
+        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        MessageConsumer consumer = session.createConsumer(destination);
+        //consumer.getMessageListener().onMessage(message);
+        if (true) {
+            //Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(destination);
+            TextMessage hello = session.createTextMessage("hello");
+            producer.send(hello);
+            producer.setTimeToLive(500000);
+            producer.close();
+            //session.close();
+        }
+        if (true) {
+
+            Message receive = consumer.receiveNoWait();
+            while (receive != null) {
+                if (receive instanceof TextMessage) {
+                    TextMessage textMessage = (TextMessage) receive;
+                    System.out.println("textMessage.getText() = " + textMessage.getText());
+                } else {
+                    System.out.println("message = " + receive.getClass().getName());
+                }
+                receive = consumer.receiveNoWait();
+            }
+            session.close();
+        }
+        connection.stop();
+        connection.close();
     }        
 }
