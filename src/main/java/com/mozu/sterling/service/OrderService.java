@@ -6,39 +6,18 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
 import com.mozu.api.ApiContext;
-import com.mozu.api.contracts.commerceruntime.commerce.CommerceUnitPrice;
-import com.mozu.api.contracts.commerceruntime.fulfillment.FulfillmentInfo;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
-import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
-import com.mozu.api.contracts.commerceruntime.orders.OrderNote;
-import com.mozu.api.contracts.commerceruntime.payments.BillingInfo;
-import com.mozu.api.contracts.commerceruntime.products.Product;
-import com.mozu.api.contracts.commerceruntime.products.ProductPrice;
-import com.mozu.api.contracts.core.Address;
-import com.mozu.api.contracts.core.AuditInfo;
-import com.mozu.api.contracts.core.Contact;
-import com.mozu.api.contracts.core.Phone;
 import com.mozu.api.contracts.event.Event;
 import com.mozu.api.resources.commerce.OrderResource;
 import com.mozu.sterling.handler.ConfigHandler;
+import com.mozu.sterling.handler.MozuOrderToSterlingMapper;
 import com.mozu.sterling.model.Setting;
-import com.mozu.sterling.model.order.Item;
-import com.mozu.sterling.model.order.LinePriceInfo;
-import com.mozu.sterling.model.order.Note;
-import com.mozu.sterling.model.order.Notes;
-import com.mozu.sterling.model.order.OrderLine;
-import com.mozu.sterling.model.order.OrderLines;
-import com.mozu.sterling.model.order.PersonInfo;
-import com.mozu.sterling.model.order.PersonInfoBillTo;
-import com.mozu.sterling.model.order.PersonInfoShipTo;
-import com.mozu.sterling.model.organization.ShipNode;
-import com.mozu.sterling.model.organization.ShipNodeList;
+import com.mozu.sterling.model.order.OrderList;
 
 /**
  * Service for reading, mapping, and sending Orders from to Mozu to Sterling.
@@ -59,32 +38,35 @@ public class OrderService extends SterlingClient {
     @Autowired
     ConfigHandler configHandler;
 
+    @Autowired
+    MozuOrderToSterlingMapper mozuOrderToSterlingMapper;
+    
     public OrderService () throws Exception {
         super();
     }
     
-//    public List<com.mozu.sterling.model.order.Order> getSterlingOrders (Setting setting) {
-//        Orde shipNodeList = null;
-//        if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
-//            ShipNode inShipNode = new ShipNode();
-//            if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
-//                inShipNode.setOwnerKey(setting.getSterlingEnterpriseCode());
-//            }
-//
-//            Document inDoc = convertObjectToXml(inShipNode, ShipNode.class);
-//            Document outDoc = null;
-//            try {
-//                outDoc = this.invoke(SHIP_NODE_SERVICE_NAME, inDoc, setting);
-//                shipNodeList = (ShipNodeList) convertXmlToObject(outDoc, ShipNodeList.class);
-//            } catch (Exception e) {
-//                logger.warn("Unable to get ship node list from Sterling: " + e.getMessage());
-//            }
-//            
-//        } else {
-//            logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
-//        }
-//        return shipNodeList != null ? shipNodeList.getShipNode() : new ArrayList<ShipNode>(); 
-//     }
+    public List<com.mozu.sterling.model.order.Order> getSterlingOrders (Setting setting) throws Exception{
+        OrderList orderList = null;
+        if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
+            com.mozu.sterling.model.order.Order inOrder = new com.mozu.sterling.model.order.Order();
+            if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
+                inOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
+            }
+
+            Document inDoc = convertObjectToXml(inOrder, com.mozu.sterling.model.order.Order.class);
+            Document outDoc = null;
+            try {
+                outDoc = this.invoke(GET_ORDER_SERVICE_NAME, inDoc, setting);
+                orderList = (OrderList) convertXmlToObject(outDoc, OrderList.class);
+            } catch (Exception e) {
+                logger.warn("Unable to get order list from Sterling: " + e.getMessage());
+            }
+            
+        } else {
+            logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
+        }
+        return orderList != null ? orderList.getOrder() : new ArrayList<com.mozu.sterling.model.order.Order>(); 
+     }
     
     /**
      * Create an order in mozu based on a Mozu event.
@@ -115,7 +97,7 @@ public class OrderService extends SterlingClient {
      */
     public boolean createOrder(ApiContext apiContext, Order mozuOrder) throws Exception {
         Setting setting = configHandler.getSetting(apiContext.getTenantId());
-        com.mozu.sterling.model.order.Order sterlingOrder = mapOrderToSterling(mozuOrder, setting);
+        com.mozu.sterling.model.order.Order sterlingOrder = mozuOrderToSterlingMapper.mapMozuOrderToSterling(mozuOrder, setting);
 
         Document inDoc = this.convertObjectToXml(sterlingOrder, com.mozu.sterling.model.order.Order.class);
         
@@ -134,141 +116,13 @@ public class OrderService extends SterlingClient {
         
         return true;
     }
+    
+    /* -------------------------------------------------- Sterling to Mozu ------------------------ */
     /**
-     * Map the Mozu order to the Sterling order.
      * 
-     * @param mozuOrder
-     * @return
      */
-    private com.mozu.sterling.model.order.Order mapOrderToSterling(Order mozuOrder, Setting setting) {
-        com.mozu.sterling.model.order.Order sterlingOrder = new com.mozu.sterling.model.order.Order();
-
-        String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
-        sterlingOrder.setOrderNo(orderNoStr);
-        sterlingOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
-        if (setting.getSiteMap() != null) {
-            String sellerCode = setting.getSiteMap().get(mozuOrder.getSiteId().toString());
-            sterlingOrder.setSellerOrganizationCode(sellerCode);
-        }
-        
-        if (setting.getShipMethodMap() != null && mozuOrder.getFulfillmentInfo() != null) {
-            String mozuShippingCode = mozuOrder.getFulfillmentInfo().getShippingMethodCode();
-            String serviceCode = setting.getSiteMap().get(mozuShippingCode);
-            sterlingOrder.setCarrierServiceCode(serviceCode);
-        }
-        sterlingOrder.setOrderDate(mozuOrder.getAuditInfo().getCreateDate().toString("yyyyMMdd"));
-        sterlingOrder.setOrderLines(getOrderLines(mozuOrder.getItems()));
-        sterlingOrder.setPersonInfoShipTo(getPersonInfoShipTo(mozuOrder.getFulfillmentInfo()));
-        sterlingOrder.setPersonInfoBillTo(getPersonInfoBillTo(mozuOrder.getBillingInfo()));
-        sterlingOrder.setNotes(getNotes(mozuOrder.getNotes()));
-        return sterlingOrder;
-    }
-
-    /**
-     * Map the order items from Mozu to the Order lines in Sterling.
-     * 
-     * @param orderItems
-     * @return the converted order lines of Sterling.
-     */
-    private OrderLines getOrderLines(List<OrderItem> orderItems) {
-        OrderLines orderLines = new OrderLines();
-        OrderLine orderLine = null;
-
-        for (OrderItem orderItem : orderItems) {
-            orderLine = new OrderLine();
-            orderLine.setOrderedQty(String.valueOf(orderItem.getQuantity()));
-            ProductPrice productPrice = null;
-            if (orderItem.getProduct() != null) {
-                Item sItem = new Item();
-                Product product = orderItem.getProduct();
-                sItem.setItemID(product.getProductCode());
-                sItem.setUPCCode(product.getUpc());
-                sItem.setItemShortDesc(product.getName());
-                productPrice = product.getPrice();
-                orderLine.setItem(sItem);
-            }
-            orderLine.setLinePriceInfo(getLinePriceInfo(orderItem, productPrice));
-            orderLines.getOrderLine().add(orderLine);
-        }
-        return orderLines;
-    }
-
-    private LinePriceInfo getLinePriceInfo(OrderItem orderItem, ProductPrice productPrice) {
-        LinePriceInfo linePriceInfo = new LinePriceInfo();
-        CommerceUnitPrice unitPrice = orderItem.getUnitPrice();
-        linePriceInfo.setIsPriceLocked(STERLING_BOOLEAN_VALUE_YES);
-        if (unitPrice != null) {
-            linePriceInfo.setUnitPrice(String.format("%.2f", unitPrice.getExtendedAmount()));
-            linePriceInfo.setListPrice(String.format("%.2f", unitPrice.getListAmount()));
-        }
-        if (productPrice != null) {
-            linePriceInfo.setRetailPrice(String.format("%.2f", productPrice.getPrice()));
-        }
-        return linePriceInfo;
-    }
-
-    private Notes getNotes(List<OrderNote> mozuNotes) {
-        Notes sterlingNotes = new Notes();
-
-        for (OrderNote orderNote : mozuNotes) {
-            Note sterlingNote = new Note();
-            sterlingNote.setNoteText(orderNote.getText());
-            sterlingNote.setTranid(orderNote.getId());
-            AuditInfo noteInfo = orderNote.getAuditInfo();
-            if (noteInfo != null) {
-                sterlingNote.setContactUser(noteInfo.getCreateBy());
-                sterlingNote.setContactTime(noteInfo.getCreateDate().toString("yyyyMMdd HH:mm"));
-            }
-            sterlingNotes.getNote().add(sterlingNote);
-        }
-
-        return sterlingNotes;
-    }
-
-    protected PersonInfo getPersonInfo(Contact contact) {
-        PersonInfo personInfo = null;
-        if (contact != null) {
-            personInfo = new PersonInfo();
-            personInfo.setPersonID(String.valueOf(contact.getId()));
-            personInfo.setLastName(contact.getLastNameOrSurname());
-            personInfo.setFirstName(contact.getFirstName());
-            personInfo.setMiddleName(contact.getMiddleNameOrInitial());
-            personInfo.setEMailID(contact.getEmail());
-            Address address = contact.getAddress();
-            if (address != null) {
-                personInfo.setAddressLine1(address.getAddress1());
-                personInfo.setAddressLine2(address.getAddress2());
-                personInfo.setAddressLine3(address.getAddress3());
-                personInfo.setAddressLine4(address.getAddress4());
-                personInfo.setCity(address.getCityOrTown());
-                personInfo.setState(address.getStateOrProvince());
-                personInfo.setCountry(address.getCountryCode());
-                personInfo.setZipCode(address.getPostalOrZipCode());
-            }
-            personInfo.setCompany(contact.getCompanyOrOrganization());
-            Phone phone = contact.getPhoneNumbers();
-            if (phone != null) {
-                personInfo.setDayPhone(phone.getWork());
-                personInfo.setMobilePhone(phone.getMobile());
-                personInfo.setEveningPhone(phone.getHome());
-            }
-        }
-
-        return personInfo;
-    }
-
-    protected PersonInfoShipTo getPersonInfoShipTo(FulfillmentInfo fulfillmentInfo) {
-        PersonInfoShipTo personInfoShipTo = new PersonInfoShipTo();
-        BeanUtils.copyProperties(getPersonInfo(fulfillmentInfo.getFulfillmentContact()), personInfoShipTo);
-
-        // personInfoShipTo.setIsCommercialAddress(fulfillmentInfo.getIsDestinationCommercial().toString());
-        return personInfoShipTo;
-    }
-
-    protected PersonInfoBillTo getPersonInfoBillTo(BillingInfo billingInfo) {
-        PersonInfoBillTo personInfoBillTo = new PersonInfoBillTo();
-        BeanUtils.copyProperties(getPersonInfo(billingInfo.getBillingContact()), personInfoBillTo);
-
-        return personInfoBillTo;
+    private Order mapSterlingOrderToMozu (com.mozu.sterling.model.order.Order sterlingOrder) {
+        Order mozuOrder = new Order();
+        return mozuOrder;
     }
 }
