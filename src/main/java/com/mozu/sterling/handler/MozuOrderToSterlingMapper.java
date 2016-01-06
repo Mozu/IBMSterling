@@ -18,8 +18,11 @@ import com.mozu.api.contracts.core.AuditInfo;
 import com.mozu.api.contracts.core.Contact;
 import com.mozu.api.contracts.core.Phone;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.order.ContactInfo;
 import com.mozu.sterling.model.order.Item;
 import com.mozu.sterling.model.order.LinePriceInfo;
+import com.mozu.sterling.model.order.LineTax;
+import com.mozu.sterling.model.order.LineTaxes;
 import com.mozu.sterling.model.order.Note;
 import com.mozu.sterling.model.order.Notes;
 import com.mozu.sterling.model.order.OrderLine;
@@ -85,6 +88,15 @@ public class MozuOrderToSterlingMapper {
                 orderLine.setItem(sItem);
             }
             orderLine.setLinePriceInfo(getLinePriceInfo(orderItem, productPrice));
+            if (orderItem.getIsTaxable()) {
+                LineTaxes lineTaxes = new LineTaxes();
+                LineTax lineTax = new LineTax();
+                lineTax.setInvoicedTax(orderItem.getItemTaxTotal() != null ? orderItem.getItemTaxTotal().toString() : null);
+                lineTax.setTax(orderItem.getTaxableTotal() != null ? orderItem.getTaxableTotal().toString(): null );
+                lineTaxes.getLineTax().add(lineTax);
+                orderLine.setLineTaxes(lineTaxes);
+            }
+            
             orderLines.getOrderLine().add(orderLine);
         }
         return orderLines;
@@ -122,8 +134,8 @@ public class MozuOrderToSterlingMapper {
         return sterlingNotes;
     }
 
-    protected PersonInfo getPersonInfo(Contact contact) {
-        PersonInfo personInfo = null;
+    protected ContactInfo getPersonInfo(Contact contact) {
+        ContactInfo personInfo = null;
         if (contact != null) {
             personInfo = new PersonInfo();
             personInfo.setPersonID(String.valueOf(contact.getId()));

@@ -35,4 +35,11 @@ public class OrderServiceTest {
         assertNotNull(items);
         assertTrue(items.size() > 0);
     }
+    
+    @Test 
+    public void getOrderDetail() throws Exception {
+        Setting setting = configHandler.getSetting(TENANT_ID);
+        Order sterlingOrder = orderService.getSterlingOrderDetail(setting, "315");
+        assertNotNull(sterlingOrder);
+    }
 }

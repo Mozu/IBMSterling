@@ -30,7 +30,8 @@ public class OrderService extends SterlingClient {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     public final static String ORDER_SERVICE_NAME = "createOrder";
-    public final static String GET_ORDER_SERVICE_NAME = "getOrderList";
+    public final static String GET_ORDER_LIST_SERVICE_NAME = "getOrderList";
+    public final static String GET_ORDER_SERVICE_NAME = "getOrderDetails";
 
     @Autowired
     SterlingClient sterlingClient;
@@ -40,12 +41,12 @@ public class OrderService extends SterlingClient {
 
     @Autowired
     MozuOrderToSterlingMapper mozuOrderToSterlingMapper;
-    
-    public OrderService () throws Exception {
+
+    public OrderService() throws Exception {
         super();
     }
-    
-    public List<com.mozu.sterling.model.order.Order> getSterlingOrders (Setting setting) throws Exception{
+
+    public List<com.mozu.sterling.model.order.Order> getSterlingOrders(Setting setting) throws Exception {
         OrderList orderList = null;
         if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
             com.mozu.sterling.model.order.Order inOrder = new com.mozu.sterling.model.order.Order();
@@ -56,18 +57,18 @@ public class OrderService extends SterlingClient {
             Document inDoc = convertObjectToXml(inOrder, com.mozu.sterling.model.order.Order.class);
             Document outDoc = null;
             try {
-                outDoc = this.invoke(GET_ORDER_SERVICE_NAME, inDoc, setting);
+                outDoc = this.invoke(GET_ORDER_LIST_SERVICE_NAME, inDoc, setting);
                 orderList = (OrderList) convertXmlToObject(outDoc, OrderList.class);
             } catch (Exception e) {
                 logger.warn("Unable to get order list from Sterling: " + e.getMessage());
             }
-            
+
         } else {
-            logger.warn ("Cannot get Sterling ship nodes because the settings aren't set.");
+            logger.warn("Cannot get Sterling ship nodes because the settings aren't set.");
         }
-        return orderList != null ? orderList.getOrder() : new ArrayList<com.mozu.sterling.model.order.Order>(); 
-     }
-    
+        return orderList != null ? orderList.getOrder() : new ArrayList<com.mozu.sterling.model.order.Order>();
+    }
+
     /**
      * Create an order in mozu based on a Mozu event.
      * 
@@ -91,37 +92,69 @@ public class OrderService extends SterlingClient {
 
     /**
      * Converts a Mozu order to a Sterling order and sends to the Sterling OMS
+     * 
      * @param apiContext
-     * @param mozuOrder mozu order to send to Sterling
+     * @param mozuOrder
+     *            mozu order to send to Sterling
      * @return
      */
     public boolean createOrder(ApiContext apiContext, Order mozuOrder) throws Exception {
         Setting setting = configHandler.getSetting(apiContext.getTenantId());
-        com.mozu.sterling.model.order.Order sterlingOrder = mozuOrderToSterlingMapper.mapMozuOrderToSterling(mozuOrder, setting);
+        com.mozu.sterling.model.order.Order sterlingOrder = mozuOrderToSterlingMapper.mapMozuOrderToSterling(mozuOrder,
+                setting);
 
         Document inDoc = this.convertObjectToXml(sterlingOrder, com.mozu.sterling.model.order.Order.class);
-        
+
         Document outDoc = sterlingClient.invoke(ORDER_SERVICE_NAME, inDoc, setting);
-        
+
         return outDoc != null;
     }
 
     /**
      * Update orders in Mozu from a Sterling order.
+     * 
      * @param sterlingOrder
      * @return
      */
-    public boolean updateOrder (com.mozu.sterling.model.order.Order sterlingOrder) {
+    public boolean updateOrder(com.mozu.sterling.model.order.Order sterlingOrder) {
         // stub for updating status of orders from Sterling.
-        
+
         return true;
     }
-    
-    /* -------------------------------------------------- Sterling to Mozu ------------------------ */
+
+    public com.mozu.sterling.model.order.Order getSterlingOrderDetail(Setting setting, String orderNo) throws Exception {
+        com.mozu.sterling.model.order.Order sterlingOrder = null;
+        if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
+            com.mozu.sterling.model.order.Order inOrder = new com.mozu.sterling.model.order.Order();
+            if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
+                inOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
+            }
+
+            inOrder.setOrderNo(orderNo);
+            Document inDoc = convertObjectToXml(inOrder, com.mozu.sterling.model.order.Order.class);
+            Document outDoc = null;
+            try {
+                outDoc = this.invoke(GET_ORDER_SERVICE_NAME, inDoc, setting);
+                sterlingOrder = (com.mozu.sterling.model.order.Order) convertXmlToObject(outDoc, com.mozu.sterling.model.order.Order.class);
+            } catch (Exception e) {
+                logger.warn("Unable to get order list from Sterling: " + e.getMessage());
+            }
+
+        } else {
+            logger.warn("Cannot get Sterling ship nodes because the settings aren't set.");
+        }
+        return sterlingOrder;
+
+    }
+
+    /*
+     * -------------------------------------------------- Sterling to Mozu
+     * ------------------------
+     */
     /**
      * 
      */
-    private Order mapSterlingOrderToMozu (com.mozu.sterling.model.order.Order sterlingOrder) {
+    private Order mapSterlingOrderToMozu(com.mozu.sterling.model.order.Order sterlingOrder) {
         Order mozuOrder = new Order();
         return mozuOrder;
     }
