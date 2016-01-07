@@ -39,7 +39,7 @@ public class OrderServiceTest {
     @Test 
     public void getOrderDetail() throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
-        Order sterlingOrder = orderService.getSterlingOrderDetail(setting, "315");
+        Order sterlingOrder = orderService.getSterlingOrderDetail(setting, "Y100000008");
         assertNotNull(sterlingOrder);
     }
 }

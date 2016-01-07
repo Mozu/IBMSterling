@@ -47,7 +47,7 @@ public class AdditionalAddress {
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String personInfoKey;
     @XmlElement(name = "PersonInfo")
-    protected ContactInfo personInfo;
+    protected ContactPersonInfo personInfo;
 
     /**
      * Gets the value of the addressType property.
@@ -201,7 +201,7 @@ public class AdditionalAddress {
      *     {@link PersonInfo }
      *     
      */
-    public ContactInfo getPersonInfo() {
+    public ContactPersonInfo getPersonInfo() {
         return personInfo;
     }
 
@@ -213,7 +213,7 @@ public class AdditionalAddress {
      *     {@link PersonInfo }
      *     
      */
-    public void setPersonInfo(ContactInfo value) {
+    public void setPersonInfo(ContactPersonInfo value) {
         this.personInfo = value;
     }
 

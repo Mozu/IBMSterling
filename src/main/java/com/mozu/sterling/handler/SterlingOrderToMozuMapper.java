@@ -1,6 +1,10 @@
 package com.mozu.sterling.handler;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -11,16 +15,32 @@ import org.springframework.stereotype.Component;
 
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.commerce.ChangeMessage;
+import com.mozu.api.contracts.commerceruntime.commerce.CommerceUnitPrice;
+import com.mozu.api.contracts.commerceruntime.discounts.AppliedDiscount;
+import com.mozu.api.contracts.commerceruntime.fulfillment.FulfillmentInfo;
+import com.mozu.api.contracts.commerceruntime.fulfillment.Pickup;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
+import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
+import com.mozu.api.contracts.commerceruntime.orders.OrderNote;
 import com.mozu.api.contracts.commerceruntime.payments.BillingInfo;
+import com.mozu.api.contracts.commerceruntime.payments.Payment;
+import com.mozu.api.contracts.commerceruntime.payments.PaymentInteraction;
 import com.mozu.api.contracts.core.Address;
 import com.mozu.api.contracts.core.AuditInfo;
 import com.mozu.api.contracts.core.Contact;
 import com.mozu.api.contracts.location.Location;
+import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.order.ChargeTransactionDetail;
 import com.mozu.sterling.model.order.ContactInfo;
+import com.mozu.sterling.model.order.CreditCardTransaction;
+import com.mozu.sterling.model.order.LineOverallTotals;
+import com.mozu.sterling.model.order.LinePriceInfo;
+import com.mozu.sterling.model.order.Note;
+import com.mozu.sterling.model.order.OrderLine;
 import com.mozu.sterling.model.order.OverallTotals;
+import com.mozu.sterling.model.order.PaymentMethod;
+import com.mozu.sterling.model.order.PersonInfoShipTo;
 import com.mozu.sterling.model.order.RemainingFinancialTotals;
-import com.sun.corba.se.impl.ior.GenericTaggedComponent;
 
 @Component
 public class SterlingOrderToMozuMapper {
@@ -44,7 +64,7 @@ public class SterlingOrderToMozuMapper {
      * @throws Exception
      */
     public Order saleToOrder(com.mozu.sterling.model.order.Order sterlingOrder, ApiContext apiContext,
-            Location storeLocation) throws Exception {
+            Location storeLocation, Setting setting) throws Exception {
         Order order = new Order();
 
         order.setTenantId(apiContext.getTenantId());
@@ -91,208 +111,212 @@ public class SterlingOrderToMozuMapper {
         order.setSubmittedDate(getAcceptedDate(sterlingOrder));
 
         order.setEmail(sterlingOrder.getCustomerEMailID());
-        order.setBillingInfo(getBillingInfo(sterlingOrder));
+        BillingInfo billingInfo = getBillingInfo(sterlingOrder);
+        order.setBillingInfo(billingInfo);
 
-        //
-        // // Set the fulfilment info. This may be empty
-        // FulfillmentInfo fulfillmentInfo = getFulfillmentInfo(sterlingOrder,
-        // storeLocation);
-        // order.setFulfillmentInfo(fulfillmentInfo);
-        //
-        // List<Payment> payments = getPayments(sterlingOrder, billingInfo);
-        //
-        // // All sales items go into orderItems
-        // List<OrderItem> orderItems = new ArrayList<OrderItem>();
-        // // Items set to Pickup go into pickups
-        // List<Pickup> pickups = new ArrayList<>();
-        // // Items set to Ship go into packages
-        // List<Package> packages = new ArrayList<Package>();
-        //
-        // List<AppliedDiscount> discounts = new ArrayList<>();
-        //
-        // if (sterlingOrder.getOrderLines() != null &&
-        // sterlingOrder.getOrderLines().getOrderLine() != null) {
-        //
-        // List<OrderLine> saleLines =
-        // sterlingOrder.getOrderLines().getOrderLine();
-        // int lineId = 1;
-        // for (OrderLine saleLine : saleLines) {
-        // if (saleLine.getOrderedQty() < 0) {
-        // // this is a return, see if it is known
-        // if (idMapper.getMozuReturnId(apiContext, saleLine.getSaleLineID()) ==
-        // null) {
-        // try {
-        // createReturn(sterlingOrder, saleLine, billingInfo, payments,
-        // apiContext, storeLocation, lineId);
-        // } catch (Exception e) {
-        // logger.debug("Exception processsing return: " + e.getMessage());
-        // // try and keep going to handle the remaining items
-        // // in the sale
-        // }
-        // } else {
-        // logger.debug("Return not processed, refund already processed.");
-        // }
-        // } else {
-        // OrderItem orderItem = new OrderItem();
-        // orderItem.setLineId(lineId);
-        // orderItem.setDiscountedTotal(saleLine.getUnitPrice());
-        // orderItem.setDiscountTotal(saleLine.getCalcLineDiscount());
-        // orderItem.setFulfillmentLocationCode(storeLocation.getCode());
-        //
-        // if (sterlingOrder.getShipTo() != null) {
-        // orderItem.setFulfillmentMethod(sterlingOrder.getShipTo().isShipped()
-        // ? "Pickup" : "Ship");
-        // } else {
-        // orderItem.setFulfillmentMethod("Pickup");
-        // }
-        //
-        // orderItem.setIsTaxable(saleLine.isTax());
-        // if (saleLine.getCalcTax1() != null) {
-        // if (saleLine.getCalcTax2() != null) {
-        // orderItem.setItemTaxTotal(saleLine.getCalcTax1() +
-        // saleLine.getCalcTax2());
-        // } else {
-        // orderItem.setItemTaxTotal(saleLine.getCalcTax1() +
-        // saleLine.getCalcTax2());
-        // }
-        // }
-        // orderItem.setQuantity(saleLine.getUnitQuantity());
-        // orderItem.setSubtotal(saleLine.getCalcSubtotal());
-        // orderItem.setTaxableTotal(saleLine.getCalcSubtotal());
-        // orderItem.setTotal(saleLine.getCalcTotal());
-        // orderItem.setExtendedTotal(saleLine.getCalcSubtotal());
-        // CommerceUnitPrice commerceUnitPrice = new CommerceUnitPrice();
-        // if (saleLine.getItem() != null)
-        // commerceUnitPrice.setListAmount(saleLine.getItem().getMsrp());
-        // commerceUnitPrice.setSaleAmount(saleLine.getUnitPrice());
-        // orderItem.setUnitPrice(commerceUnitPrice);
-        //
-        // if (saleLine.getItem() != null) {
-        // String productCode = saleLine.getItem().getCustomSku();
-        //
-        // Integer itemMatrixId = saleLine.getItem().getItemMatrixID();
-        // // if there is an ItemMatrix ID that is not 0 it is a
-        // // variation.
-        // Boolean isVariation = itemMatrixId != null &&
-        // !itemMatrixId.equals(0);
-        // com.mozu.api.contracts.commerceruntime.products.Product lineProduct =
-        // getProduct(apiContext,
-        // productCode, isVariation);
-        // orderItem.setProduct(lineProduct);
-        //
-        // if (orderItem.getFulfillmentMethod().equals("Pickup")) {
-        // Pickup pickup;
-        // List<BundledProduct> bundledProducts =
-        // orderItem.getProduct().getBundledProducts();
-        // if (bundledProducts != null && bundledProducts.size() > 0) {
-        // for (BundledProduct bp : bundledProducts) {
-        // pickup = createPickup(getAcceptedDate(sterlingOrder), storeLocation,
-        // bp.getProductCode(),
-        // bp.getQuantity() * saleLine.getUnitQuantity(), lineId);
-        // pickups.add(pickup);
-        // }
-        // } else {
-        // pickup = createPickup(getAcceptedDate(sterlingOrder), storeLocation,
-        // productCode,
-        // saleLine.getUnitQuantity(), lineId);
-        // pickups.add(pickup);
-        // }
-        // order.setPickups(pickups);
-        // lineProduct.setFulfillmentStatus(FULFILLED_STATUS);
-        // } else {
-        // Package pkg = new Package();
-        // pkg.setFulfillmentDate(getAcceptedDate(sterlingOrder));
-        // pkg.setFulfillmentLocationCode(storeLocation.getCode());
-        // List<PackageItem> packageItems = new ArrayList<>();
-        // if (order.getItems() != null) {
-        // for (OrderItem item : order.getItems()) {
-        // PackageItem pItem = new PackageItem();
-        // if (item.getProduct() != null) {
-        // String itemProductCode = ProductMappingUtils
-        // .getActualProductCode(item.getProduct());
-        // pItem.setProductCode(itemProductCode);
-        // }
-        // pItem.setQuantity(item.getQuantity());
-        // packageItems.add(pItem);
-        // }
-        // }
-        // pkg.setItems(packageItems);
-        // pkg.setStatus(NOT_FULFILLED_STATUS);
-        // packages.add(pkg);
-        // order.setPackages(packages);
-        // lineProduct.setFulfillmentStatus(NOT_FULFILLED_STATUS);
-        // }
-        // }
-        //
-        // if (saleLine.getNote() != null && saleLine.getNote().getNote() !=
-        // null) {
-        // List<OrderNote> orderNotes = new ArrayList<>();
-        // OrderNote orderNote = new OrderNote();
-        // orderNote.setText(saleLine.getNote().getNote());
-        // orderNotes.add(orderNote);
-        // order.setNotes(orderNotes);
-        // }
-        //
-        // // Map the discount from lightspeed
-        // LscDiscount lscDiscount = saleLine.getDiscount();
-        // if (lscDiscount != null) {
-        // Discount discount = new Discount();
-        // discount.setName(lscDiscount.getName());
-        // List<String> itemIds = new ArrayList<>();
-        // try {
-        // String mzId = idMapper.getMozuProductId(apiContext,
-        // saleLine.getItemID());
-        // if (mzId != null) {
-        // itemIds.add(mzId);
-        // }
-        // } catch (Exception e) {
-        // // no itemId, just move on
-        // }
-        // discount.setItemIds(itemIds);
-        // discount.setExpirationDate(DateTime.now());
-        // AppliedDiscount appliedDiscount = new AppliedDiscount();
-        // appliedDiscount.setExcluded(false);
-        // appliedDiscount.setDiscount(discount);
-        // appliedDiscount.setImpact(-1.0 * saleLine.getCalcLineDiscount());
-        // appliedDiscount.setCouponCode("");
-        // discounts.add(appliedDiscount);
-        // }
-        // orderItems.add(orderItem);
-        // }
-        // lineId++;
-        // }
-        // }
-        // order.setOrderDiscounts(discounts);
-        // order.setItems(orderItems);
-        //
-        // // This section is where we have to makeup default values if not
-        // // provided
-        // if (sterlingOrder.isCompleted()) {
-        // order.setFulfillmentStatus(FULFILLED_STATUS);
-        // order.setPaymentStatus("Paid");
-        // order.setStatus("Completed");
-        // } else {
-        // order.setFulfillmentStatus(NOT_FULFILLED_STATUS);
-        // order.setPaymentStatus("Paid");
-        // order.setStatus("Processing");
-        //
-        // // If not complete, must have an associated payment
-        // if (order.getPayments().size() == 0) {
-        // Payment payment = new Payment();
-        // payment.setAmountCollected(sterlingOrder.getTotal());
-        // payment.setStatus("Collected");
-        // // TODO: Force to check until Mozu adds more payment types
-        // payment.setPaymentType("Check");
-        // payments.add(payment);
-        // }
-        // }
-        // order.setPayments(payments);
-        //
-        // // Use default email address if not provided
-        // if (order.getEmail() == null)
-        // order.setEmail(ANONYMOUS_EMAIL);
+        // Set the fulfilment info. This may be empty
+        FulfillmentInfo fulfillmentInfo = getFulfillmentInfo(sterlingOrder, setting);
+        order.setFulfillmentInfo(fulfillmentInfo);
 
+        List<Payment> payments = getPayments(sterlingOrder, billingInfo);
+        order.setPayments(payments);
+
+        // All sales items go into orderItems
+        List<OrderItem> orderItems = new ArrayList<OrderItem>();
+        // Items set to Pickup go into pickups
+        List<Pickup> pickups = new ArrayList<>();
+        // Items set to Ship go into packages
+        List<Package> packages = new ArrayList<Package>();
+
+        List<AppliedDiscount> discounts = new ArrayList<>();
+
+        if (sterlingOrder.getOrderLines() != null && sterlingOrder.getOrderLines().getOrderLine() != null) {
+            List<OrderLine> saleLines = sterlingOrder.getOrderLines().getOrderLine();
+            int lineId = 1;
+            for (OrderLine saleLine : saleLines) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setLineId(lineId);
+                LineOverallTotals lineOverallTotals = saleLine.getLineOverallTotals();
+                if (lineOverallTotals != null) {
+                    orderItem.setQuantity(Integer.getInteger(lineOverallTotals.getPricingQty()));
+                    orderItem.setSubtotal(Double.valueOf(lineOverallTotals.getLineTotalWithoutTax() != null
+                            ? lineOverallTotals.getLineTotalWithoutTax() : lineOverallTotals.getLineTotal()));
+                    orderItem.setTaxableTotal(Double.valueOf(lineOverallTotals.getTax()));
+                    orderItem.setTotal(Double.valueOf(lineOverallTotals.getLineTotal()));
+                    orderItem.setExtendedTotal(Double.valueOf(lineOverallTotals.getExtendedPrice()));
+                    orderItem.setDiscountedTotal(Double.valueOf(lineOverallTotals.getDiscount()));
+                    orderItem.setDiscountTotal(Double.valueOf(lineOverallTotals.getLineTotal()));
+                    orderItem.setShippingTotal(Double.valueOf(lineOverallTotals.getShippingTotal()));
+                }
+
+                LinePriceInfo linePriceInfo = saleLine.getLinePriceInfo();
+
+                if (linePriceInfo != null) {
+                    CommerceUnitPrice commerceUnitPrice = new CommerceUnitPrice();
+                    commerceUnitPrice.setListAmount(Double.valueOf(linePriceInfo.getListPrice()));
+                    commerceUnitPrice.setSaleAmount(Double.valueOf(linePriceInfo.getRetailPrice()));
+                    orderItem.setUnitPrice(commerceUnitPrice);
+                    orderItem.setIsTaxable("Y".equals(linePriceInfo.getTaxableFlag()));
+                }
+                orderItem.setFulfillmentLocationCode(storeLocation.getCode());
+                if (saleLine.getNotes() != null && saleLine.getNotes().getNumberOfNotes() != null
+                        && Integer.getInteger(saleLine.getNotes().getNumberOfNotes()) > 0) {
+                    List<OrderNote> orderNotes = new ArrayList<>();
+                    for (Note note : saleLine.getNotes().getNote()) {
+                        OrderNote orderNote = new OrderNote();
+                        orderNote.setText(note.getNoteText());
+                        orderNotes.add(orderNote);
+                    }
+                    order.setNotes(orderNotes);
+                }
+
+                orderItems.add(orderItem);
+                lineId++;
+            }
+            order.setItems(orderItems);
+
+            // if (sterlingOrder.getShipTo() != null) {
+            // orderItem.setFulfillmentMethod(sterlingOrder.getShipTo().isShipped()
+            // ? "Pickup" : "Ship");
+            // } else {
+            // orderItem.setFulfillmentMethod("Pickup");
+            // }
+            //
+            // if (saleLine.getItem() != null) {
+            // String productCode = saleLine.getItem().getCustomSku();
+            //
+            // Integer itemMatrixId = saleLine.getItem().getItemMatrixID();
+            // // if there is an ItemMatrix ID that is not 0 it is a
+            // // variation.
+            // Boolean isVariation = itemMatrixId != null &&
+            // !itemMatrixId.equals(0);
+            // com.mozu.api.contracts.commerceruntime.products.Product
+            // lineProduct =
+            // getProduct(apiContext,
+            // productCode, isVariation);
+            // orderItem.setProduct(lineProduct);
+            //
+            // if (orderItem.getFulfillmentMethod().equals("Pickup")) {
+            // Pickup pickup;
+            // List<BundledProduct> bundledProducts =
+            // orderItem.getProduct().getBundledProducts();
+            // if (bundledProducts != null && bundledProducts.size() > 0) {
+            // for (BundledProduct bp : bundledProducts) {
+            // pickup = createPickup(getAcceptedDate(sterlingOrder),
+            // storeLocation,
+            // bp.getProductCode(),
+            // bp.getQuantity() * saleLine.getUnitQuantity(), lineId);
+            // pickups.add(pickup);
+            // }
+            // } else {
+            // pickup = createPickup(getAcceptedDate(sterlingOrder),
+            // storeLocation,
+            // productCode,
+            // saleLine.getUnitQuantity(), lineId);
+            // pickups.add(pickup);
+            // }
+            // order.setPickups(pickups);
+            // lineProduct.setFulfillmentStatus(FULFILLED_STATUS);
+            // } else {
+            // Package pkg = new Package();
+            // pkg.setFulfillmentDate(getAcceptedDate(sterlingOrder));
+            // pkg.setFulfillmentLocationCode(storeLocation.getCode());
+            // List<PackageItem> packageItems = new ArrayList<>();
+            // if (order.getItems() != null) {
+            // for (OrderItem item : order.getItems()) {
+            // PackageItem pItem = new PackageItem();
+            // if (item.getProduct() != null) {
+            // String itemProductCode = ProductMappingUtils
+            // .getActualProductCode(item.getProduct());
+            // pItem.setProductCode(itemProductCode);
+            // }
+            // pItem.setQuantity(item.getQuantity());
+            // packageItems.add(pItem);
+            // }
+            // }
+            // pkg.setItems(packageItems);
+            // pkg.setStatus(NOT_FULFILLED_STATUS);
+            // packages.add(pkg);
+            // order.setPackages(packages);
+            // lineProduct.setFulfillmentStatus(NOT_FULFILLED_STATUS);
+            // }
+            // }
+
+            // // Map the discount from lightspeed
+            // LscDiscount lscDiscount = saleLine.getDiscount();
+            // if (lscDiscount != null) {
+            // Discount discount = new Discount();
+            // discount.setName(lscDiscount.getName());
+            // List<String> itemIds = new ArrayList<>();
+            // try {
+            // String mzId = idMapper.getMozuProductId(apiContext,
+            // saleLine.getItemID());
+            // if (mzId != null) {
+            // itemIds.add(mzId);
+            // }
+            // } catch (Exception e) {
+            // // no itemId, just move on
+            // }
+            // discount.setItemIds(itemIds);
+            // discount.setExpirationDate(DateTime.now());
+            // AppliedDiscount appliedDiscount = new AppliedDiscount();
+            // appliedDiscount.setExcluded(false);
+            // appliedDiscount.setDiscount(discount);
+            // appliedDiscount.setImpact(-1.0 * saleLine.getCalcLineDiscount());
+            // appliedDiscount.setCouponCode("");
+            // discounts.add(appliedDiscount);
+            // }
+            // orderItems.add(orderItem);
+            // }
+            // lineId++;
+            // }
+            // }
+            // order.setOrderDiscounts(discounts);
+            //
+            // This section is where we have to makeup default values if not
+            if (sterlingOrder.getMaxOrderStatusDesc().equals(sterlingOrder.getStatus())) {
+                order.setFulfillmentStatus(FULFILLED_STATUS);
+                order.setPaymentStatus("Paid");
+                order.setStatus("Completed");
+            } else {
+                order.setFulfillmentStatus(NOT_FULFILLED_STATUS);
+                order.setPaymentStatus("Paid");
+                order.setStatus("Processing");
+            }
+
+            // Use default email address if not provided
+            if (order.getEmail() == null)
+                order.setEmail(ANONYMOUS_EMAIL);
+        }
         return order;
+    }
+
+    private FulfillmentInfo getFulfillmentInfo(com.mozu.sterling.model.order.Order sterlingOrder, Setting setting) {
+        FulfillmentInfo fulfillmentInfo = new FulfillmentInfo();
+
+        PersonInfoShipTo personShipTo = sterlingOrder.getPersonInfoShipTo();
+        fulfillmentInfo.setFulfillmentContact(populateContact(personShipTo));
+        fulfillmentInfo.setIsDestinationCommercial("Y".equals(personShipTo.getIsCommercialAddress()));
+        if (sterlingOrder.getCarrierServiceCode() != null) {
+            fulfillmentInfo
+                    .setShippingMethodCode(getShippingMethodCode(setting, sterlingOrder.getCarrierServiceCode()));
+        }
+
+        return fulfillmentInfo;
+    }
+
+    private String getShippingMethodCode(Setting setting, String sterlingShipCode) {
+        Map<String, String> shippingCodeMap = setting.getShipMethodMap();
+        String shippingMethodCode = null;
+        Set<Entry<String, String>> shippingEntries = shippingCodeMap.entrySet();
+        for (Entry<String, String> entry : shippingEntries) {
+            if (sterlingShipCode.equals(entry.getValue())) {
+                shippingMethodCode = entry.getKey();
+                break;
+            }
+        }
+
+        return shippingMethodCode;
     }
 
     private Double getRemainingPayment(RemainingFinancialTotals remainingFinancialTotals) {
@@ -313,18 +337,18 @@ public class SterlingOrderToMozuMapper {
     private BillingInfo getBillingInfo(com.mozu.sterling.model.order.Order sterlingOrder) {
         BillingInfo billingInfo = new BillingInfo();
         billingInfo.setBillingContact(populateContact(sterlingOrder.getPersonInfoBillTo()));
-        
+
         return billingInfo;
     }
 
-    private Contact populateContact (ContactInfo contactInfo) {
+    private Contact populateContact(ContactInfo contactInfo) {
         Contact contact = new Contact();
 
         contact.setCompanyOrOrganization(contactInfo.getCompany());
         contact.setEmail(contactInfo.getEMailID());
         contact.setFirstName(contactInfo.getFirstName());
         contact.setLastNameOrSurname(contactInfo.getLastName());
-       
+
         Address address = new Address();
         address.setAddress1(contactInfo.getAddressLine1());
         address.setAddress2(contactInfo.getAddressLine2());
@@ -332,9 +356,9 @@ public class SterlingOrderToMozuMapper {
         address.setCountryCode(contactInfo.getCountry());
         address.setPostalOrZipCode(contactInfo.getZipCode());
         address.setStateOrProvince(contactInfo.getState());
-        
+
         contact.setAddress(address);
-        
+
         return contact;
     }
 
@@ -344,374 +368,67 @@ public class SterlingOrderToMozuMapper {
         return saleTimeStamp;
     }
 
-    // private void createReturn(Sale sale, SaleLine saleLine, BillingInfo
-    // billingInfo, List<Payment> payments,
-    // ApiContext apiContext, Location storeLocation, int lineId) throws
-    // Exception {
-    // Return saleReturn = saleToReturnMapper.saleToReturn(sale, saleLine,
-    // apiContext, storeLocation);
-    //
-    // ReturnResource returnResource = new ReturnResource(apiContext);
-    // try {
-    // // create return
-    // Return createdReturn = returnResource.createReturn(saleReturn);
-    // ReturnAction rtnAction = new ReturnAction();
-    //
-    // createdReturn.setReturnType("Refund");
-    // createdReturn = returnResource.updateReturn(createdReturn,
-    // createdReturn.getId());
-    //
-    // Order originalOrder = saleToReturnMapper.getOriginalOrder(saleLine,
-    // apiContext);
-    // List<ReturnItem> returnItems =
-    // saleToReturnMapper.mapReturnItems(saleLine, originalOrder, apiContext,
-    // lineId);
-    //
-    // for (ReturnItem returnItem : returnItems) {
-    // returnResource.createReturnItem(returnItem, createdReturn.getId());
-    // }
-    //
-    // // Authorize return
-    // rtnAction.setActionName("Authorize");
-    // List<String> returnIds = new ArrayList<>();
-    // returnIds.add(createdReturn.getId());
-    // rtnAction.setReturnIds(returnIds);
-    // returnResource.performReturnActions(rtnAction);
-    //
-    // // create payment action
-    // PaymentAction paymentAction = new PaymentAction();
-    // paymentAction.setActionName("CreditPayment");
-    // paymentAction.setAmount(saleReturn.getRefundAmount());
-    // paymentAction.setCurrencyCode("USD"); // TODO: Fix this when other
-    // // codes supported
-    // paymentAction.setInteractionDate(DateTimeUtils.convertFromLightSpeedTime(saleLine.getCreateTime()));
-    //
-    // PaymentGatewayInteraction rtnPaymentInteraction = null;
-    // // there could be several payments, try to find one that can be used
-    // for (Payment payment : payments) {
-    // if (payment.getPaymentServiceTransactionId() != null) {
-    // rtnPaymentInteraction = new PaymentGatewayInteraction();
-    // PaymentInteraction paymentInteraction = payment.getInteractions().get(0);
-    // rtnPaymentInteraction.setGatewayAuthCode(paymentInteraction.getGatewayAuthCode());
-    // rtnPaymentInteraction.setGatewayAVSCodes(paymentInteraction.getGatewayAVSCodes());
-    // rtnPaymentInteraction.setGatewayCVV2Codes(paymentInteraction.getGatewayCVV2Codes());
-    // rtnPaymentInteraction.setGatewayInteractionId(paymentInteraction.getGatewayInteractionId());
-    // rtnPaymentInteraction.setGatewayResponseCode(paymentInteraction.getGatewayResponseCode());
-    // rtnPaymentInteraction.setGatewayResponseText(paymentInteraction.getGatewayResponseText());
-    // rtnPaymentInteraction.setGatewayTransactionId(paymentInteraction.getGatewayInteractionId()
-    // != null
-    // ? paymentInteraction.getGatewayInteractionId().toString() : null);
-    // billingInfo.setPaymentType(payment.getPaymentType());
-    // break;
-    // }
-    // }
-    //
-    // if (rtnPaymentInteraction == null) {
-    // // This was not a credit card transaction so put in a check
-    // // number to fake it out
-    // paymentAction.setCheckNumber("000");
-    // billingInfo.setPaymentType("Check");
-    // }
-    //
-    // paymentAction.setManualGatewayInteraction(rtnPaymentInteraction);
-    //
-    // paymentAction.setNewBillingInfo(billingInfo);
-    //
-    // // paymentAction.setReferenceSourcePaymentId(referenceSourcePaymentId);
-    //
-    // returnResource.createPaymentActionForReturn(paymentAction,
-    // createdReturn.getId());
-    //
-    // // perform refund action
-    // rtnAction.setActionName("Refund");
-    // returnResource.performReturnActions(rtnAction);
-    //
-    // // perform completed action
-    // rtnAction.setActionName("Close");
-    // returnResource.performReturnActions(rtnAction);
-    //
-    // idMapper.putMozuReturnId(apiContext, createdReturn.getId(),
-    // saleLine.getSaleLineID());
-    //
-    // // update inventory
-    // updateReturnInventory(returnItems, storeLocation, apiContext);
-    // } catch (Exception e) {
-    // logger.error("Unable to create a return for saleLine " +
-    // saleLine.getSaleLineID() + " Item "
-    // + saleLine.getItem().getId() + " " + e.getMessage());
-    // }
-    // }
-    //
-    // private void updateReturnInventory(List<ReturnItem> items, Location
-    // storeLocation, ApiContext apiContext)
-    // throws Exception {
-    //
-    // LocationInventoryResource lir = new
-    // LocationInventoryResource(apiContext);
-    //
-    // List<LocationInventoryAdjustment> adjustments = new ArrayList<>();
-    // LocationInventoryAdjustment inventory = new
-    // LocationInventoryAdjustment();
-    // inventory.setLocationCode(storeLocation.getCode());
-    // adjustments.add(inventory);
-    //
-    // for (ReturnItem item : items) {
-    // if (item.getProduct().getProductUsage() == null ||
-    // !item.getProduct().getProductUsage().equals("Bundle")) {
-    // String productCode =
-    // ProductMappingUtils.getActualProductCode(item.getProduct());
-    // inventory.setProductCode(productCode);
-    // inventory.setType("Delta");
-    // inventory.setValue(item.getQuantityRestockable());
-    // try {
-    // lir.updateLocationInventory(adjustments, productCode);
-    // } catch (Exception e) {
-    // logger.error("Unable to update inventory for product code " + productCode
-    // + " " + e.getMessage());
-    // }
-    // } else {
-    // logger.debug("Product " + item.getProduct().getProductCode()
-    // + " is a bundle, updating inventory for bundle items");
-    // List<BundledProduct> bundledProducts =
-    // item.getProduct().getBundledProducts();
-    // for (BundledProduct bp : bundledProducts) {
-    // inventory.setProductCode(bp.getProductCode());
-    // inventory.setType("Delta");
-    // inventory.setValue(item.getQuantityRestockable() * bp.getQuantity());
-    // try {
-    // lir.updateLocationInventory(adjustments, bp.getProductCode());
-    // } catch (Exception e) {
-    // logger.error("Unable to update inventory for product code " +
-    // item.getProduct().getProductCode()
-    // + " " + e.getMessage());
-    // }
-    // }
-    // }
-    // }
-    // }
-    //
-    // private FulfillmentInfo getFulfillmentInfo(Sale sale, Location
-    // storeLocation) {
-    // FulfillmentInfo fulfillmentInfo = new FulfillmentInfo();
-    // if (sale.getShipTo() != null) {
-    // Contact fulfillmentContact = new Contact();
-    // fulfillmentContact.setCompanyOrOrganization(sale.getShipTo().getCompany());
-    // if (sale.getShipTo().getContact() != null) {
-    // if (sale.getShipTo().getContact().getEmails() != null
-    // && sale.getShipTo().getContact().getEmails().getContactEmail() != null) {
-    // List<ContactEmail> lscEmails =
-    // sale.getShipTo().getContact().getEmails().getContactEmail();
-    // for (ContactEmail lscEmail : lscEmails) {
-    // if (lscEmail.getUseType().equalsIgnoreCase("Primary")) {
-    // fulfillmentContact.setEmail(lscEmail.getAddress());
-    // break;
-    // }
-    // }
-    // if (fulfillmentContact.getEmail() == null && lscEmails.size() > 0) {
-    // // there is an email but it is not primary, use it
-    // fulfillmentContact.setEmail(lscEmails.get(0).getAddress());
-    // }
-    // }
-    //
-    // fulfillmentContact.setFirstName(sale.getShipTo().getFirstName());
-    // fulfillmentContact.setLastNameOrSurname(sale.getShipTo().getLastName());
-    //
-    // if (sale.getShipTo().getContact().getAddresses() != null
-    // && sale.getShipTo().getContact().getAddresses().getAddresses() != null) {
-    // ContactAddress contactAddress =
-    // sale.getShipTo().getContact().getAddresses().getAddresses().get(0);
-    // if (contactAddress != null) {
-    // Address shipToAddress = new Address();
-    // shipToAddress.setAddress1(contactAddress.getAddress1());
-    // shipToAddress.setAddress2(contactAddress.getAddress2());
-    // shipToAddress.setCityOrTown(contactAddress.getCity());
-    // shipToAddress.setCountryCode(contactAddress.getCountry());
-    // shipToAddress.setPostalOrZipCode(contactAddress.getZip());
-    // shipToAddress.setStateOrProvince(contactAddress.getState());
-    // fulfillmentContact.setAddress(shipToAddress);
-    // }
-    // }
-    //
-    // if (sale.getShipTo().getContact().getPhones() != null
-    // && sale.getShipTo().getContact().getPhones().getPhones() != null) {
-    // Phone shipToPhoneNumbers = new Phone();
-    // List<ContactPhone> contactPhones =
-    // sale.getShipTo().getContact().getPhones().getPhones();
-    // for (ContactPhone phone : contactPhones) {
-    // if (phone.getUseType().equalsIgnoreCase("Home")) {
-    // shipToPhoneNumbers.setHome(phone.getNumber());
-    // } else if (phone.getUseType().equalsIgnoreCase("Mobile")) {
-    // shipToPhoneNumbers.setMobile(phone.getNumber());
-    // } else if (phone.getUseType().equalsIgnoreCase("Work")) {
-    // shipToPhoneNumbers.setWork(phone.getNumber());
-    // }
-    // }
-    // fulfillmentContact.setPhoneNumbers(shipToPhoneNumbers);
-    // }
-    // fulfillmentInfo.setFulfillmentContact(fulfillmentContact);
-    // }
-    //
-    // // skip for now, may need to add in later
-    // // fulfillmentInfo.setShippingMethodCode(shippingMethodCode);
-    // // fulfillmentInfo.setShippingMethodName(shippingMethodName);
-    //
-    // }
-    //
-    // // if the fulfilment info is not complete, fill in with data from
-    // // the store location
-    // Contact ffContact = null;
-    // if (storeLocation != null && fulfillmentInfo.getFulfillmentContact() ==
-    // null) {
-    // ffContact = new Contact();
-    // } else {
-    // ffContact = fulfillmentInfo.getFulfillmentContact();
-    // }
-    //
-    // if (ffContact.getAddress() == null)
-    // ffContact.setAddress(storeLocation.getAddress());
-    // if (ffContact.getCompanyOrOrganization() == null)
-    // ffContact.setCompanyOrOrganization(storeLocation.getName());
-    // if (ffContact.getEmail() == null)
-    // ffContact.setEmail(ANONYMOUS_EMAIL);
-    // if (ffContact.getLastNameOrSurname() == null) {
-    // ffContact.setFirstName(ANONYMOUS_FIRST_NAME);
-    // ffContact.setLastNameOrSurname(ANONYMOUS_LAST_NAME);
-    // }
-    // if (ffContact.getPhoneNumbers() == null) {
-    // Phone shopPhone = new Phone();
-    // shopPhone.setWork(StringUtils.isEmpty(storeLocation.getPhone()) ?
-    // "5555551212" : storeLocation.getPhone());
-    // ffContact.setPhoneNumbers(shopPhone);
-    // }
-    //
-    // fulfillmentInfo.setFulfillmentContact(ffContact);
-    // return fulfillmentInfo;
-    // }
-    //
-    // private BillingInfo getBillingInfo(Sale sale, Location storeLocation) {
-    // BillingInfo billingInfo = new BillingInfo();
-    // Contact billingContact = new Contact();
-    // if (sale.getCustomer() != null) {
-    // Customer customer = sale.getCustomer();
-    //
-    // billingContact.setCompanyOrOrganization(customer.getCompany());
-    // if (customer.getContact().getEmails() != null) {
-    // List<ContactEmail> lscEmails =
-    // customer.getContact().getEmails().getContactEmail();
-    // for (ContactEmail lscEmail : lscEmails) {
-    // if (lscEmail.getUseType().equalsIgnoreCase("Primary")) {
-    // billingContact.setEmail(lscEmail.getAddress());
-    // break;
-    // }
-    // }
-    // if (billingContact.getEmail() == null && lscEmails.size() > 0) {
-    // // there is an email but it is not primary, use it
-    // billingContact.setEmail(lscEmails.get(0).getAddress());
-    // }
-    // }
-    //
-    // billingContact.setFirstName(customer.getFirstName());
-    // billingContact.setLastNameOrSurname(customer.getLastName());
-    //
-    // if (customer.getContact().getAddresses() != null
-    // && customer.getContact().getAddresses().getAddresses() != null) {
-    // ContactAddress contactAddress =
-    // customer.getContact().getAddresses().getAddresses().get(0);
-    // if (contactAddress != null) {
-    // Address address = new Address();
-    // address.setAddress1(contactAddress.getAddress1());
-    // address.setAddress2(contactAddress.getAddress2());
-    // address.setCityOrTown(contactAddress.getCity());
-    // address.setCountryCode(contactAddress.getCountry());
-    // address.setPostalOrZipCode(contactAddress.getZip());
-    // address.setStateOrProvince(contactAddress.getState());
-    // billingContact.setAddress(address);
-    // }
-    // }
-    //
-    // Phone phoneNumbers = new Phone();
-    // if (customer.getContact().getPhones() != null &&
-    // customer.getContact().getPhones().getPhones() != null) {
-    // List<ContactPhone> contactPhones =
-    // customer.getContact().getPhones().getPhones();
-    // for (ContactPhone phone : contactPhones) {
-    // if (phone.getUseType().equalsIgnoreCase("Home")) {
-    // phoneNumbers.setHome(phone.getNumber());
-    // } else if (phone.getUseType().equalsIgnoreCase("Mobile")) {
-    // phoneNumbers.setMobile(phone.getNumber());
-    // } else if (phone.getUseType().equalsIgnoreCase("Work")) {
-    // phoneNumbers.setWork(phone.getNumber());
-    // }
-    // }
-    // billingContact.setPhoneNumbers(phoneNumbers);
-    // }
-    // } else {
-    // billingInfo.setIsSameBillingShippingAddress(true);
-    // }
-    // if (billingContact.getAddress() == null)
-    // billingContact.setAddress(storeLocation.getAddress());
-    // if (billingContact.getCompanyOrOrganization() == null)
-    // billingContact.setCompanyOrOrganization(storeLocation.getName());
-    // if (billingContact.getEmail() == null)
-    // billingContact.setEmail(ANONYMOUS_EMAIL);
-    // if (billingContact.getLastNameOrSurname() == null) {
-    // billingContact.setFirstName(ANONYMOUS_FIRST_NAME);
-    // billingContact.setLastNameOrSurname(ANONYMOUS_LAST_NAME);
-    // }
-    //
-    // billingInfo.setBillingContact(billingContact);
-    // return billingInfo;
-    // }
-    //
-    // private List<Payment> getPayments(Sale sale, BillingInfo billingInfo) {
-    // List<Payment> payments = new ArrayList<>();
-    // if (sale.getSalePayments() != null &&
-    // sale.getSalePayments().getSalePayments() != null) {
-    // List<SalePayment> salePayments =
-    // sale.getSalePayments().getSalePayments();
-    // for (SalePayment salePayment : salePayments) {
-    // Payment payment = new Payment();
-    // if (salePayment.getAmount() > 0) {
-    // payment.setAmountCollected(salePayment.getAmount());
-    // } else if (salePayment.getAmount() < 0) {
-    // payment.setAmountCredited(salePayment.getAmount());
-    // }
-    //
-    // // Add payment type. Mozu does not support cash at this time, so
-    // // if not a supported Mozu
-    // // type, set as check. TODO: update when Mozu adds types.
-    // if (salePayment.getPaymentType() != null
-    // && salePayment.getPaymentType().getName().equalsIgnoreCase("Credit
-    // Card")) {
-    // payment.setPaymentType("CreditCard");
-    // } else if (salePayment.getPaymentType() != null
-    // && salePayment.getPaymentType().getName().equalsIgnoreCase("Gift Card"))
-    // {
-    // payment.setPaymentType("GiftCard");
-    // } else {
-    // payment.setPaymentType("Check");
-    // }
-    // payment.setBillingInfo(billingInfo);
-    // payment.setStatus("Collected");
-    //
-    // if (salePayment.getCcCharge() != null) {
-    // payment.setPaymentServiceTransactionId(salePayment.getCcCharge().getGatewayTransID());
-    // List<PaymentInteraction> paymentInteractions = new ArrayList<>();
-    // PaymentInteraction paymentInteraction = new PaymentInteraction();
-    // paymentInteraction.setGatewayResponseCode(salePayment.getCcCharge().getAuthCode());
-    // paymentInteraction.setGatewayTransactionId(salePayment.getCcCharge().getGatewayTransID());
-    // paymentInteraction.setInteractionDate(
-    // DateTimeUtils.convertFromLightSpeedTime(salePayment.getCcCharge().getTimeStamp()));
-    // paymentInteraction.setAmount(salePayment.getCcCharge().getAmount());
-    // paymentInteraction.setCurrencyCode(salePayment.getCcCharge().getCurrency());
-    // paymentInteraction.setGatewayAuthCode(salePayment.getCcCharge().getAuthCode());
-    // payment.setInteractions(paymentInteractions);
-    // }
-    // payments.add(payment);
-    // }
-    // }
-    // return payments;
-    // }
+    private List<Payment> getPayments(com.mozu.sterling.model.order.Order sterlingOrder, BillingInfo billingInfo) {
+        List<Payment> payments = new ArrayList<>();
+        if (sterlingOrder.getPaymentMethods() != null && sterlingOrder.getPaymentMethods().getPaymentMethod() != null) {
+            List<PaymentMethod> salePayments = sterlingOrder.getPaymentMethods().getPaymentMethod();
+            List<ChargeTransactionDetail> chargeDetails = sterlingOrder.getChargeTransactionDetails()
+                    .getChargeTransactionDetail();
+            int i = 0;
+            for (PaymentMethod salePayment : salePayments) {
+                ChargeTransactionDetail chargeDetail = null;
+                if (chargeDetails.size() > i) {
+                    chargeDetail = chargeDetails.get(i);
+                }
+
+                Payment payment = new Payment();
+
+                // Add payment type. Mozu does not support cash at this time, so
+                // if not a supported Mozu
+                // type, set as check. TODO: update when Mozu adds types.
+                if (salePayment.getPaymentType() == null) {
+                    payment.setPaymentType("Check");
+                } else if (salePayment.getPaymentType().equalsIgnoreCase("CREDITCARD")) {
+                    payment.setPaymentType("CreditCard");
+                } else if (salePayment.getPaymentType().equalsIgnoreCase("Gift Card")) {
+                } else {
+                    payment.setPaymentType("Check");
+                }
+                payment.setBillingInfo(billingInfo);
+
+                if (chargeDetail != null) {
+                    Double creditAmount = chargeDetail.getCreditAmount() != null
+                            ? Double.valueOf(chargeDetail.getCreditAmount()) : 0.0;
+                    Double amountCollected = chargeDetail.getBookAmount() != null
+                            ? Double.valueOf(chargeDetail.getBookAmount()) : 0.0;
+                    payment.setAmountCollected(amountCollected);
+                    payment.setAmountCredited(creditAmount);
+
+                    payment.setStatus(chargeDetail.getStatus());
+
+                    if (chargeDetail.getCreditCardTransactions() != null
+                            && chargeDetail.getCreditCardTransactions().getCreditCardTransaction() != null) {
+                        CreditCardTransaction creditCardTransaction = chargeDetail.getCreditCardTransactions()
+                                .getCreditCardTransaction();
+                        payment.setPaymentServiceTransactionId(creditCardTransaction.getRequestId());
+                        List<PaymentInteraction> paymentInteractions = new ArrayList<>();
+                        PaymentInteraction paymentInteraction = new PaymentInteraction();
+                        paymentInteraction.setGatewayResponseCode(creditCardTransaction.getTranReturnCode());
+                        paymentInteraction.setGatewayTransactionId(creditCardTransaction.getChargeTransactionKey());
+                        paymentInteraction
+                                .setInteractionDate(convertFromSterlingTime(creditCardTransaction.getAuthTime()));
+                        paymentInteraction.setAmount(Double.valueOf(creditCardTransaction.getTranAmount()));
+                        paymentInteraction.setCurrencyCode("USD");
+                        paymentInteraction.setGatewayAuthCode(creditCardTransaction.getAuthCode());
+                        payment.setInteractions(paymentInteractions);
+                    }
+                }
+                payments.add(payment);
+            }
+        }
+        return payments;
+    }
+
     //
     // private static Pickup createPickup(DateTime fulfillmentTime, Location
     // storeLocation, String productCode,
