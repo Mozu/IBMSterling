@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -16,19 +17,18 @@ import org.springframework.stereotype.Component;
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.commerce.ChangeMessage;
 import com.mozu.api.contracts.commerceruntime.commerce.CommerceUnitPrice;
-import com.mozu.api.contracts.commerceruntime.discounts.AppliedDiscount;
 import com.mozu.api.contracts.commerceruntime.fulfillment.FulfillmentInfo;
-import com.mozu.api.contracts.commerceruntime.fulfillment.Pickup;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
 import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.contracts.commerceruntime.orders.OrderNote;
 import com.mozu.api.contracts.commerceruntime.payments.BillingInfo;
 import com.mozu.api.contracts.commerceruntime.payments.Payment;
 import com.mozu.api.contracts.commerceruntime.payments.PaymentInteraction;
+import com.mozu.api.contracts.commerceruntime.products.Product;
 import com.mozu.api.contracts.core.Address;
 import com.mozu.api.contracts.core.AuditInfo;
 import com.mozu.api.contracts.core.Contact;
-import com.mozu.api.contracts.location.Location;
+import com.mozu.api.contracts.core.Phone;
 import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.order.ChargeTransactionDetail;
 import com.mozu.sterling.model.order.ContactInfo;
@@ -64,7 +64,7 @@ public class SterlingOrderToMozuMapper {
      * @throws Exception
      */
     public Order saleToOrder(com.mozu.sterling.model.order.Order sterlingOrder, ApiContext apiContext,
-            Location storeLocation, Setting setting) throws Exception {
+            Setting setting) throws Exception {
         Order order = new Order();
 
         order.setTenantId(apiContext.getTenantId());
@@ -124,11 +124,11 @@ public class SterlingOrderToMozuMapper {
         // All sales items go into orderItems
         List<OrderItem> orderItems = new ArrayList<OrderItem>();
         // Items set to Pickup go into pickups
-        List<Pickup> pickups = new ArrayList<>();
+        //List<Pickup> pickups = new ArrayList<>();
         // Items set to Ship go into packages
-        List<Package> packages = new ArrayList<Package>();
+        //List<Package> packages = new ArrayList<Package>();
 
-        List<AppliedDiscount> discounts = new ArrayList<>();
+        //List<AppliedDiscount> discounts = new ArrayList<>();
 
         if (sterlingOrder.getOrderLines() != null && sterlingOrder.getOrderLines().getOrderLine() != null) {
             List<OrderLine> saleLines = sterlingOrder.getOrderLines().getOrderLine();
@@ -136,31 +136,50 @@ public class SterlingOrderToMozuMapper {
             for (OrderLine saleLine : saleLines) {
                 OrderItem orderItem = new OrderItem();
                 orderItem.setLineId(lineId);
+                if (saleLine.getDeliveryMethod() != null) {
+                    orderItem.setFulfillmentMethod(saleLine.getDeliveryMethod().equals("PICK") ? "Pickup" : "Ship");
+                } else {
+                    orderItem.setFulfillmentMethod("Pickup");
+                }
                 LineOverallTotals lineOverallTotals = saleLine.getLineOverallTotals();
                 if (lineOverallTotals != null) {
-                    orderItem.setQuantity(Integer.getInteger(lineOverallTotals.getPricingQty()));
+                    int qty = lineOverallTotals.getPricingQty() == null ? 0 : Double.valueOf(lineOverallTotals.getPricingQty()).intValue();
+                    orderItem.setQuantity(qty < 1 ? 1 : qty);
                     orderItem.setSubtotal(Double.valueOf(lineOverallTotals.getLineTotalWithoutTax() != null
                             ? lineOverallTotals.getLineTotalWithoutTax() : lineOverallTotals.getLineTotal()));
                     orderItem.setTaxableTotal(Double.valueOf(lineOverallTotals.getTax()));
                     orderItem.setTotal(Double.valueOf(lineOverallTotals.getLineTotal()));
                     orderItem.setExtendedTotal(Double.valueOf(lineOverallTotals.getExtendedPrice()));
-                    orderItem.setDiscountedTotal(Double.valueOf(lineOverallTotals.getDiscount()));
-                    orderItem.setDiscountTotal(Double.valueOf(lineOverallTotals.getLineTotal()));
-                    orderItem.setShippingTotal(Double.valueOf(lineOverallTotals.getShippingTotal()));
+                    orderItem.setDiscountedTotal(Double.valueOf(lineOverallTotals.getLineTotal()));
+                    orderItem.setDiscountTotal(Double.valueOf(lineOverallTotals.getDiscount()));
+                    orderItem.setShippingTotal(lineOverallTotals.getShippingTotal() != null ? Double.valueOf(lineOverallTotals.getShippingTotal()) : 0.00);
                 }
 
                 LinePriceInfo linePriceInfo = saleLine.getLinePriceInfo();
 
                 if (linePriceInfo != null) {
                     CommerceUnitPrice commerceUnitPrice = new CommerceUnitPrice();
-                    commerceUnitPrice.setListAmount(Double.valueOf(linePriceInfo.getListPrice()));
-                    commerceUnitPrice.setSaleAmount(Double.valueOf(linePriceInfo.getRetailPrice()));
+                    Double unitPrice = Double.valueOf(linePriceInfo.getUnitPrice());
+                    Double listPrice = Double.valueOf(linePriceInfo.getListPrice());
+                    Double retailPrice = Double.valueOf(linePriceInfo.getSettledAmount());
+                    
+                    if (unitPrice > 0.0) {
+                        commerceUnitPrice.setOverrideAmount (unitPrice);
+                    }
+                    if (listPrice > 0.00) {
+                        commerceUnitPrice.setListAmount(listPrice);
+                    } else if (retailPrice > 0.0) {
+                        commerceUnitPrice.setListAmount(retailPrice);
+                    }
+                    
                     orderItem.setUnitPrice(commerceUnitPrice);
                     orderItem.setIsTaxable("Y".equals(linePriceInfo.getTaxableFlag()));
                 }
-                orderItem.setFulfillmentLocationCode(storeLocation.getCode());
+                if (saleLine.getShipnode() != null) {
+                    orderItem.setFulfillmentLocationCode(getStoreLocation(setting, saleLine.getShipnode().getShipnodeKey()));
+                }
                 if (saleLine.getNotes() != null && saleLine.getNotes().getNumberOfNotes() != null
-                        && Integer.getInteger(saleLine.getNotes().getNumberOfNotes()) > 0) {
+                        && Integer.valueOf(saleLine.getNotes().getNumberOfNotes()) > 0) {
                     List<OrderNote> orderNotes = new ArrayList<>();
                     for (Note note : saleLine.getNotes().getNote()) {
                         OrderNote orderNote = new OrderNote();
@@ -169,32 +188,19 @@ public class SterlingOrderToMozuMapper {
                     }
                     order.setNotes(orderNotes);
                 }
+                if (saleLine.getItem() != null) {
+                    String productCode = saleLine.getItem().getItemID();
 
+                    com.mozu.api.contracts.commerceruntime.products.Product lineProduct = getProduct(apiContext,
+                            productCode, false);
+                    orderItem.setProduct(lineProduct);
+                }
                 orderItems.add(orderItem);
+                // Map the discount from Sterling
                 lineId++;
             }
             order.setItems(orderItems);
 
-            // if (sterlingOrder.getShipTo() != null) {
-            // orderItem.setFulfillmentMethod(sterlingOrder.getShipTo().isShipped()
-            // ? "Pickup" : "Ship");
-            // } else {
-            // orderItem.setFulfillmentMethod("Pickup");
-            // }
-            //
-            // if (saleLine.getItem() != null) {
-            // String productCode = saleLine.getItem().getCustomSku();
-            //
-            // Integer itemMatrixId = saleLine.getItem().getItemMatrixID();
-            // // if there is an ItemMatrix ID that is not 0 it is a
-            // // variation.
-            // Boolean isVariation = itemMatrixId != null &&
-            // !itemMatrixId.equals(0);
-            // com.mozu.api.contracts.commerceruntime.products.Product
-            // lineProduct =
-            // getProduct(apiContext,
-            // productCode, isVariation);
-            // orderItem.setProduct(lineProduct);
             //
             // if (orderItem.getFulfillmentMethod().equals("Pickup")) {
             // Pickup pickup;
@@ -242,29 +248,6 @@ public class SterlingOrderToMozuMapper {
             // }
             // }
 
-            // // Map the discount from lightspeed
-            // LscDiscount lscDiscount = saleLine.getDiscount();
-            // if (lscDiscount != null) {
-            // Discount discount = new Discount();
-            // discount.setName(lscDiscount.getName());
-            // List<String> itemIds = new ArrayList<>();
-            // try {
-            // String mzId = idMapper.getMozuProductId(apiContext,
-            // saleLine.getItemID());
-            // if (mzId != null) {
-            // itemIds.add(mzId);
-            // }
-            // } catch (Exception e) {
-            // // no itemId, just move on
-            // }
-            // discount.setItemIds(itemIds);
-            // discount.setExpirationDate(DateTime.now());
-            // AppliedDiscount appliedDiscount = new AppliedDiscount();
-            // appliedDiscount.setExcluded(false);
-            // appliedDiscount.setDiscount(discount);
-            // appliedDiscount.setImpact(-1.0 * saleLine.getCalcLineDiscount());
-            // appliedDiscount.setCouponCode("");
-            // discounts.add(appliedDiscount);
             // }
             // orderItems.add(orderItem);
             // }
@@ -289,6 +272,20 @@ public class SterlingOrderToMozuMapper {
                 order.setEmail(ANONYMOUS_EMAIL);
         }
         return order;
+    }
+
+    private String getStoreLocation(Setting setting, String shipnode) {
+        String mozuLocation = null;
+        if (StringUtils.isNotBlank(shipnode)) {
+            Map<String, String>locationMap = setting.getLocationMap();
+            for (Entry<String, String> entry : locationMap.entrySet()) {
+                if (shipnode.equals(entry.getValue())) {
+                    mozuLocation = entry.getKey();
+                    break;
+                }
+            }
+        }
+        return mozuLocation;
     }
 
     private FulfillmentInfo getFulfillmentInfo(com.mozu.sterling.model.order.Order sterlingOrder, Setting setting) {
@@ -347,6 +344,7 @@ public class SterlingOrderToMozuMapper {
         contact.setCompanyOrOrganization(contactInfo.getCompany());
         contact.setEmail(contactInfo.getEMailID());
         contact.setFirstName(contactInfo.getFirstName());
+        contact.setMiddleNameOrInitial(contactInfo.getMiddleName());
         contact.setLastNameOrSurname(contactInfo.getLastName());
 
         Address address = new Address();
@@ -358,6 +356,11 @@ public class SterlingOrderToMozuMapper {
         address.setStateOrProvince(contactInfo.getState());
 
         contact.setAddress(address);
+        Phone phone = new Phone ();
+        phone.setHome(contactInfo.getEveningPhone());
+        phone.setMobile(contactInfo.getMobilePhone());
+        phone.setWork(contactInfo.getDayPhone());
+        contact.setPhoneNumbers(phone);
 
         return contact;
     }
@@ -404,7 +407,7 @@ public class SterlingOrderToMozuMapper {
                     payment.setAmountCollected(amountCollected);
                     payment.setAmountCredited(creditAmount);
 
-                    payment.setStatus(chargeDetail.getStatus());
+                    payment.setStatus(getPaymentStatus (chargeDetail.getStatus()));
 
                     if (chargeDetail.getCreditCardTransactions() != null
                             && chargeDetail.getCreditCardTransactions().getCreditCardTransaction() != null) {
@@ -427,6 +430,23 @@ public class SterlingOrderToMozuMapper {
             }
         }
         return payments;
+    }
+
+    private String getPaymentStatus(String status) {
+        switch (status) {
+        case "OPEN":
+            return "Pending";
+        case "CLOSED":
+            return "Collected";
+        case "ERROR":
+            return "Declined";
+        case "CHECKED":
+            return "Authorized";
+        case "VOIDED":
+            return "Voided";
+        
+        }
+        return null;
     }
 
     //
@@ -454,31 +474,27 @@ public class SterlingOrderToMozuMapper {
     // return sale;
     // }
     //
-    // private com.mozu.api.contracts.commerceruntime.products.Product
-    // getProduct(ApiContext apiContext,
-    // String productCode, boolean isVariant) throws Exception {
-    // com.mozu.api.contracts.commerceruntime.products.Product
-    // commerceRuntimeProduct = null;
-    // try {
-    // Product product = ProductMappingUtils.getProductFromMozu(apiContext,
-    // productCode, isVariant);
-    // if (product == null) {
-    // throw new RuntimeException(String.format(
-    // "The product with code %s cannot be found for the site %d. Skipping
-    // import of order.",
-    // productCode, apiContext.getSiteId()));
-    // }
-    // commerceRuntimeProduct = ProductMappingUtils.convertProduct(product);
-    // } catch (Exception e) {
-    // // log the error and try and keep going without the product
-    // StringBuilder errMsg = new StringBuilder("Unable to process Mozu product
-    // with product code ")
-    // .append(productCode).append(" Exception: ").append(e.getMessage());
-    // logger.warn(errMsg.toString());
-    // throw e;
-    // }
-    // return commerceRuntimeProduct;
-    // }
+    private Product getProduct(ApiContext apiContext, String productCode, boolean isVariant) throws Exception {
+        Product commerceRuntimeProduct = null;
+        try {
+            com.mozu.api.contracts.productruntime.Product product = ProductMappingUtils.getProductFromMozu(apiContext,
+                    productCode, isVariant);
+            if (product == null) {
+                throw new RuntimeException(String.format(
+                        "The product with code %s cannot be found for the site %d. Skippingimport of order.",
+                        productCode, apiContext.getSiteId()));
+            }
+            commerceRuntimeProduct = ProductMappingUtils.convertProduct(product);
+        } catch (Exception e) {
+            // log the error and try and keep going without the product
+            StringBuilder errMsg = new StringBuilder("Unable to process Mozu product with product code ")
+                    .append(productCode).append(" Exception: ").append(e.getMessage());
+            logger.warn(errMsg.toString());
+            throw e;
+        }
+        return commerceRuntimeProduct;
+    }
+
     private static final String FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     public DateTime convertFromSterlingTime(String timeString) {

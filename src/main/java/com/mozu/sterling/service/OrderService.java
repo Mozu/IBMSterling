@@ -12,10 +12,12 @@ import org.w3c.dom.Document;
 
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
+import com.mozu.api.contracts.commerceruntime.orders.OrderCollection;
 import com.mozu.api.contracts.event.Event;
 import com.mozu.api.resources.commerce.OrderResource;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.handler.MozuOrderToSterlingMapper;
+import com.mozu.sterling.handler.SterlingOrderToMozuMapper;
 import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.order.OrderList;
 
@@ -42,6 +44,9 @@ public class OrderService extends SterlingClient {
     @Autowired
     MozuOrderToSterlingMapper mozuOrderToSterlingMapper;
 
+    @Autowired
+    SterlingOrderToMozuMapper sterlingOrderToMozuMapper;
+    
     public OrderService() throws Exception {
         super();
     }
@@ -70,7 +75,7 @@ public class OrderService extends SterlingClient {
     }
 
     /**
-     * Create an order in mozu based on a Mozu event.
+     * Create an order in Sterling based on a Mozu event.
      * 
      * @param apiContext
      *            the api context
@@ -146,16 +151,49 @@ public class OrderService extends SterlingClient {
         return sterlingOrder;
 
     }
-
-    /*
-     * -------------------------------------------------- Sterling to Mozu
-     * ------------------------
-     */
+   
     /**
-     * 
+     * Import in the order from Sterling with the given Order No.  Settings for the tenant in the ApiContext will be loaded automatically.
+     * @param apiContext
+     * @param orderNo
+     * @return
+     * @throws Exception
      */
-    private Order mapSterlingOrderToMozu(com.mozu.sterling.model.order.Order sterlingOrder) {
-        Order mozuOrder = new Order();
+    public Order importSterlingOrder (ApiContext apiContext, String orderNo) throws Exception {
+        Setting setting = configHandler.getSetting(apiContext.getTenantId());
+        
+        return importSterlingOrder(apiContext, setting, orderNo);
+    }
+    
+    /**
+     * Import in the order with the give orderNo ID.
+     * @param apiContext the Mozu API context with tenant and site ID
+     * @param setting the settings for the tenant.
+     * @param orderNo the order number of the order in Sterling.
+     * @return the imported mozu order.
+     * @throws Exception
+     */
+    public Order importSterlingOrder (ApiContext apiContext, Setting setting, String orderNo) throws Exception {
+        Order mozuOrder = null;
+        com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, orderNo);
+        if (sterlingOrder != null) {
+        
+            mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, apiContext, setting);
+                    
+            OrderResource orderResource = new OrderResource (apiContext);
+            OrderCollection existingOrders = orderResource.getOrders(0, null, null,
+                    "externalId eq " + orderNo, null, null, null);
+            if (existingOrders != null && existingOrders.getItems() != null &&  
+                    existingOrders.getItems().size() > 0) {
+                Order existingOrder = existingOrders.getItems().get(0);
+                mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
+            }else {
+                mozuOrder = orderResource.createOrder(mozuOrder);
+            }
+        } else {
+            logger.info ("Unable to find order with the orderId: " + orderNo);
+        }
         return mozuOrder;
     }
+
 }
