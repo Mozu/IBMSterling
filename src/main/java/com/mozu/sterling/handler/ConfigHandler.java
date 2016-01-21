@@ -30,6 +30,8 @@ import com.mozu.base.handlers.EntitySchemaHandler;
 import com.mozu.base.models.EntityDataTypes;
 import com.mozu.base.models.EntityScope;
 import com.mozu.base.utils.ApplicationUtils;
+import com.mozu.sterling.jmsUtil.DestinationTypeEnum;
+import com.mozu.sterling.jmsUtil.JmsConnectionStrategyEnum;
 import com.mozu.sterling.model.CarrierMap;
 import com.mozu.sterling.model.LocationMap;
 import com.mozu.sterling.model.OptionUI;
@@ -130,13 +132,28 @@ public class ConfigHandler {
                         "Unable to connect to Sterling.  Please check that your connection settings are correct.");
             }
         }
+
+        // load jms connection strategies
+        List<OptionUI> connectionStrategyList = new ArrayList<OptionUI>();
+        connectionStrategyList.add(new OptionUI(JmsConnectionStrategyEnum.DIRECT.strategyName(),
+			JmsConnectionStrategyEnum.DIRECT.strategyName()));
+
+        settingUI.setConnectionStrategies(connectionStrategyList);
+
+        // load jms destination types
+        List<OptionUI> destinationTypeList = new ArrayList<OptionUI>();
+        destinationTypeList.add(new OptionUI(DestinationTypeEnum.QUEUE.destinationName(),
+			DestinationTypeEnum.TOPIC.destinationName()));
+
+        settingUI.setDestinationTypes(destinationTypeList);
+
         return settingUI;
     }
 
 
     /**
      * Save Sterling configuration settings for the tenant
-     * 
+     *
      * @param tenantId
      *            tenant id
      * @param setting

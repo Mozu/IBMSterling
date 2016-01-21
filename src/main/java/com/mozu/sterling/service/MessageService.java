@@ -1,14 +1,26 @@
 package com.mozu.sterling.service;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.TextMessage;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
+import com.mozu.sterling.jmsUtil.JmsConnectionCache;
+
 /**
- * A service that sends and receives JMS messages. 
- * 
+ * A service that sends and receives JMS messages.
+ *
  */
 @Component
-public class MessageService 
+public class MessageService
 {
+	@Autowired
+	JmsConnectionCache jmsConnectionCache;
+
 //    @Autowired
 //    private JmsTemplate jmsTemplate;
 //    @Value("${queue}")
@@ -16,7 +28,7 @@ public class MessageService
 //
 //    /**
 //     * Sends a message to a queue.
-//     * 
+//     *
 //     * @param text Message text.
 //     */
 //    public void sendMessage(final String text) {
@@ -26,21 +38,23 @@ public class MessageService
 //            }
 //        });
 //    }
-//    
-//    /**
-//     * Receives a message from a queue.
-//     * 
-//     * @return Message text.
-//     * @throws JMSException
-//     */
-//    public String readMessage() throws JMSException {
-//        String message = null;
-//        
-//        Message msg = jmsTemplate.receive(destination);
-//        if(msg instanceof TextMessage) {
-//            message = ((TextMessage) msg).getText();
-//        }
-//        
-//        return message;
-//    }
+//
+    /**
+     * Receives a message from a queue.
+     *
+     * @return Message text.
+     * @throws JMSException
+     */
+    public String readMessage(Integer tenantId) throws Exception {
+        String message = null;
+        JmsTemplate jmsTemplate = jmsConnectionCache.getTemplate(tenantId);
+
+
+        Message msg = jmsTemplate.receive();
+        if(msg instanceof TextMessage) {
+            message = ((TextMessage) msg).getText();
+        }
+
+        return message;
+    }
 }

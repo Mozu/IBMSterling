@@ -16,6 +16,13 @@ public class Setting {
     protected Map<String, String> siteMap;
     protected Map<String, String> locationMap;
     protected Map<String, String> shipMethodMap;
+    // jms settings
+    protected String connectionStrategy;
+    protected String providerEndpoint;
+    protected String busName;
+    protected String destinationType;
+    protected String destinationName;
+
     public String getId() {
         return id;
     }
@@ -64,4 +71,34 @@ public class Setting {
     public void setShipMethodMap(Map<String, String> shipMethodMap) {
         this.shipMethodMap = shipMethodMap;
     }
+	public String getConnectionStrategy() {
+		return connectionStrategy;
+	}
+	public void setConnectionStrategy(String connectionStrategy) {
+		this.connectionStrategy = connectionStrategy;
+	}
+	public String getProviderEndpoint() {
+		return providerEndpoint;
+	}
+	public void setProviderEndpoint(String providerEndpoint) {
+		this.providerEndpoint = providerEndpoint;
+	}
+	public String getBusName() {
+		return busName;
+	}
+	public void setBusName(String busName) {
+		this.busName = busName;
+	}
+	public String getDestinationType() {
+		return destinationType;
+	}
+	public void setDestinationType(String destinationType) {
+		this.destinationType = destinationType;
+	}
+	public String getDestinationName() {
+		return destinationName;
+	}
+	public void setDestinationName(String destinationName) {
+		this.destinationName = destinationName;
+	}
 }

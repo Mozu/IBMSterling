@@ -10,7 +10,11 @@ public class SettingUI extends Setting {
     protected List<SiteMap> sellerMap;
     protected List<CarrierMap> carrierMap;
     protected List<LocationMap> shipNodeMap;
-    
+
+    // jms settings
+    protected List<OptionUI> connectionStrategies;
+    protected List<OptionUI> destinationTypes;
+
     protected Boolean isConnected;
     protected String errorMsg;
     public List<OptionUI> getLocations() {
@@ -67,4 +71,16 @@ public class SettingUI extends Setting {
     public void setCarrierMap(List<CarrierMap> carrierMap) {
         this.carrierMap = carrierMap;
     }
+	public List<OptionUI> getConnectionStrategies() {
+		return connectionStrategies;
+	}
+	public void setConnectionStrategies(List<OptionUI> connectionStrategies) {
+		this.connectionStrategies = connectionStrategies;
+	}
+	public List<OptionUI> getDestinationTypes() {
+		return destinationTypes;
+	}
+	public void setDestinationTypes(List<OptionUI> destinationTypes) {
+		this.destinationTypes = destinationTypes;
+	}
 }
