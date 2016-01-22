@@ -29,6 +29,9 @@ import com.mozu.api.contracts.core.Address;
 import com.mozu.api.contracts.core.AuditInfo;
 import com.mozu.api.contracts.core.Contact;
 import com.mozu.api.contracts.core.Phone;
+import com.mozu.api.contracts.customer.CustomerAccount;
+import com.mozu.api.contracts.customer.CustomerAccountCollection;
+import com.mozu.api.resources.commerce.customer.CustomerAccountResource;
 import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.order.ChargeTransactionDetail;
 import com.mozu.sterling.model.order.ContactInfo;
@@ -45,7 +48,7 @@ import com.mozu.sterling.model.order.RemainingFinancialTotals;
 @Component
 public class SterlingOrderToMozuMapper {
     private static final Logger logger = LoggerFactory.getLogger(SterlingOrderToMozuMapper.class);
-    public static final String ANONYMOUS_EMAIL = "anonymous@lightspeed.com";
+    public static final String ANONYMOUS_EMAIL = "anonymous@sterling.com";
     public static final String ANONYMOUS_FIRST_NAME = "Anony";
     public static final String ANONYMOUS_LAST_NAME = "Mous";
 
@@ -63,8 +66,8 @@ public class SterlingOrderToMozuMapper {
      * @return Mozu order
      * @throws Exception
      */
-    public Order saleToOrder(com.mozu.sterling.model.order.Order sterlingOrder, ApiContext apiContext,
-            Setting setting) throws Exception {
+    public Order saleToOrder(com.mozu.sterling.model.order.Order sterlingOrder, ApiContext apiContext, Setting setting)
+            throws Exception {
         Order order = new Order();
 
         order.setTenantId(apiContext.getTenantId());
@@ -118,17 +121,19 @@ public class SterlingOrderToMozuMapper {
         FulfillmentInfo fulfillmentInfo = getFulfillmentInfo(sterlingOrder, setting);
         order.setFulfillmentInfo(fulfillmentInfo);
 
+        updateMozuCustomerId(apiContext, order);
+
         List<Payment> payments = getPayments(sterlingOrder, billingInfo);
         order.setPayments(payments);
 
         // All sales items go into orderItems
         List<OrderItem> orderItems = new ArrayList<OrderItem>();
         // Items set to Pickup go into pickups
-        //List<Pickup> pickups = new ArrayList<>();
+        // List<Pickup> pickups = new ArrayList<>();
         // Items set to Ship go into packages
-        //List<Package> packages = new ArrayList<Package>();
+        // List<Package> packages = new ArrayList<Package>();
 
-        //List<AppliedDiscount> discounts = new ArrayList<>();
+        // List<AppliedDiscount> discounts = new ArrayList<>();
 
         if (sterlingOrder.getOrderLines() != null && sterlingOrder.getOrderLines().getOrderLine() != null) {
             List<OrderLine> saleLines = sterlingOrder.getOrderLines().getOrderLine();
@@ -143,7 +148,8 @@ public class SterlingOrderToMozuMapper {
                 }
                 LineOverallTotals lineOverallTotals = saleLine.getLineOverallTotals();
                 if (lineOverallTotals != null) {
-                    int qty = lineOverallTotals.getPricingQty() == null ? 0 : Double.valueOf(lineOverallTotals.getPricingQty()).intValue();
+                    int qty = lineOverallTotals.getPricingQty() == null ? 0
+                            : Double.valueOf(lineOverallTotals.getPricingQty()).intValue();
                     orderItem.setQuantity(qty < 1 ? 1 : qty);
                     orderItem.setSubtotal(Double.valueOf(lineOverallTotals.getLineTotalWithoutTax() != null
                             ? lineOverallTotals.getLineTotalWithoutTax() : lineOverallTotals.getLineTotal()));
@@ -152,7 +158,8 @@ public class SterlingOrderToMozuMapper {
                     orderItem.setExtendedTotal(Double.valueOf(lineOverallTotals.getExtendedPrice()));
                     orderItem.setDiscountedTotal(Double.valueOf(lineOverallTotals.getLineTotal()));
                     orderItem.setDiscountTotal(Double.valueOf(lineOverallTotals.getDiscount()));
-                    orderItem.setShippingTotal(lineOverallTotals.getShippingTotal() != null ? Double.valueOf(lineOverallTotals.getShippingTotal()) : 0.00);
+                    orderItem.setShippingTotal(lineOverallTotals.getShippingTotal() != null
+                            ? Double.valueOf(lineOverallTotals.getShippingTotal()) : 0.00);
                 }
 
                 LinePriceInfo linePriceInfo = saleLine.getLinePriceInfo();
@@ -162,21 +169,22 @@ public class SterlingOrderToMozuMapper {
                     Double unitPrice = Double.valueOf(linePriceInfo.getUnitPrice());
                     Double listPrice = Double.valueOf(linePriceInfo.getListPrice());
                     Double retailPrice = Double.valueOf(linePriceInfo.getSettledAmount());
-                    
+
                     if (unitPrice > 0.0) {
-                        commerceUnitPrice.setOverrideAmount (unitPrice);
+                        commerceUnitPrice.setOverrideAmount(unitPrice);
                     }
                     if (listPrice > 0.00) {
                         commerceUnitPrice.setListAmount(listPrice);
                     } else if (retailPrice > 0.0) {
                         commerceUnitPrice.setListAmount(retailPrice);
                     }
-                    
+
                     orderItem.setUnitPrice(commerceUnitPrice);
                     orderItem.setIsTaxable("Y".equals(linePriceInfo.getTaxableFlag()));
                 }
                 if (saleLine.getShipnode() != null) {
-                    orderItem.setFulfillmentLocationCode(getStoreLocation(setting, saleLine.getShipnode().getShipnodeKey()));
+                    orderItem.setFulfillmentLocationCode(
+                            getStoreLocation(setting, saleLine.getShipnode().getShipnodeKey()));
                 }
                 if (saleLine.getNotes() != null && saleLine.getNotes().getNumberOfNotes() != null
                         && Integer.valueOf(saleLine.getNotes().getNumberOfNotes()) > 0) {
@@ -257,12 +265,16 @@ public class SterlingOrderToMozuMapper {
             // order.setOrderDiscounts(discounts);
             //
             // This section is where we have to makeup default values if not
-            if (sterlingOrder.getMaxOrderStatusDesc().equals(sterlingOrder.getStatus())) {
-                order.setFulfillmentStatus(FULFILLED_STATUS);
-                order.setPaymentStatus("Paid");
-                order.setStatus("Completed");
+            String orderStatus = sterlingOrder.getStatus();
+            if (orderStatus != null) {
+                if (orderStatus.equals("Shipped") || orderStatus.equals("Included In Shipment")) {
+                    order.setFulfillmentStatus(FULFILLED_STATUS);
+                    order.setPaymentStatus("Paid");
+                } else {
+                    order.setFulfillmentStatus(NOT_FULFILLED_STATUS);
+                }
+                order.setStatus(getOrderStatus(orderStatus));
             } else {
-                order.setFulfillmentStatus(NOT_FULFILLED_STATUS);
                 order.setPaymentStatus("Paid");
                 order.setStatus("Processing");
             }
@@ -274,10 +286,64 @@ public class SterlingOrderToMozuMapper {
         return order;
     }
 
+    private String getOrderStatus(String orderStatus) {
+        switch (orderStatus) {
+        case "Shipped":
+        case "Included In Shipment":
+            return "Closed";
+        case "Scheduled":
+        case "Released":
+            return "Processing";
+        case "Cancelled":
+            return "Canceled";
+        case "Draft Order Created":
+        case "Created":
+            return "Pending";
+        }
+        return "Processing";
+    }
+
+    /**
+     * Create or update the customer in Mozu and attach it to the order by
+     * setting the Customer ID. if an email is not found, the customer is
+     * skipped.
+     * 
+     * @param order
+     */
+    private void updateMozuCustomerId(ApiContext apiContext, Order order) throws Exception {
+        CustomerAccountResource car = new CustomerAccountResource(apiContext);
+        String email = order.getEmail();
+        if (StringUtils.isBlank(email)) {
+            email = ANONYMOUS_EMAIL;
+        }
+        StringBuilder filter = new StringBuilder("emailAddress eq ").append(email);
+        CustomerAccountCollection accounts = car.getAccounts(0, 1, null, filter.toString(), null, null, null, null,
+                null);
+        CustomerAccount customerAccount = null;
+        if (accounts != null && accounts.getItems() != null && accounts.getTotalCount() > 0) {
+            customerAccount = accounts.getItems().get(0);
+        } else {
+            Contact contact = order.getBillingInfo().getBillingContact();
+            if (contact != null) {
+                customerAccount = new CustomerAccount();
+                customerAccount.setAcceptsMarketing(order.getAcceptsMarketing());
+                customerAccount.setCompanyOrOrganization(contact.getCompanyOrOrganization());
+                customerAccount.setEmailAddress(email);
+                customerAccount.setFirstName(contact.getFirstName());
+                customerAccount.setLastName(contact.getLastNameOrSurname());
+                customerAccount.setTaxExempt(order.getIsTaxExempt());
+            }
+
+            customerAccount = car.addAccount(customerAccount);
+        }
+        order.setCustomerAccountId(customerAccount.getId());
+
+    }
+
     private String getStoreLocation(Setting setting, String shipnode) {
         String mozuLocation = null;
         if (StringUtils.isNotBlank(shipnode)) {
-            Map<String, String>locationMap = setting.getLocationMap();
+            Map<String, String> locationMap = setting.getLocationMap();
             for (Entry<String, String> entry : locationMap.entrySet()) {
                 if (shipnode.equals(entry.getValue())) {
                     mozuLocation = entry.getKey();
@@ -342,24 +408,29 @@ public class SterlingOrderToMozuMapper {
         Contact contact = new Contact();
 
         contact.setCompanyOrOrganization(contactInfo.getCompany());
-        contact.setEmail(contactInfo.getEMailID());
-        contact.setFirstName(contactInfo.getFirstName());
+        contact.setEmail(StringUtils.isNotBlank(contactInfo.getEMailID()) ? contactInfo.getEMailID() : ANONYMOUS_EMAIL);
+        contact.setFirstName(StringUtils.isNotBlank(contactInfo.getFirstName()) ? contactInfo.getFirstName() : ANONYMOUS_FIRST_NAME);
         contact.setMiddleNameOrInitial(contactInfo.getMiddleName());
-        contact.setLastNameOrSurname(contactInfo.getLastName());
+        contact.setLastNameOrSurname(StringUtils.isNotBlank(contactInfo.getLastName()) ? contactInfo.getLastName() : ANONYMOUS_LAST_NAME);
 
         Address address = new Address();
         address.setAddress1(contactInfo.getAddressLine1());
         address.setAddress2(contactInfo.getAddressLine2());
         address.setCityOrTown(contactInfo.getCity());
-        address.setCountryCode(contactInfo.getCountry());
-        address.setPostalOrZipCode(contactInfo.getZipCode());
+        address.setCountryCode(StringUtils.isNotBlank(contactInfo.getCountry()) ? contactInfo.getCountry() : "US");
+        address.setPostalOrZipCode(StringUtils.isNotBlank(contactInfo.getZipCode()) ? contactInfo.getZipCode() : "00000");
         address.setStateOrProvince(contactInfo.getState());
 
         contact.setAddress(address);
-        Phone phone = new Phone ();
+        Phone phone = new Phone();
         phone.setHome(contactInfo.getEveningPhone());
         phone.setMobile(contactInfo.getMobilePhone());
         phone.setWork(contactInfo.getDayPhone());
+        if (StringUtils.isBlank(phone.getHome()) && 
+                StringUtils.isBlank(phone.getWork()) &&
+                StringUtils.isBlank(phone.getMobile())) {
+            phone.setHome("212-555-1212");
+        }
         contact.setPhoneNumbers(phone);
 
         return contact;
@@ -407,7 +478,7 @@ public class SterlingOrderToMozuMapper {
                     payment.setAmountCollected(amountCollected);
                     payment.setAmountCredited(creditAmount);
 
-                    payment.setStatus(getPaymentStatus (chargeDetail.getStatus()));
+                    payment.setStatus(getPaymentStatus(chargeDetail.getStatus()));
 
                     if (chargeDetail.getCreditCardTransactions() != null
                             && chargeDetail.getCreditCardTransactions().getCreditCardTransaction() != null) {
@@ -444,7 +515,7 @@ public class SterlingOrderToMozuMapper {
             return "Authorized";
         case "VOIDED":
             return "Voided";
-        
+
         }
         return null;
     }

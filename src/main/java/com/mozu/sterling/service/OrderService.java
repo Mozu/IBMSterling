@@ -174,15 +174,19 @@ public class OrderService extends SterlingClient {
      * @throws Exception
      */
     public Order importSterlingOrder (ApiContext apiContext, Setting setting, String orderNo) throws Exception {
-        Order mozuOrder = null;
         com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, orderNo);
+        return importSterlingOrder (apiContext, setting, sterlingOrder);
+    }
+    
+    public Order importSterlingOrder (ApiContext apiContext, Setting setting, com.mozu.sterling.model.order.Order sterlingOrder) throws Exception {
+        Order mozuOrder = null;
         if (sterlingOrder != null) {
-        
+            
             mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, apiContext, setting);
                     
             OrderResource orderResource = new OrderResource (apiContext);
             OrderCollection existingOrders = orderResource.getOrders(0, null, null,
-                    "externalId eq " + orderNo, null, null, null);
+                    "externalId eq " + sterlingOrder.getOrderNo(), null, null, null);
             if (existingOrders != null && existingOrders.getItems() != null &&  
                     existingOrders.getItems().size() > 0) {
                 Order existingOrder = existingOrders.getItems().get(0);
@@ -191,7 +195,7 @@ public class OrderService extends SterlingClient {
                 mozuOrder = orderResource.createOrder(mozuOrder);
             }
         } else {
-            logger.info ("Unable to find order with the orderId: " + orderNo);
+            logger.info ("Order cannot be null.");
         }
         return mozuOrder;
     }

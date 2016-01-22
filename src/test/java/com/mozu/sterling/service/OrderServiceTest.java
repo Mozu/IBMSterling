@@ -49,7 +49,7 @@ public class OrderServiceTest {
     public void importOrderDetail () throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
         com.mozu.api.contracts.commerceruntime.orders.Order order  = 
-                orderService.importSterlingOrder(new MozuApiContext(TENANT_ID, SITE_ID), setting, "Y100001405");
+                orderService.importSterlingOrder(new MozuApiContext(TENANT_ID, SITE_ID), setting, "Y100001204");
         assertNotNull(order);
     }
 }
