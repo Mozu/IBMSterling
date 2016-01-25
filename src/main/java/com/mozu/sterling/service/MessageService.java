@@ -3,9 +3,11 @@ package com.mozu.sterling.service;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,10 @@ public class MessageService
 {
 	@Autowired
 	JmsConnectionCache jmsConnectionCache;
+
+	@Autowired
+	@Qualifier("defaultMessageListener")
+	MessageListener defaultMessageListener;
 
 //    @Autowired
 //    private JmsTemplate jmsTemplate;
@@ -56,5 +62,15 @@ public class MessageService
         }
 
         return message;
+    }
+
+    /**
+     * Enables listening via a l
+     * @param tenantId
+     * @return True if the listener is started, otherwise false.
+     * @throws Exception
+     */
+    public boolean toggleMessageQueueListener(Integer tenantId) throws Exception {
+	return jmsConnectionCache.toggleListener(tenantId, defaultMessageListener);
     }
 }

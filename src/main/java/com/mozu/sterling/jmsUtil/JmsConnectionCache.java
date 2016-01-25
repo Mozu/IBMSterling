@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.jms.JMSException;
+import javax.jms.MessageListener;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,6 +39,26 @@ public class JmsConnectionCache {
 			throw new RuntimeException("No jms settings configured for tenant "
 					+ tenantId);
 		}
+	}
+
+	/**
+	 *
+	 * @param tenantId
+	 * @param listener
+	 * @return True if the listener is on, otherwise false.
+	 */
+	public boolean toggleListener(Integer tenantId, MessageListener listener) throws Exception {
+		JmsResource resource = getResource(tenantId);
+
+		if (resource != null) {
+			if (resource.isListening()) {
+				resource.stopListening();
+			} else {
+				resource.startListening(listener);
+			}
+		}
+
+		return resource.isListening();
 	}
 
 	@PostConstruct
