@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mozu.api.ApiContext;
+import com.mozu.api.contracts.commerceruntime.orders.Order;
 import com.mozu.api.contracts.event.Event;
 import com.mozu.api.events.EventManager;
 import com.mozu.api.events.handlers.OrderEventHandler;
 import com.mozu.api.events.model.EventHandlerStatus;
+import com.mozu.api.resources.commerce.OrderResource;
 import com.mozu.sterling.service.OrderService;
 
 @Service
@@ -75,6 +77,11 @@ public class OrderEventHandlerImpl implements OrderEventHandler {
     @Override
     public EventHandlerStatus updated(ApiContext apiContext, Event event) {
         logger.info("Updated Order Event - Not Implemented");
+        try {
+            orderService.updateSterlingOrder(apiContext, event);
+        } catch (Exception e) {
+            return new EventHandlerStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
         return new EventHandlerStatus(HttpStatus.SC_OK);
     }
 

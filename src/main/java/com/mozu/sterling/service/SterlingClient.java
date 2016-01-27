@@ -104,8 +104,8 @@ public class SterlingClient {
             }
             outputDocument = api.invoke(env, serviceName, inputDoc);
             if (logger.isDebugEnabled()) {
-                logger.debug("Received XML Output from Sterling:");
-                logger.debug(printXmlDocument(outputDocument));
+               // logger.debug("Received XML Output from Sterling:");
+               // logger.debug(printXmlDocument(outputDocument));
             }
         } catch (Exception e) {
             logger.error("Unable to complete transaction to Sterling: " + e.getMessage());

@@ -1,25 +1,26 @@
 package com.mozu.sterling.model;
 
 public class CarrierMap {
-    String sterlingCarrierCode;
-    String sterlingCarrierName;
+    String sterlingScacAndService;
+ 	String sterlingCarrierName;
     String mozuShipCode;
 
     public CarrierMap() {
     }
     
-    public CarrierMap (String sterlingCarrierName, String sterlingCarrierCode, String mozuShipCode) {
-        this.sterlingCarrierCode = sterlingCarrierCode;
+    public CarrierMap (String sterlingCarrierName, String sterlingScacAndService, String mozuShipCode) {
+        this.sterlingScacAndService = sterlingScacAndService;
         this.sterlingCarrierName = sterlingCarrierName;
         this.mozuShipCode = mozuShipCode;
     }
     
-    public String getSterlingCarrierCode() {
-        return sterlingCarrierCode;
-    }
-    public void setSterlingCarrierCode(String sterlingCarrierCode) {
-        this.sterlingCarrierCode = sterlingCarrierCode;
-    }
+    public String getSterlingScacAndService() {
+		return sterlingScacAndService;
+	}
+
+	public void setSterlingScacAndService(String sterlingScacAndService) {
+		this.sterlingScacAndService = sterlingScacAndService;
+	}
     public String getSterlingCarrierName() {
         return sterlingCarrierName;
     }
