@@ -25,6 +25,7 @@ public class Setting {
     protected String busName;
     protected String destinationType = DestinationTypeEnum.TOPIC.destinationName();
     protected String destinationName;
+    protected String inboundDestinationName;
 
     public String getId() {
         return id;
@@ -103,5 +104,11 @@ public class Setting {
 	}
 	public void setDestinationName(String destinationName) {
 		this.destinationName = destinationName;
+	}
+	public String getInboundDestinationName() {
+		return inboundDestinationName;
+	}
+	public void setInboundDestinationName(String inboundDestinationName) {
+		this.inboundDestinationName = inboundDestinationName;
 	}
 }

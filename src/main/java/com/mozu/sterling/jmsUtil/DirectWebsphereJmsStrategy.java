@@ -33,7 +33,7 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 	}
 
 	@Override
-	public Destination getDestination(Setting setting) throws JMSException {
+	public Destination getOutboundDestination(Setting setting) throws JMSException {
 		JmsFactoryFactory jmsFactoryFactory = JmsFactoryFactory.getInstance();
 
 		DestinationTypeEnum destinationType = DestinationTypeEnum.from(setting
@@ -48,6 +48,29 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 		case TOPIC:
 			destination = jmsFactoryFactory.createTopic(setting
 					.getDestinationName());
+			break;
+		}
+
+		return destination;
+	}
+
+	@Override
+	public Destination getInboundDestination(Setting setting)
+			throws JMSException {
+		JmsFactoryFactory jmsFactoryFactory = JmsFactoryFactory.getInstance();
+
+		DestinationTypeEnum destinationType = DestinationTypeEnum.from(setting
+				.getDestinationType());
+		Destination destination = null;
+
+		switch (destinationType) {
+		case QUEUE:
+			destination = jmsFactoryFactory.createQueue(setting
+					.getInboundDestinationName());
+			break;
+		case TOPIC:
+			destination = jmsFactoryFactory.createTopic(setting
+					.getInboundDestinationName());
 			break;
 		}
 

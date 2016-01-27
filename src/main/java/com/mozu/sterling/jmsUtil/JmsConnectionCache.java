@@ -4,16 +4,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.MessageListener;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.service.NewSterlingToMozuOrderMessageListener;
 
 /**
  * A simple concurrent hash map keeps track of jms resources per tenant.
@@ -21,6 +23,9 @@ import com.mozu.sterling.model.Setting;
  */
 @Component
 public class JmsConnectionCache {
+	@Autowired
+	private ApplicationContext applicationContext;
+
 	@Autowired
 	private ConfigHandler configHandler;
 
@@ -41,20 +46,32 @@ public class JmsConnectionCache {
 		}
 	}
 
+	public Destination getInboundDestination(Integer tenantId) throws Exception {
+		JmsResource resource = getResource(tenantId);
+
+		if (resource != null) {
+			return resource.getReadDestination();
+		} else {
+			throw new RuntimeException("No jms settings configured for tenant "
+					+ tenantId);
+		}
+	}
+
 	/**
 	 *
 	 * @param tenantId
 	 * @param listener
 	 * @return True if the listener is on, otherwise false.
 	 */
-	public boolean toggleListener(Integer tenantId, MessageListener listener) throws Exception {
+	public boolean toggleListener(Integer tenantId)
+			throws Exception {
 		JmsResource resource = getResource(tenantId);
 
 		if (resource != null) {
 			if (resource.isListening()) {
 				resource.stopListening();
 			} else {
-				resource.startListening(listener);
+				resource.startListening();
 			}
 		}
 
@@ -79,22 +96,26 @@ public class JmsConnectionCache {
 		if (resource == null) {
 			Setting setting = configHandler.getSetting(tenantId);
 			resource = jmsResourceMap.putIfAbsent(tenantId,
-					createResource(setting));
+					createResource(tenantId, setting));
 		}
 
 		return resource;
 	}
 
-	protected JmsResource createResource(Setting setting) throws JMSException {
+	protected JmsResource createResource(Integer tenantId, Setting setting) throws JMSException {
 		JmsConnectionStrategyEnum connectionStrategyType = JmsConnectionStrategyEnum
 				.from(setting.getConnectionStrategy());
 		JmsResource jmsResource = null;
+		NewSterlingToMozuOrderMessageListener listener = applicationContext.getBean(NewSterlingToMozuOrderMessageListener.class);
+		listener.setTenantId(tenantId);
 
 		switch (connectionStrategyType) {
 		case DIRECT:
+
 			jmsResource = new JmsResource(
 					directConnectionStrategy.getConnectionFactory(setting),
-					directConnectionStrategy.getDestination(setting));
+					directConnectionStrategy.getOutboundDestination(setting),
+					directConnectionStrategy.getInboundDestination(setting), listener);
 			break;
 		case WEBSPHEREMQ:
 			// TODO needs implementation

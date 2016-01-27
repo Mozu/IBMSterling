@@ -16,6 +16,7 @@ import com.mozu.api.events.handlers.ApplicationEventHandler;
 import com.mozu.api.events.model.EventHandlerStatus;
 import com.mozu.base.utils.ApplicationUtils;
 import com.mozu.sterling.handler.ConfigHandler;
+import com.mozu.sterling.service.MessageService;
 
 @Component
 public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
@@ -23,7 +24,10 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
 
     @Autowired
     ConfigHandler configHandler;
-    
+
+    @Autowired
+    MessageService messageService;
+
     @PostConstruct
     public void initialize() {
         EventManager.getInstance().registerHandler(this);
@@ -32,11 +36,27 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
 
     @Override
     public EventHandlerStatus disabled(ApiContext apiContext, Event event) {
+	try {
+		if (messageService.toggleMessageQueueListener(apiContext.getTenantId())) {
+			messageService.toggleMessageQueueListener(apiContext.getTenantId());
+		}
+	} catch (Exception e) {
+		logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId(), e);
+	}
+
         return new EventHandlerStatus(HttpStatus.SC_OK);
     }
 
     @Override
     public EventHandlerStatus enabled(ApiContext apiContext, Event event) {
+	try {
+		if (!messageService.toggleMessageQueueListener(apiContext.getTenantId())) {
+			messageService.toggleMessageQueueListener(apiContext.getTenantId());
+		}
+	} catch (Exception e) {
+		logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId(), e);
+	}
+
         return new EventHandlerStatus(HttpStatus.SC_OK);
     }
 
