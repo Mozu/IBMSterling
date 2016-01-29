@@ -414,6 +414,9 @@ public class OrderLine {
     @XmlAttribute(name = "SerialNo")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String serialNo;
+    @XmlAttribute(name = "ShipNode")
+    @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+    protected String shipNode;
     @XmlAttribute(name = "ShipToID")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String shipToID;
@@ -3241,6 +3244,30 @@ public class OrderLine {
      */
     public void setSerialNo(String value) {
         this.serialNo = value;
+    }
+    
+    /**
+     * Gets the value of the shipNode property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getShipNode() {
+        return shipNode;
+    }
+
+    /**
+     * Sets the value of the shipNode property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setShipNode(String value) {
+        this.shipNode = value;
     }
 
     /**

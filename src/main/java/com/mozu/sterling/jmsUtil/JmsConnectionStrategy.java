@@ -8,5 +8,6 @@ import com.mozu.sterling.model.Setting;
 
 public interface JmsConnectionStrategy {
 	ConnectionFactory getConnectionFactory(Setting setting) throws JMSException;
-	Destination getDestination(Setting setting) throws JMSException;
+	Destination getOutboundDestination(Setting setting) throws JMSException;
+	Destination getInboundDestination(Setting setting) throws JMSException;
 }

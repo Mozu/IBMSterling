@@ -191,7 +191,7 @@ public class ConfigHandler {
             configMap = new HashMap<>();
             for (CarrierMap carrierMap : carrierMapList) {
                 if (StringUtils.isNotBlank(carrierMap.getMozuShipCode())) {
-                    configMap.put(carrierMap.getMozuShipCode(), carrierMap.getSterlingCarrierCode());
+                    configMap.put(carrierMap.getMozuShipCode(), carrierMap.getSterlingScacAndService());
                 }
             }
             setting.setShipMethodMap(configMap);
@@ -341,8 +341,8 @@ public class ConfigHandler {
         List <CarrierMap> carrierMapList = new ArrayList<>();
         Map<String, String> shipMethodMap = setting.getShipMethodMap();
         for (CarrierService carrier : sterlingCarriers) {
-            String mozuCarrierCode = getMappedMozuCode (carrier.getCarrierServiceCode(), shipMethodMap);
-            carrierMapList.add(new CarrierMap(carrier.getSCACAndServiceDesc(), carrier.getCarrierServiceCode(), mozuCarrierCode));
+        	String mozuCarrierCode = getMappedMozuCode (carrier.getSCACAndService(), shipMethodMap);
+            carrierMapList.add(new CarrierMap(carrier.getSCACAndServiceDesc(), carrier.getSCACAndService(), mozuCarrierCode));
         }
         
         return carrierMapList;

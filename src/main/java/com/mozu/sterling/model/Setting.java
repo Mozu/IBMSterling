@@ -2,8 +2,11 @@ package com.mozu.sterling.model;
 
 import java.util.Map;
 
+import com.mozu.sterling.jmsUtil.DestinationTypeEnum;
+import com.mozu.sterling.jmsUtil.JmsConnectionStrategyEnum;
+
 /**
- * This object contains the configuration items needed to connect and synchronize with the Sterling system. 
+ * This object contains the configuration items needed to connect and synchronize with the Sterling system.
  * @author bob_hewett
  *
  */
@@ -17,11 +20,12 @@ public class Setting {
     protected Map<String, String> locationMap;
     protected Map<String, String> shipMethodMap;
     // jms settings
-    protected String connectionStrategy;
+    protected String connectionStrategy = JmsConnectionStrategyEnum.DIRECT.strategyName();
     protected String providerEndpoint;
     protected String busName;
-    protected String destinationType;
+    protected String destinationType = DestinationTypeEnum.TOPIC.destinationName();
     protected String destinationName;
+    protected String inboundDestinationName;
 
     public String getId() {
         return id;
@@ -100,5 +104,11 @@ public class Setting {
 	}
 	public void setDestinationName(String destinationName) {
 		this.destinationName = destinationName;
+	}
+	public String getInboundDestinationName() {
+		return inboundDestinationName;
+	}
+	public void setInboundDestinationName(String inboundDestinationName) {
+		this.inboundDestinationName = inboundDestinationName;
 	}
 }
