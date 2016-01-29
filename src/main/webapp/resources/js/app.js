@@ -1,7 +1,8 @@
 var moduleName = 'sterlingApp';
 var sterlingApp = angular.module(moduleName, [ 'components', 'ngRoute' ])
-		.controller("VersionController", VersionController).controller(
-				"SettingsController", SettingsController);
+		.controller("VersionController", VersionController)
+		.controller("SettingsController", SettingsController)
+		.controller ("ImportOrderController", ImportOrderController);
 
 sterlingApp.controller("tabController", function($rootScope, $scope) {
 	$scope.showBtns = false;

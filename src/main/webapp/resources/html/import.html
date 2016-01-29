@@ -1,10 +1,10 @@
 <div class="row" id="settings">
-	<div class="tab-full-column">
-		<h4>Import Products from Sterling</h4>
+	<div class="tab-full-column" ng-controller=ImportOrderController>
+		<h4>Import Orders from Sterling</h4>
 		<div class="tab-full-column">
 			<div>
-				<button class="mz-button primary" ng-click="#">Import Products</button>
-				<button class="mz-button" ng-click="#">Refresh</button>
+				<button class="mz-button primary" ng-click="importOrders()">Import Products</button>
+				<button class="mz-button" ng-click="refreshList()">Refresh</button>
 
 			</div>
 		</div>
@@ -31,7 +31,7 @@
 						<td class="col-xs-6">1223</td>
 						<td class="col-xs-6">29</td>
 						<td class="col-xs-6">Completed</td>
-						<td class="col-xs-6"><a href="#">0</a></td>
+						<td class="col-xs-6">0</a></td>
 					</tr>
 				</tbody>
 			</table>

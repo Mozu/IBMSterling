@@ -360,7 +360,7 @@ public class SterlingOrderToMozuMapper {
         PersonInfoShipTo personShipTo = sterlingOrder.getPersonInfoShipTo();
         fulfillmentInfo.setFulfillmentContact(populateContact(personShipTo));
         fulfillmentInfo.setIsDestinationCommercial("Y".equals(personShipTo.getIsCommercialAddress()));
-        if (sterlingOrder.getCarrierServiceCode() != null) {
+        if (StringUtils.isNotBlank(sterlingOrder.getCarrierServiceCode())) {
             fulfillmentInfo
                     .setShippingMethodCode(getShippingMethodCode(setting, sterlingOrder.getCarrierServiceCode()));
         }

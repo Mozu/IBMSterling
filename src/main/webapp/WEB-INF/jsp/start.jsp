@@ -10,6 +10,7 @@
 <script src="js/components.js"></script>
 <script src="js/version.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/import_order.js"></script>
 <script src="js/app.js"></script>
 
 <!-- <link rel="stylesheet" href="css/bootstrap.css"></link> -->
