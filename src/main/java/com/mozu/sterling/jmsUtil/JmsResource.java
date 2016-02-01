@@ -1,5 +1,8 @@
 package com.mozu.sterling.jmsUtil;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.MessageListener;
@@ -41,6 +44,20 @@ public class JmsResource {
 				.setPubSubDomain(destinationType == DestinationTypeEnum.TOPIC);
 		listenerContainer.setAutoStartup(false);
 		listenerContainer.setCacheLevel(DefaultMessageListenerContainer.CACHE_NONE);
+
+		//topic consumers will be durable subscribers
+		if (destinationType == DestinationTypeEnum.TOPIC) {
+			String clientId = null;
+			try{
+			InetAddress.getLocalHost().getHostName();
+			} catch(UnknownHostException e) {
+				clientId = "unknownhost";
+			}
+
+			listenerContainer.setClientId(clientId);
+			listenerContainer.setSubscriptionDurable(true);
+		}
+
 		listenerContainer.setMessageListener(listener);
 	}
 
