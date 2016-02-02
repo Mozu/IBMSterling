@@ -3,7 +3,6 @@ package com.mozu.sterling.jobtask;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.AbstractPagingItemReader;
@@ -12,8 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.mozu.api.ApiContext;
-import com.mozu.api.MozuApiContext;
 import com.mozu.jobs.dao.JobExecutionDao;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.model.Setting;
@@ -53,24 +50,22 @@ public class OrderImportReader extends AbstractPagingItemReader<Order> {
         }
         
         logger.debug("SalesImportReader.doPage" );
+        // no paging so we can only read this once.....
         if (results == null) {
             results = new CopyOnWriteArrayList<Order>();
-        } else {
-            results.clear();
-        }
-        
-        List<Order> sales;
-        try {
-        	if (lastRunTime==null) {
-        		logger.debug("Reading all order, no last runtime");
-                sales = orderService.getSterlingOrders(setting);
-        	} else {
-        		logger.debug("Read sales since " + new DateTime(lastRunTime - FIVE_MINUTES));
-                sales = orderService.getSterlingOrders(setting);
-        	}
-            results.addAll(sales);
-        } catch (Exception e) {
-            throw new RuntimeException("Error while getting sales from LightSpeed:", e);
+            List<Order> sales;
+            try {
+    //        	if (lastRunTime==null) {
+    //                sales = orderService.getSterlingOrders(setting);
+    //        	} else {
+                    logger.debug("Reading all order, no last runtime");
+                    sales = orderService.getSterlingOrders(setting);
+    //        	}
+                results.addAll(sales);
+                setPageSize(results.size() + 1);
+            } catch (Exception e) {
+                throw new RuntimeException("Error while getting sales from LightSpeed:", e);
+            }
         }
     }
 

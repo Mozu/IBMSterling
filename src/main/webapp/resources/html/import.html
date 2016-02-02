@@ -9,13 +9,26 @@
 			</div>
 		</div>
 
-		<div class="scrollable">
-			<table class="table table-striped"
-				style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
-			</table>
-		</div>
-		<div class="bodycontainer scrollable"
-			style="height: 320px; overflow: auto;">
+        <div id="importErrorDiv" class="tab-first-column" ng-show="showErrors">
+            <div class="row">
+                <div class="tab-full-column">
+                    <button class="ui-button secondary" ng-click="hideError()">&lt;&lt;Back</button>
+                </div>
+            </div>
+
+            <div class="row" style="overflow: auto; height: 360px"
+                id="logImportDataDiv">
+                <div class="tab-full-column">
+                    The following errors occurred during job execution:
+                    <ul ng-repeat="jobError in jobErrors">
+                        <li>{{jobError}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+		<div id="importDiv" class="bodycontainer scrollable"
+			style="height: 320px; overflow: auto;" ng-hide="showErrors">
 			<table class="table table-striped"
 				style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
 				<thead>
@@ -23,15 +36,17 @@
 					<th class="col-xs-6">Site ID</th>
 					<th class="col-xs-6"># of Products</th>
 					<th class="col-xs-6">Status</th>
-					<th class="col-xs-6">Errors</th>
+                    <th class="col-xs-6">Errors</th>
+                    <th class="col-xs-6"></th>
 				</thead>
 				<tbody>
-					<tr>
-						<td class="col-xs-6">2015-12-02 10:19:04</td>
-						<td class="col-xs-6">1223</td>
-						<td class="col-xs-6">29</td>
-						<td class="col-xs-6">Completed</td>
-						<td class="col-xs-6">0</a></td>
+					<tr ng-repeat="jobItem in jobList">
+						<td class="col-xs-6">{{jobItem.startDateTime}}</td>
+						<td class="col-xs-6">{{jobItem.siteId}}</td>
+						<td class="col-xs-6">{{jobItem.readCount}}</td>
+						<td class="col-xs-6">{{jobItem.batchStatus}}</td>
+						<td class="col-xs-6"><a href="#" ng-click ="showErrors(jobItem.id)">{{jobItem.errorCount}}</a></td>
+                        <td class="col-xs-6" ><a href="#" ng-click = "stopJob(jobItem.id)" ng-if="jobItem.batchStatus == 'STARTED'">Stop</a></td>
 					</tr>
 				</tbody>
 			</table>

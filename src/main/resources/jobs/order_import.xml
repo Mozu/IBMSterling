@@ -16,7 +16,7 @@
                 <batch:chunk 
                     reader="orderImportReader"
                     writer="orderImportWriter" 
-                    commit-interval="20" 
+                    commit-interval="1" 
                     skip-limit="1000"
                     retry-limit="3">
                     <batch:listeners>

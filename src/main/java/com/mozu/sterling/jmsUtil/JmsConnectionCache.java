@@ -63,8 +63,7 @@ public class JmsConnectionCache {
 	 * @param listener
 	 * @return True if the listener is on, otherwise false.
 	 */
-	public boolean toggleListener(Integer tenantId)
-			throws Exception {
+	public boolean toggleListener(Integer tenantId) throws Exception {
 		JmsResource resource = getResource(tenantId);
 
 		if (resource != null) {
@@ -102,11 +101,13 @@ public class JmsConnectionCache {
 		return resource;
 	}
 
-	protected JmsResource createResource(Integer tenantId, Setting setting) throws JMSException {
+	protected JmsResource createResource(Integer tenantId, Setting setting)
+			throws JMSException {
 		JmsConnectionStrategyEnum connectionStrategyType = JmsConnectionStrategyEnum
 				.from(setting.getConnectionStrategy());
 		JmsResource jmsResource = null;
-		NewSterlingToMozuOrderMessageListener listener = applicationContext.getBean(NewSterlingToMozuOrderMessageListener.class);
+		NewSterlingToMozuOrderMessageListener listener = applicationContext
+				.getBean(NewSterlingToMozuOrderMessageListener.class);
 		listener.setTenantId(tenantId);
 
 		switch (connectionStrategyType) {
@@ -115,7 +116,9 @@ public class JmsConnectionCache {
 			jmsResource = new JmsResource(
 					directConnectionStrategy.getConnectionFactory(setting),
 					directConnectionStrategy.getOutboundDestination(setting),
-					directConnectionStrategy.getInboundDestination(setting), listener);
+					directConnectionStrategy.getInboundDestination(setting),
+					listener, DestinationTypeEnum.from(setting
+							.getDestinationType()));
 			break;
 		case WEBSPHEREMQ:
 			// TODO needs implementation
