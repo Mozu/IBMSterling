@@ -2,6 +2,7 @@ package com.mozu.sterling.model;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mozu.sterling.jmsUtil.DestinationTypeEnum;
 import com.mozu.sterling.jmsUtil.JmsConnectionStrategyEnum;
 
@@ -10,6 +11,7 @@ import com.mozu.sterling.jmsUtil.JmsConnectionStrategyEnum;
  * @author bob_hewett
  *
  */
+ @JsonIgnoreProperties(ignoreUnknown = true)
 public class Setting {
     protected String id;
     protected String sterlingUrl;
