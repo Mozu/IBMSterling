@@ -11,7 +11,7 @@ import com.mozu.sterling.jmsUtil.JmsConnectionStrategyEnum;
  * @author bob_hewett
  *
  */
- @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Setting {
     protected String id;
     protected String sterlingUrl;
@@ -26,8 +26,8 @@ public class Setting {
     protected String providerEndpoint;
     protected String busName;
     protected String destinationType = DestinationTypeEnum.TOPIC.destinationName();
-    protected String destinationName;
-    protected String inboundDestinationName;
+    protected String createOrderDestinationName;
+    protected String updateOrderDestinationName;
 
     public String getId() {
         return id;
@@ -101,16 +101,16 @@ public class Setting {
 	public void setDestinationType(String destinationType) {
 		this.destinationType = destinationType;
 	}
-	public String getDestinationName() {
-		return destinationName;
+	public String getCreateOrderDestinationName() {
+		return createOrderDestinationName;
 	}
-	public void setDestinationName(String destinationName) {
-		this.destinationName = destinationName;
+	public void setCreateOrderDestinationName(String destinationName) {
+		this.createOrderDestinationName = destinationName;
 	}
-	public String getInboundDestinationName() {
-		return inboundDestinationName;
+	public String getUpdateOrderDestinationName() {
+		return updateOrderDestinationName;
 	}
-	public void setInboundDestinationName(String inboundDestinationName) {
-		this.inboundDestinationName = inboundDestinationName;
+	public void setUpdateOrderDestinationName(String destinationName) {
+		this.updateOrderDestinationName = destinationName;
 	}
 }

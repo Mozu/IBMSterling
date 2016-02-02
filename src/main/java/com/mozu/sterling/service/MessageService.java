@@ -52,7 +52,7 @@ public class MessageService {
 		JmsTemplate jmsTemplate = jmsConnectionCache.getTemplate(tenantId);
 
 		Message msg = jmsTemplate.receive(jmsConnectionCache
-				.getInboundDestination(tenantId));
+				.getDefaultDestination(tenantId));
 		if (msg instanceof TextMessage) {
 			message = ((TextMessage) msg).getText();
 		}

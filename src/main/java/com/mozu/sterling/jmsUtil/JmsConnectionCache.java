@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.model.Setting;
-import com.mozu.sterling.service.NewSterlingToMozuOrderMessageListener;
 
 /**
  * A simple concurrent hash map keeps track of jms resources per tenant.
@@ -46,11 +45,11 @@ public class JmsConnectionCache {
 		}
 	}
 
-	public Destination getInboundDestination(Integer tenantId) throws Exception {
+	public Destination getDefaultDestination(Integer tenantId) throws Exception {
 		JmsResource resource = getResource(tenantId);
 
 		if (resource != null) {
-			return resource.getReadDestination();
+			return resource.getCreateOrderDestination();
 		} else {
 			throw new RuntimeException("No jms settings configured for tenant "
 					+ tenantId);
@@ -106,19 +105,11 @@ public class JmsConnectionCache {
 		JmsConnectionStrategyEnum connectionStrategyType = JmsConnectionStrategyEnum
 				.from(setting.getConnectionStrategy());
 		JmsResource jmsResource = null;
-		NewSterlingToMozuOrderMessageListener listener = applicationContext
-				.getBean(NewSterlingToMozuOrderMessageListener.class);
-		listener.setTenantId(tenantId);
 
 		switch (connectionStrategyType) {
 		case DIRECT:
 
-			jmsResource = new JmsResource(
-					directConnectionStrategy.getConnectionFactory(setting),
-					directConnectionStrategy.getOutboundDestination(setting),
-					directConnectionStrategy.getInboundDestination(setting),
-					listener, DestinationTypeEnum.from(setting
-							.getDestinationType()));
+			jmsResource = new JmsResource(directConnectionStrategy.getJmsResourceSettings(setting, tenantId));
 			break;
 		case WEBSPHEREMQ:
 			// TODO needs implementation

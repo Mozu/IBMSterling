@@ -1,7 +1,7 @@
 package com.mozu.sterling.jmsUtil;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -17,91 +17,107 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
  *
  */
 public class JmsResource {
-	private static final Logger logger = LoggerFactory.getLogger(JmsResource.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(JmsResource.class);
 
 	private JmsTemplate jmsTemplate;
 	private ConnectionFactory connectionFactory;
-	private Destination defaultDestination;
-	private Destination readDestination;
-	private DefaultMessageListenerContainer listenerContainer;
+	private Destination createOrderDestination;
+	private Destination updateOrderDestination;
+	private List<DefaultMessageListenerContainer> messageListenerContainers;
 
-	public JmsResource(ConnectionFactory connectionFactory,
-			Destination destination, Destination readDestination,
-			MessageListener listener, DestinationTypeEnum destinationType) {
+	public JmsResource(JmsResourceSetting setting) {
 		jmsTemplate = new JmsTemplate();
-		jmsTemplate.setConnectionFactory(connectionFactory);
-		jmsTemplate.setDefaultDestination(destination);
+		jmsTemplate.setConnectionFactory(setting.getConnectionFactory());
+		jmsTemplate.setDefaultDestination(setting.getCreateOrderDestination());
 
-		this.connectionFactory = connectionFactory;
-		this.defaultDestination = destination;
-		this.readDestination = readDestination == null ? defaultDestination
-				: readDestination;
+		this.connectionFactory = setting.getConnectionFactory();
+		this.createOrderDestination = setting.getCreateOrderDestination();
+		this.updateOrderDestination = setting.getUpdateOrderDestination();
 
-		listenerContainer = new DefaultMessageListenerContainer();
-		listenerContainer.setConnectionFactory(connectionFactory);
-		listenerContainer.setDestination(this.readDestination);
-		listenerContainer
-				.setPubSubDomain(destinationType == DestinationTypeEnum.TOPIC);
-		listenerContainer.setAutoStartup(false);
-		listenerContainer.setCacheLevel(DefaultMessageListenerContainer.CACHE_NONE);
+		messageListenerContainers = new ArrayList<DefaultMessageListenerContainer>();
 
-		//topic consumers will be durable subscribers
-		if (destinationType == DestinationTypeEnum.TOPIC) {
-			String clientId = null;
-			try{
-			InetAddress.getLocalHost().getHostName();
-			} catch(UnknownHostException e) {
-				clientId = "unknownhost";
-			}
-
-			listenerContainer.setClientId(clientId);
-			listenerContainer.setSubscriptionDurable(true);
-		}
-
-		listenerContainer.setMessageListener(listener);
-	}
-
-	public JmsResource(ConnectionFactory connectionFactory,
-			Destination destination, MessageListener listener,
-			DestinationTypeEnum destinationType) {
-		this(connectionFactory, destination, null, listener, destinationType);
+		messageListenerContainers.add(setupListener(
+				setting.getCreateOrderMessageListener(),
+				createOrderDestination, setting.getDestinationType()));
+		messageListenerContainers.add(setupListener(
+				setting.getUpdateOrderMessageListener(),
+				updateOrderDestination, setting.getDestinationType()));
 	}
 
 	public JmsTemplate getJmsTemplate() {
 		return jmsTemplate;
 	}
 
-	public Destination getReadDestination() {
-		return readDestination == null ? defaultDestination : readDestination;
+	public ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	public Destination getCreateOrderDestination() {
+		return createOrderDestination;
+	}
+
+	public Destination getUpdateOrderDestination() {
+		return updateOrderDestination;
 	}
 
 	public void startListening() {
-		if (!listenerContainer.isRunning()) {
-			listenerContainer.start();
-			logger.info("JMS message listener container started!");
+		for (DefaultMessageListenerContainer container : messageListenerContainers) {
+			if (!container.isRunning()) {
+				container.start();
+			}
 		}
+
+		logger.info("JMS message listener containers started!");
 	}
 
 	public void stopListening() {
-		if (listenerContainer.isRunning()) {
-			listenerContainer.stop();
-			logger.info("JMS message listener container stopped!");
+		for (DefaultMessageListenerContainer container : messageListenerContainers) {
+			if (container.isRunning()) {
+				container.stop();
+			}
 		}
+
+		logger.info("JMS message listener containers stopped!");
 	}
 
 	public boolean isListening() {
-		return listenerContainer != null && listenerContainer.isRunning();
+		return messageListenerContainers.get(0) != null
+				&& messageListenerContainers.get(0).isRunning();
 	}
 
 	public void close() {
-		if (listenerContainer != null) {
-			listenerContainer.shutdown();
+		for (DefaultMessageListenerContainer container : messageListenerContainers) {
+			if (container != null) {
+				container.shutdown();
+			}
 		}
 
 		// Interfaces don't expose explicit release of connections.
 		jmsTemplate = null;
 		connectionFactory = null;
-		defaultDestination = null;
-		readDestination = null;
+		createOrderDestination = null;
+		updateOrderDestination = null;
+	}
+
+	protected DefaultMessageListenerContainer setupListener(
+			MessageListener listener, Destination destination,
+			DestinationTypeEnum destinationType) {
+		DefaultMessageListenerContainer listenerContainer = new DefaultMessageListenerContainer();
+		listenerContainer.setConnectionFactory(connectionFactory);
+		listenerContainer.setDestination(destination);
+		listenerContainer
+				.setPubSubDomain(destinationType == DestinationTypeEnum.TOPIC);
+		listenerContainer.setAutoStartup(false);
+
+		// topic consumers will be durable subscribers
+		if (destinationType == DestinationTypeEnum.TOPIC) {
+			listenerContainer.setSubscriptionDurable(true);
+		}
+
+		listenerContainer.setMessageListener(listener);
+		listenerContainer.afterPropertiesSet();
+
+		return listenerContainer;
 	}
 }
