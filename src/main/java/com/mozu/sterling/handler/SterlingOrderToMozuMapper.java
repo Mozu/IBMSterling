@@ -358,8 +358,10 @@ public class SterlingOrderToMozuMapper {
         FulfillmentInfo fulfillmentInfo = new FulfillmentInfo();
 
         PersonInfoShipTo personShipTo = sterlingOrder.getPersonInfoShipTo();
-        fulfillmentInfo.setFulfillmentContact(populateContact(personShipTo));
-        fulfillmentInfo.setIsDestinationCommercial("Y".equals(personShipTo.getIsCommercialAddress()));
+        if (personShipTo != null) {
+            fulfillmentInfo.setFulfillmentContact(populateContact(personShipTo));
+            fulfillmentInfo.setIsDestinationCommercial("Y".equals(personShipTo.getIsCommercialAddress()));
+        }
         if (StringUtils.isNotBlank(sterlingOrder.getCarrierServiceCode())) {
             fulfillmentInfo
                     .setShippingMethodCode(getShippingMethodCode(setting, sterlingOrder.getCarrierServiceCode()));
@@ -406,33 +408,33 @@ public class SterlingOrderToMozuMapper {
 
     private Contact populateContact(ContactInfo contactInfo) {
         Contact contact = new Contact();
-
-        contact.setCompanyOrOrganization(contactInfo.getCompany());
-        contact.setEmail(StringUtils.isNotBlank(contactInfo.getEMailID()) ? contactInfo.getEMailID() : ANONYMOUS_EMAIL);
-        contact.setFirstName(StringUtils.isNotBlank(contactInfo.getFirstName()) ? contactInfo.getFirstName() : ANONYMOUS_FIRST_NAME);
-        contact.setMiddleNameOrInitial(contactInfo.getMiddleName());
-        contact.setLastNameOrSurname(StringUtils.isNotBlank(contactInfo.getLastName()) ? contactInfo.getLastName() : ANONYMOUS_LAST_NAME);
-
-        Address address = new Address();
-        address.setAddress1(contactInfo.getAddressLine1());
-        address.setAddress2(contactInfo.getAddressLine2());
-        address.setCityOrTown(contactInfo.getCity());
-        address.setCountryCode(StringUtils.isNotBlank(contactInfo.getCountry()) ? contactInfo.getCountry() : "US");
-        address.setPostalOrZipCode(StringUtils.isNotBlank(contactInfo.getZipCode()) ? contactInfo.getZipCode() : "00000");
-        address.setStateOrProvince(contactInfo.getState());
-
-        contact.setAddress(address);
-        Phone phone = new Phone();
-        phone.setHome(contactInfo.getEveningPhone());
-        phone.setMobile(contactInfo.getMobilePhone());
-        phone.setWork(contactInfo.getDayPhone());
-        if (StringUtils.isBlank(phone.getHome()) && 
-                StringUtils.isBlank(phone.getWork()) &&
-                StringUtils.isBlank(phone.getMobile())) {
-            phone.setHome("212-555-1212");
+        if (contactInfo != null) {
+            contact.setCompanyOrOrganization(contactInfo.getCompany());
+            contact.setEmail(StringUtils.isNotBlank(contactInfo.getEMailID()) ? contactInfo.getEMailID() : ANONYMOUS_EMAIL);
+            contact.setFirstName(StringUtils.isNotBlank(contactInfo.getFirstName()) ? contactInfo.getFirstName() : ANONYMOUS_FIRST_NAME);
+            contact.setMiddleNameOrInitial(contactInfo.getMiddleName());
+            contact.setLastNameOrSurname(StringUtils.isNotBlank(contactInfo.getLastName()) ? contactInfo.getLastName() : ANONYMOUS_LAST_NAME);
+    
+            Address address = new Address();
+            address.setAddress1(contactInfo.getAddressLine1());
+            address.setAddress2(contactInfo.getAddressLine2());
+            address.setCityOrTown(contactInfo.getCity());
+            address.setCountryCode(StringUtils.isNotBlank(contactInfo.getCountry()) ? contactInfo.getCountry() : "US");
+            address.setPostalOrZipCode(StringUtils.isNotBlank(contactInfo.getZipCode()) ? contactInfo.getZipCode() : "00000");
+            address.setStateOrProvince(contactInfo.getState());
+    
+            contact.setAddress(address);
+            Phone phone = new Phone();
+            phone.setHome(contactInfo.getEveningPhone());
+            phone.setMobile(contactInfo.getMobilePhone());
+            phone.setWork(contactInfo.getDayPhone());
+            if (StringUtils.isBlank(phone.getHome()) && 
+                    StringUtils.isBlank(phone.getWork()) &&
+                    StringUtils.isBlank(phone.getMobile())) {
+                phone.setHome("212-555-1212");
+            }
+            contact.setPhoneNumbers(phone);
         }
-        contact.setPhoneNumbers(phone);
-
         return contact;
     }
 

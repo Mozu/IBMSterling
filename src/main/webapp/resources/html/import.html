@@ -1,55 +1,60 @@
 <div class="row" id="settings">
 	<div class="tab-full-column" ng-controller=ImportOrderController>
 		<h4>Import Orders from Sterling</h4>
-		<div class="tab-full-column">
-			<div>
-				<button class="mz-button primary" ng-click="importOrders()">Import Orders</button>
-				<button class="mz-button" ng-click="refreshList()">Refresh</button>
+		<div id="importErrorDiv" class="row" ng-show="showErrorPage">
+			<div class="row">
+				<div class="tab-full-column">
+					<button class="ui-button secondary" ng-click="hideError()">&lt;&lt;Back</button>
+				</div>
+			</div>
 
+			<div class="row" style="overflow: auto; height: 360px"
+				id="logImportDataDiv">
+				<div class="tab-full-column">
+					The following errors occurred during job execution:
+					<ul ng-repeat="jobError in jobErrors track by $index"">
+						<li>{{jobError}}</li>
+					</ul>
+				</div>
 			</div>
 		</div>
+		<div ng-hide="showErrorPage">
+			<div class="tab-full-column">
+				<div>
+					<button class="mz-button primary" ng-click="importOrders()">Import
+						Orders</button>
+					<button class="mz-button" ng-click="refreshList()">Refresh</button>
 
-        <div id="importErrorDiv" class="tab-first-column" ng-show="showErrors">
-            <div class="row">
-                <div class="tab-full-column">
-                    <button class="ui-button secondary" ng-click="hideError()">&lt;&lt;Back</button>
-                </div>
-            </div>
+				</div>
+			</div>
 
-            <div class="row" style="overflow: auto; height: 360px"
-                id="logImportDataDiv">
-                <div class="tab-full-column">
-                    The following errors occurred during job execution:
-                    <ul ng-repeat="jobError in jobErrors">
-                        <li>{{jobError}}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-		<div id="importDiv" class="bodycontainer scrollable"
-			style="height: 320px; overflow: auto;" ng-hide="showErrors">
-			<table class="table table-striped"
-				style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
-				<thead>
-					<th class="col-xs-6">Import Date/Time</th>
-					<th class="col-xs-6">Site ID</th>
-					<th class="col-xs-6"># of Products</th>
-					<th class="col-xs-6">Status</th>
-                    <th class="col-xs-6">Errors</th>
-                    <th class="col-xs-6"></th>
-				</thead>
-				<tbody>
-					<tr ng-repeat="jobItem in jobList">
-						<td class="col-xs-6">{{jobItem.startDateTime}}</td>
-						<td class="col-xs-6">{{jobItem.siteId}}</td>
-						<td class="col-xs-6">{{jobItem.readCount}}</td>
-						<td class="col-xs-6">{{jobItem.batchStatus}}</td>
-						<td class="col-xs-6"><a href="#" ng-click ="showErrors(jobItem.id)">{{jobItem.errorCount}}</a></td>
-                        <td class="col-xs-6" ><a href="#" ng-click = "stopJob(jobItem.id)" ng-if="jobItem.batchStatus == 'STARTED'">Stop</a></td>
-					</tr>
-				</tbody>
-			</table>
+			<div id="importDiv" class="row bodycontainer scrollable"
+				style="height: 320px; overflow: auto;">
+				<table class="table table-striped"
+					style="width: 100%; overflow: auto; border: 1px solid rgba(221, 221, 221, 1);">
+					<thead>
+						<th class="col-xs-6">Import Date/Time</th>
+						<th class="col-xs-6">Site ID</th>
+						<th class="col-xs-6"># of Orders</th>
+						<th class="col-xs-6">Status</th>
+						<th class="col-xs-6">Errors</th>
+						<th class="col-xs-6"></th>
+					</thead>
+					<tbody>
+						<tr ng-repeat="jobItem in jobList">
+							<td class="col-xs-6">{{jobItem.startDateTime | date : 'medium'}}</td>
+							<td class="col-xs-6">{{jobItem.siteId}}</td>
+							<td class="col-xs-6">{{jobItem.readCount}}</td>
+							<td class="col-xs-6">{{jobItem.batchStatus}}</td>
+							<td class="col-xs-6"><a href="javascript:;"
+								ng-click="showErrorList(jobItem.id)">{{jobItem.errorCount}}</a></td>
+							<td class="col-xs-6"><a href="javascript:;"
+								ng-click="stopJob(jobItem.id)"
+								ng-if="jobItem.batchStatus == 'STARTED'">Stop</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </div>

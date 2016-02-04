@@ -1,6 +1,7 @@
 var ImportOrderController = function($scope, $http, $rootScope) {
 	var self = this;
-	$scope.showErrors = false;
+	$scope.showErrorPage = false;
+	$scope.jobErrors = {};
 	this.getJobData = function() {
 		// $http() returns a $promise that we can add handlers with .then()
 		return $http({
@@ -15,20 +16,24 @@ var ImportOrderController = function($scope, $http, $rootScope) {
 		if (dataResponse.data.errorMsg) {
 			$rootScope.errorMessage = "Error: " + dataResponse.data.errorMsg;
 			$rootScope.errorsExist = true;
+		} else {
+			$scope.showErrorPage = false;
 		}
+		
 	});
 
 
 	// save function
 	$scope.importOrders = function() {
 		$http.post('api/job/importOrder?fromDate=').success(function(data) {
-			$scope.jobList.push(data);
 			if (data.errorMsg) {
 				$rootScope.errorMessage = "Error: " + data.errorMsg;
 				$rootScope.errorsExist = true;
+			} else {
+				$scope.jobList.splice(0,0,data[0]);
 			} 
 		});
-	}
+	};
 	
 	$scope.refreshList = function () {
 		self.getJobData().then(function(dataResponse) {
@@ -38,24 +43,25 @@ var ImportOrderController = function($scope, $http, $rootScope) {
 				$rootScope.errorsExist = true;
 			}
 		});
-	}
+	};
 	
-	$scope.showError = function(id) {
+	$scope.showErrorList = function(id) {
 		$http.get("api/job/errors/" + id).success(function(data) {
-			jobErrors = data;
-			$scope.showErrors = true;
+			$scope.jobErrors = data;
+			$scope.showErrorPage = true;
 		});
-		
+		return false;
 	};
 	
 	$scope.hideError = function() {
-		$scope.showErrors = false;
+		$scope.showErrorPage = false;
 	};
 
 	$scope.stopJob = function(id) {
 		$http.delete("api/job/" + id).success(function(data) {
 			$scope.refreshList();
 		});
+		return false;
 	};
 
 	
