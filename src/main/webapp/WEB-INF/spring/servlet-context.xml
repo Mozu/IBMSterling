@@ -12,6 +12,7 @@
 
 	<beans:import resource="classpath*:/mozu-base.xml" />
     <beans:import resource="classpath*:/jobs/*.xml" />
+    <beans:bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/>
 
 	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
 		up static resources in the ${webappRoot}/resources directory -->
