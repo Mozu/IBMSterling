@@ -59,10 +59,21 @@ public class SterlingQueueTest {
 	public void setup() {
 		setting = new Setting();
 		setting.setProviderEndpoint("50.23.47.110:7276:BootstrapBasicMessaging");
+
+		//topic setup
+		/*
 		setting.setBusName("mozuJMS");
 		setting.setCreateOrderDestinationName("t_ordercreate");
 		setting.setUpdateOrderDestinationName("t_orderupdate");
 		setting.setDestinationType(DestinationTypeEnum.TOPIC.destinationName());
+		setting.setSubscriptionHome("smcfs94Node01.server1-mozuJMS");
+		*/
+
+		//queue setup
+		setting.setBusName("JMSSterlingBus");
+		setting.setCreateOrderDestinationName("q_ordercreate");
+		setting.setUpdateOrderDestinationName("q_orderupdate");
+		setting.setDestinationType(DestinationTypeEnum.QUEUE.destinationName());
 
 		Integer tenantId = new Integer(15148);
 
@@ -82,15 +93,17 @@ public class SterlingQueueTest {
 			jmsResource.startListening();
 		}
 
-		JmsTemplate template = jmsResource.getJmsTemplate();
-		template.send(jmsResource.getUpdateOrderDestination(), new MessageCreator() {
+		//Write a message
 
-			@Override
-			public Message createMessage(Session session) throws JMSException {
-				return session.createTextMessage("New test message");
-			}
-
-		});
+//		JmsTemplate template = jmsResource.getJmsTemplate();
+//		template.send(jmsResource.getUpdateOrderDestination(), new MessageCreator() {
+//
+//			@Override
+//			public Message createMessage(Session session) throws JMSException {
+//				return session.createTextMessage("New test message");
+//			}
+//
+//		});
 
 		Thread.sleep(30000); // wait for the listener to process the message
 
