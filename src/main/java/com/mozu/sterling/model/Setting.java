@@ -25,7 +25,8 @@ public class Setting {
     protected String connectionStrategy = JmsConnectionStrategyEnum.DIRECT.strategyName();
     protected String providerEndpoint;
     protected String busName;
-    protected String destinationType = DestinationTypeEnum.TOPIC.destinationName();
+    protected String destinationType = DestinationTypeEnum.QUEUE.destinationName();
+    protected String subscriptionHome;
     protected String createOrderDestinationName;
     protected String updateOrderDestinationName;
 
@@ -112,5 +113,11 @@ public class Setting {
 	}
 	public void setUpdateOrderDestinationName(String destinationName) {
 		this.updateOrderDestinationName = destinationName;
+	}
+	public String getSubscriptionHome() {
+		return subscriptionHome;
+	}
+	public void setSubscriptionHome(String subscriptionHome) {
+		this.subscriptionHome = subscriptionHome;
 	}
 }

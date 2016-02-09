@@ -63,10 +63,10 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 				.createConnectionFactory();
 		connectionFactory.setProviderEndpoints(setting.getProviderEndpoint());
 		connectionFactory.setBusName(setting.getBusName());
-		connectionFactory.setDurableSubscriptionHome("smcfs94Node01.server1-mozuJMS");
 
 		// ClientId set for durable subscriber
 		if (DestinationTypeEnum.TOPIC == DestinationTypeEnum.from(setting.getDestinationType())) {
+			connectionFactory.setDurableSubscriptionHome(setting.getSubscriptionHome());
 			connectionFactory.setClientID(getJmsClientId());
 		}
 

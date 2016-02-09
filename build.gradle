@@ -66,7 +66,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-jms', version: springVersion
     compile group: 'org.springframework', name: 'spring-web', version: springVersion
     compile group: 'org.springframework', name: 'spring-webmvc', version: springVersion
-	compile 'org.hibernate:hibernate-validator:4.3.1.Final'
+    compile 'org.hibernate:hibernate-validator:4.3.1.Final'
 
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.12'
@@ -105,7 +105,7 @@ dependencies {
     compile files('./lib/com.ibm.msg.client.provider.jar')
     compile files('./lib/com.ibm.msg.client.commonservices.jar')
     compile files('./lib/com.ibm.ws.sib.client.thin.jms_8.5.0.jar')
-//    compile files('./lib/com.ibm.ws.ejb.thinclient_8.5.0.jar')
+    compile files('./lib/com.ibm.ws.ejb.thinclient_8.5.0.jar')
     compile files('./lib/com.ibm.ws.orb_8.5.0.jar')
     compile 'xerces:xerces:2.4.0'
 
@@ -114,7 +114,7 @@ dependencies {
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
-	testCompile 'org.mockito:mockito-core:1.+'
+    testCompile 'org.mockito:mockito-core:1.+'
 }
 
 test {
