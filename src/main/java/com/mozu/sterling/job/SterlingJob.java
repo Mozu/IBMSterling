@@ -47,7 +47,7 @@ public class SterlingJob extends ScheduledJob {
                 .getBean("jobExecutionDao", JobExecutionDao.class);
         lastSuccessfulRunDate = jobExecutionDao.getLastExecutionDate(tenantId.longValue(), jobName);
         if (lastSuccessfulRunDate != null) {
-            builder.addLong(JobInfoUI.LAST_RUN_TIME_PARAM, lastSuccessfulRunDate.getTime());
+            builder.addLong(JobInfoUI.ORDER_DATE_QUERY_PARAM, lastSuccessfulRunDate.getTime());
         }
 
         return builder.toJobParameters();

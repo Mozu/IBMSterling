@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +54,19 @@ public class OrderService extends SterlingClient {
     }
 
     public List<com.mozu.sterling.model.order.Order> getSterlingOrders(Setting setting) throws Exception {
+        return getSterlingOrders(setting, null);
+    }
+    public List<com.mozu.sterling.model.order.Order> getSterlingOrders(Setting setting, Long orderDate) throws Exception {
         OrderList orderList = null;
         if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
             com.mozu.sterling.model.order.Order inOrder = new com.mozu.sterling.model.order.Order();
             if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
                 inOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
+            }
+            
+            if (orderDate != null && orderDate > 0L) {
+                DateTime orderDateTime = new DateTime (orderDate);
+                inOrder.setOrderDate(orderDateTime.toString("yyyyMMdd"));
             }
 
             Document inDoc = convertObjectToXml(inOrder, com.mozu.sterling.model.order.Order.class);

@@ -10,7 +10,7 @@ public class JobInfoUI {
     public static final String TENANT_ID_PARAM = "tenantId";
     public static final String SITE_ID_PARAM = "siteId";
     public static final String TIMESTAMP_PARAM = "timestamp";
-    public static final String LAST_RUN_TIME_PARAM = "lastRunTime";
+    public static final String ORDER_DATE_QUERY_PARAM = "orderDateQuery";
     
     public static final String ORDER_IMPORT_JOB = "sterlingOrderImport"; 
     

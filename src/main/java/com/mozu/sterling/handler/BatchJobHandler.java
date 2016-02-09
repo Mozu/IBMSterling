@@ -69,10 +69,9 @@ public class BatchJobHandler {
      * @param jobName
      * @throws IOException 
      */
-    public JobExecution executeJob(Integer tenantId, Integer siteId, String jobName, Timestamp fromRundate) 
+    public JobExecution executeJob(Integer tenantId, Integer siteId, String jobName, Timestamp queryDate) 
                 throws JobExecutionException {
         JobParameters jobParams = null;
-        Timestamp lastSuccessfulRunDate = null;
 
         JobParametersBuilder builder = new JobParametersBuilder();
         builder.addLong("tenantId", tenantId.longValue());
@@ -82,13 +81,8 @@ public class BatchJobHandler {
         builder.addLong("timestamp", new Date().getTime());
         
         if (jobName.equals(JobInfoUI.ORDER_IMPORT_JOB)) {
-            if (fromRundate == null) {
-                lastSuccessfulRunDate = jobExecutionDao.getLastExecutionDate(tenantId.longValue(), siteId.longValue(), JobInfoUI.ORDER_IMPORT_JOB);
-            } else {
-                lastSuccessfulRunDate  = fromRundate;
-            }
-            if (lastSuccessfulRunDate != null) {
-                builder.addLong(JobInfoUI.LAST_RUN_TIME_PARAM, lastSuccessfulRunDate.getTime());
+            if (queryDate != null) {
+                builder.addLong(JobInfoUI.ORDER_DATE_QUERY_PARAM, queryDate.getTime());
             }
         }
 

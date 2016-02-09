@@ -47,7 +47,7 @@ public class OrderImportController extends JobBaseController {
 
     @RequestMapping(value = "importOrder", method = RequestMethod.POST)
     public @ResponseBody
-    List<JobInfoUI> importOrders(@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId, @RequestParam("fromDate") String fromDate) {
+    List<JobInfoUI> importOrders(@CookieValue (AdminControllerHelper.TENANT_ID_COOKIE) int tenantId, @RequestParam("orderDate") String orderDate) {
         logger.info("Starting Order Import for tenantID: " + tenantId);
         Setting settings = null;
         try {
@@ -58,8 +58,8 @@ public class OrderImportController extends JobBaseController {
         List<JobInfoUI> jobs = new ArrayList<JobInfoUI>();
         
         Timestamp importFromTimestamp = null;
-        if (StringUtils.isNotBlank(fromDate)) {
-          importFromTimestamp = Timestamp.valueOf(fromDate + " 00:00:00");
+        if (StringUtils.isNotBlank(orderDate) && !orderDate.equals("null")) {
+          importFromTimestamp = Timestamp.valueOf(orderDate + " 00:00:00");
         }
         
         if (ApplicationUtils.isAppEnabled(tenantId)) {

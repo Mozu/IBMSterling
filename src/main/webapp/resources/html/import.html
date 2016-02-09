@@ -21,10 +21,18 @@
 		<div ng-hide="showErrorPage">
 			<div class="tab-full-column">
 				<div>
-					<button class="mz-button primary" ng-click="importOrders()">Import
-						Orders</button>
-					<button class="mz-button" ng-click="refreshList()">Refresh</button>
-
+					<div class="tab-first-column">
+						<label class="tab-field-label" style=""field">Order Date:</label>
+					</div>
+					<div class="tab-second-column">
+						<input type="date" id="exampleInput" name="input"
+							ng-model="orderDate" placeholder="yyyy-MM-dd" />
+					</div>
+					<div class="tab-full-column">
+						<button class="mz-button primary" ng-click="importOrders()">Import
+							Orders</button>
+						<button class="mz-button" ng-click="refreshList()">Refresh</button>
+					</div>
 				</div>
 			</div>
 
@@ -42,7 +50,8 @@
 					</thead>
 					<tbody>
 						<tr ng-repeat="jobItem in jobList">
-							<td class="col-xs-6">{{jobItem.startDateTime | date : 'medium'}}</td>
+							<td class="col-xs-6">{{jobItem.startDateTime | date :
+								'medium'}}</td>
 							<td class="col-xs-6">{{jobItem.siteId}}</td>
 							<td class="col-xs-6">{{jobItem.readCount}}</td>
 							<td class="col-xs-6">{{jobItem.batchStatus}}</td>
@@ -58,4 +67,3 @@
 		</div>
 	</div>
 </div>
-

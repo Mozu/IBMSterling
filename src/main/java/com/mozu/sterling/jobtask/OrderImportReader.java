@@ -22,11 +22,9 @@ import com.mozu.sterling.service.OrderService;
 public class OrderImportReader extends AbstractPagingItemReader<Order> {
     private static final Logger logger = LoggerFactory.getLogger(OrderImportReader.class);
 
-    private static final long FIVE_MINUTES = 5 * 60 * 1000;
 
     private Integer tenantId;
-    private Integer siteId;
-    private Long lastRunTime;
+    private Long orderDate;
 
     @Autowired
     OrderService orderService;
@@ -55,12 +53,8 @@ public class OrderImportReader extends AbstractPagingItemReader<Order> {
             results = new CopyOnWriteArrayList<Order>();
             List<Order> sales;
             try {
-    //        	if (lastRunTime==null) {
-    //                sales = orderService.getSterlingOrders(setting);
-    //        	} else {
-                    logger.debug("Reading all order, no last runtime");
-                    sales = orderService.getSterlingOrders(setting);
-    //        	}
+                logger.debug("Reading all order, no last runtime");
+                sales = orderService.getSterlingOrders(setting, orderDate);
                 results.addAll(sales);
                 setPageSize(results.size() + 1);
             } catch (Exception e) {
@@ -79,13 +73,8 @@ public class OrderImportReader extends AbstractPagingItemReader<Order> {
         this.tenantId = tenantId !=null ? tenantId.intValue() : null;
     }
 
-    @Value("#{jobParameters['siteId']}")
-    public void setSiteId(final Long siteId) {
-        this.siteId = siteId != null ? siteId.intValue() : null;
-    }
-
-    @Value("#{jobParameters['lastRunTime']}")
-    public void setLastRunTime(final Long lastRunTime) {
-        this.lastRunTime = lastRunTime != null ? lastRunTime : null;
+    @Value("#{jobParameters['orderDateQuery']}")
+    public void setOrderDateQuery(final Long orderDate) {
+        this.orderDate = orderDate != null ? orderDate : null;
     }
 }

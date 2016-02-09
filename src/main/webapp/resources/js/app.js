@@ -114,8 +114,13 @@ sterlingApp
 							}
 							return {
 								request : function(config) {
-									ajaxIndicatorCount++;
-									updateStatus();
+									// skip status updates for running jobs.
+									if (config.url == null
+											|| config.url.indexOf("/status") == -1) {
+										ajaxIndicatorCount++;
+										updateStatus();
+										
+									}
 									return config;
 								},
 								response : function(response) {
@@ -148,7 +153,3 @@ sterlingApp
 			// here
 		} ]);
 
-// sterlingApp.run(['$log', '$rootScope', '$route', function ($log, $rootScope,
-// $route) {
-// // nothing ---> This initializes the initial route.
-// }]);
