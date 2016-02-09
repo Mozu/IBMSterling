@@ -24,6 +24,7 @@ public class JmsResource {
 	private ConnectionFactory connectionFactory;
 	private Destination createOrderDestination;
 	private Destination updateOrderDestination;
+	private Destination inventoryDestination;
 	private List<DefaultMessageListenerContainer> messageListenerContainers;
 
 	public JmsResource(JmsResourceSetting setting) {
@@ -37,12 +38,23 @@ public class JmsResource {
 
 		messageListenerContainers = new ArrayList<DefaultMessageListenerContainer>();
 
-		messageListenerContainers.add(setupListener(
-				setting.getCreateOrderMessageListener(),
-				createOrderDestination, setting.getDestinationType()));
-		messageListenerContainers.add(setupListener(
-				setting.getUpdateOrderMessageListener(),
-				updateOrderDestination, setting.getDestinationType()));
+		if (createOrderDestination != null) {
+			messageListenerContainers.add(setupListener(
+					setting.getCreateOrderMessageListener(),
+					createOrderDestination, setting.getDestinationType()));
+		}
+
+		if (updateOrderDestination != null) {
+			messageListenerContainers.add(setupListener(
+					setting.getUpdateOrderMessageListener(),
+					updateOrderDestination, setting.getDestinationType()));
+		}
+
+		if (inventoryDestination != null) {
+			messageListenerContainers.add(setupListener(
+					setting.getInventoryMessageListener(),
+					inventoryDestination, setting.getDestinationType()));
+		}
 	}
 
 	public JmsTemplate getJmsTemplate() {

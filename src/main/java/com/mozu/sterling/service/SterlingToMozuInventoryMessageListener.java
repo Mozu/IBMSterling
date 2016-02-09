@@ -17,34 +17,36 @@ import com.mozu.api.MozuApiContext;
 import com.mozu.sterling.handler.ConfigHandler;
 
 /**
- * Receives jms messages for processing. Not thread safe as it is tied to a
+ * Receives jms messages for processing. A new class is needed so that it can
+ * create a unique durable subscription. Not thread safe as it is tied to a
  * tenant.
  *
  */
-public class NewSterlingToMozuOrderMessageListener implements MessageListener {
+public class SterlingToMozuInventoryMessageListener implements MessageListener {
 	private static final Logger logger = LoggerFactory
-			.getLogger(NewSterlingToMozuOrderMessageListener.class);
+			.getLogger(SterlingToMozuInventoryMessageListener.class);
 	private static JAXBContext jaxbContext = null;
 
 	private Integer tenantId;
 
-	private OrderService orderService;
+	private InventoryService inventoryService;
 
 	private ConfigHandler configHandler;
 
 	static {
 		try {
 			jaxbContext = JAXBContext
-					.newInstance(com.mozu.sterling.model.order.Order.class);
+					.newInstance(com.mozu.sterling.model.inventory.AvailabilityChange.class);
 		} catch (JAXBException jaxbEx) {
 			logger.error("Error getting jaxb context.");
 		}
 	}
 
-	public NewSterlingToMozuOrderMessageListener(Integer tenantId, ConfigHandler configHandler, OrderService orderService) {
+	public SterlingToMozuInventoryMessageListener(Integer tenantId,
+			ConfigHandler configHandler, InventoryService inventoryService) {
 		this.tenantId = tenantId;
 		this.configHandler = configHandler;
-		this.orderService = orderService;
+		this.inventoryService = inventoryService;
 	}
 
 	@Override
@@ -55,11 +57,12 @@ public class NewSterlingToMozuOrderMessageListener implements MessageListener {
 				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 				StringReader messageReader = new StringReader(
 						((TextMessage) message).getText());
-				com.mozu.sterling.model.order.Order sterlingOrder = (com.mozu.sterling.model.order.Order) unmarshaller
+				com.mozu.sterling.model.inventory.AvailabilityChange sterlingInventoryChange = (com.mozu.sterling.model.inventory.AvailabilityChange) unmarshaller
 						.unmarshal(messageReader);
 
-				orderService.importSterlingOrder(new MozuApiContext(tenantId),
-						configHandler.getSetting(tenantId), sterlingOrder);
+				inventoryService.updateInventory(new MozuApiContext(),
+						configHandler.getSetting(tenantId),
+						sterlingInventoryChange);
 
 			} catch (JMSException e) {
 				logger.error("Failed to read message.", e);

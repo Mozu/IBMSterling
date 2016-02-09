@@ -12,8 +12,10 @@ public class JmsResourceSetting {
 	private ConnectionFactory connectionFactory;
 	private Destination createOrderDestination;
 	private Destination updateOrderDestination;
+	private Destination inventoryDestination;
 	private MessageListener createOrderMessageListener;
 	private MessageListener updateOrderMessageListener;
+	private MessageListener inventoryMessageListener;
 	private DestinationTypeEnum destinationType;
 
 	public ConnectionFactory getConnectionFactory() {
@@ -53,5 +55,17 @@ public class JmsResourceSetting {
 	}
 	public void setDestinationType(DestinationTypeEnum destinationType) {
 		this.destinationType = destinationType;
+	}
+	public Destination getInventoryDestination() {
+		return inventoryDestination;
+	}
+	public void setInventoryDestination(Destination inventoryDestination) {
+		this.inventoryDestination = inventoryDestination;
+	}
+	public MessageListener getInventoryMessageListener() {
+		return inventoryMessageListener;
+	}
+	public void setInventoryMessageListener(MessageListener inventoryMessageListener) {
+		this.inventoryMessageListener = inventoryMessageListener;
 	}
 }

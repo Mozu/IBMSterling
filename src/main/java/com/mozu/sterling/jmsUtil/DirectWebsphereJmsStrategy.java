@@ -7,6 +7,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.connection.SingleConnectionFactory;
 import org.springframework.stereotype.Component;
@@ -15,8 +16,10 @@ import com.ibm.websphere.sib.api.jms.JmsConnectionFactory;
 import com.ibm.websphere.sib.api.jms.JmsFactoryFactory;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.service.InventoryService;
 import com.mozu.sterling.service.NewSterlingToMozuOrderMessageListener;
 import com.mozu.sterling.service.OrderService;
+import com.mozu.sterling.service.SterlingToMozuInventoryMessageListener;
 import com.mozu.sterling.service.UpdateSterlingToMozuOrderMessageListener;
 
 /**
@@ -28,6 +31,8 @@ import com.mozu.sterling.service.UpdateSterlingToMozuOrderMessageListener;
 public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private InventoryService inventoryService;
 	@Autowired
 	private ConfigHandler configHandler;
 
@@ -44,6 +49,8 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 				.setCreateOrderDestination(getCreateOrderDestination(setting));
 		jmsResourceSetting
 				.setUpdateOrderDestination(getUpdateOrderDestination(setting));
+		jmsResourceSetting
+				.setInventoryDestination(getInventoryDestination(setting));
 
 		jmsResourceSetting
 				.setCreateOrderMessageListener(new NewSterlingToMozuOrderMessageListener(
@@ -51,6 +58,9 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 		jmsResourceSetting
 				.setUpdateOrderMessageListener(new UpdateSterlingToMozuOrderMessageListener(
 						tenantId, configHandler, orderService));
+		jmsResourceSetting
+				.setInventoryMessageListener(new SterlingToMozuInventoryMessageListener(
+						tenantId, configHandler, inventoryService));
 
 		return jmsResourceSetting;
 	}
@@ -65,8 +75,10 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 		connectionFactory.setBusName(setting.getBusName());
 
 		// ClientId set for durable subscriber
-		if (DestinationTypeEnum.TOPIC == DestinationTypeEnum.from(setting.getDestinationType())) {
-			connectionFactory.setDurableSubscriptionHome(setting.getSubscriptionHome());
+		if (DestinationTypeEnum.TOPIC == DestinationTypeEnum.from(setting
+				.getDestinationType())) {
+			connectionFactory.setDurableSubscriptionHome(setting
+					.getSubscriptionHome());
 			connectionFactory.setClientID(getJmsClientId());
 		}
 
@@ -85,19 +97,27 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 				DestinationTypeEnum.from(setting.getDestinationType()));
 	}
 
+	protected Destination getInventoryDestination(Setting setting)
+			throws JMSException {
+		return createDestination(setting.getInventoryDestinationName(),
+				DestinationTypeEnum.from(setting.getDestinationType()));
+	}
+
 	protected Destination createDestination(String destinationName,
 			DestinationTypeEnum destinationType) throws JMSException {
 		JmsFactoryFactory jmsFactoryFactory = JmsFactoryFactory.getInstance();
 
 		Destination destination = null;
 
-		switch (destinationType) {
-		case QUEUE:
-			destination = jmsFactoryFactory.createQueue(destinationName);
-			break;
-		case TOPIC:
-			destination = jmsFactoryFactory.createTopic(destinationName);
-			break;
+		if (StringUtils.isNotBlank(destinationName)) {
+			switch (destinationType) {
+			case QUEUE:
+				destination = jmsFactoryFactory.createQueue(destinationName);
+				break;
+			case TOPIC:
+				destination = jmsFactoryFactory.createTopic(destinationName);
+				break;
+			}
 		}
 
 		return destination;

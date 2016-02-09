@@ -73,9 +73,10 @@ public class SterlingQueueTest {
 		setting.setBusName("JMSSterlingBus");
 		setting.setCreateOrderDestinationName("q_ordercreate");
 		setting.setUpdateOrderDestinationName("q_orderupdate");
+		setting.setInventoryDestinationName("q_agent");
 		setting.setDestinationType(DestinationTypeEnum.QUEUE.destinationName());
 
-		Integer tenantId = new Integer(15148);
+		Integer tenantId = new Integer(419);
 
 		try {
 			jmsResource = new JmsResource(
@@ -87,7 +88,7 @@ public class SterlingQueueTest {
 	}
 
 	@Test
-	public void readOrderFromQueue() throws Exception {
+	public void readMessagesFromQueue() throws Exception {
 
 		if (!jmsResource.isListening()) {
 			jmsResource.startListening();

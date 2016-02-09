@@ -29,6 +29,7 @@ public class Setting {
     protected String subscriptionHome;
     protected String createOrderDestinationName;
     protected String updateOrderDestinationName;
+    protected String inventoryDestinationName;
 
     public String getId() {
         return id;
@@ -119,5 +120,11 @@ public class Setting {
 	}
 	public void setSubscriptionHome(String subscriptionHome) {
 		this.subscriptionHome = subscriptionHome;
+	}
+	public String getInventoryDestinationName() {
+		return inventoryDestinationName;
+	}
+	public void setInventoryDestinationName(String inventoryDestinationName) {
+		this.inventoryDestinationName = inventoryDestinationName;
 	}
 }
