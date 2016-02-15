@@ -38,7 +38,7 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 
 	@Override
 	public JmsResourceSetting getJmsResourceSettings(Setting setting,
-			Integer tenantId) throws JMSException {
+			Integer tenantId, Integer siteId) throws JMSException {
 		JmsResourceSetting jmsResourceSetting = new JmsResourceSetting();
 
 		jmsResourceSetting.setDestinationType(DestinationTypeEnum.from(setting
@@ -54,13 +54,13 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 
 		jmsResourceSetting
 				.setCreateOrderMessageListener(new NewSterlingToMozuOrderMessageListener(
-						tenantId, configHandler, orderService));
+						tenantId, siteId, configHandler, orderService));
 		jmsResourceSetting
 				.setUpdateOrderMessageListener(new UpdateSterlingToMozuOrderMessageListener(
-						tenantId, configHandler, orderService));
+						tenantId, siteId, configHandler, orderService));
 		jmsResourceSetting
 				.setInventoryMessageListener(new SterlingToMozuInventoryMessageListener(
-						tenantId, configHandler, inventoryService));
+						tenantId, siteId, configHandler, inventoryService));
 
 		return jmsResourceSetting;
 	}

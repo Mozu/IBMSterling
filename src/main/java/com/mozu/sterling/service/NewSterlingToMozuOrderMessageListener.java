@@ -28,6 +28,8 @@ public class NewSterlingToMozuOrderMessageListener implements MessageListener {
 
 	private Integer tenantId;
 
+	private Integer siteId;
+
 	private OrderService orderService;
 
 	private ConfigHandler configHandler;
@@ -41,8 +43,9 @@ public class NewSterlingToMozuOrderMessageListener implements MessageListener {
 		}
 	}
 
-	public NewSterlingToMozuOrderMessageListener(Integer tenantId, ConfigHandler configHandler, OrderService orderService) {
+	public NewSterlingToMozuOrderMessageListener(Integer tenantId, Integer siteId, ConfigHandler configHandler, OrderService orderService) {
 		this.tenantId = tenantId;
+		this.siteId = siteId;
 		this.configHandler = configHandler;
 		this.orderService = orderService;
 	}
@@ -58,7 +61,7 @@ public class NewSterlingToMozuOrderMessageListener implements MessageListener {
 				com.mozu.sterling.model.order.Order sterlingOrder = (com.mozu.sterling.model.order.Order) unmarshaller
 						.unmarshal(messageReader);
 
-				orderService.importSterlingOrder(new MozuApiContext(tenantId),
+				orderService.importSterlingOrder(new MozuApiContext(tenantId, siteId),
 						configHandler.getSetting(tenantId), sterlingOrder);
 
 			} catch (JMSException e) {

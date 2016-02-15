@@ -10,8 +10,8 @@ import com.mozu.sterling.handler.ConfigHandler;
  */
 public class UpdateSterlingToMozuOrderMessageListener extends
 		NewSterlingToMozuOrderMessageListener {
-	public UpdateSterlingToMozuOrderMessageListener(Integer tenantId,
+	public UpdateSterlingToMozuOrderMessageListener(Integer tenantId, Integer siteId,
 			ConfigHandler configHandler, OrderService orderService) {
-		super(tenantId, configHandler, orderService);
+		super(tenantId, siteId, configHandler, orderService);
 	}
 }

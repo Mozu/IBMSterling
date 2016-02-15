@@ -34,8 +34,8 @@ public class JmsConnectionCache {
 
 	private ConcurrentHashMap<Integer, JmsResource> jmsResourceMap;
 
-	public JmsTemplate getTemplate(Integer tenantId) throws Exception {
-		JmsResource resource = getResource(tenantId);
+	public JmsTemplate getTemplate(Integer tenantId, Integer siteId) throws Exception {
+		JmsResource resource = getResource(tenantId, siteId);
 
 		if (resource != null) {
 			return resource.getJmsTemplate();
@@ -45,8 +45,8 @@ public class JmsConnectionCache {
 		}
 	}
 
-	public Destination getDefaultDestination(Integer tenantId) throws Exception {
-		JmsResource resource = getResource(tenantId);
+	public Destination getDefaultDestination(Integer tenantId, Integer siteId) throws Exception {
+		JmsResource resource = getResource(tenantId, siteId);
 
 		if (resource != null) {
 			return resource.getCreateOrderDestination();
@@ -59,11 +59,12 @@ public class JmsConnectionCache {
 	/**
 	 *
 	 * @param tenantId
+	 * @param siteId
 	 * @param listener
 	 * @return True if the listener is on, otherwise false.
 	 */
-	public boolean toggleListener(Integer tenantId) throws Exception {
-		JmsResource resource = getResource(tenantId);
+	public boolean toggleListener(Integer tenantId, Integer siteId) throws Exception {
+		JmsResource resource = getResource(tenantId, siteId);
 
 		if (resource != null) {
 			if (resource.isListening()) {
@@ -88,19 +89,19 @@ public class JmsConnectionCache {
 		}
 	}
 
-	protected JmsResource getResource(Integer tenantId) throws Exception {
+	protected JmsResource getResource(Integer tenantId, Integer siteId) throws Exception {
 		JmsResource resource = jmsResourceMap.get(tenantId);
 
 		if (resource == null) {
 			Setting setting = configHandler.getSetting(tenantId);
 			resource = jmsResourceMap.putIfAbsent(tenantId,
-					createResource(tenantId, setting));
+					createResource(tenantId, siteId, setting));
 		}
 
 		return resource;
 	}
 
-	protected JmsResource createResource(Integer tenantId, Setting setting)
+	protected JmsResource createResource(Integer tenantId, Integer siteId, Setting setting)
 			throws JMSException {
 		JmsConnectionStrategyEnum connectionStrategyType = JmsConnectionStrategyEnum
 				.from(setting.getConnectionStrategy());
@@ -109,7 +110,7 @@ public class JmsConnectionCache {
 		switch (connectionStrategyType) {
 		case DIRECT:
 
-			jmsResource = new JmsResource(directConnectionStrategy.getJmsResourceSettings(setting, tenantId));
+			jmsResource = new JmsResource(directConnectionStrategy.getJmsResourceSettings(setting, tenantId, siteId));
 			break;
 		case WEBSPHEREMQ:
 			// TODO needs implementation

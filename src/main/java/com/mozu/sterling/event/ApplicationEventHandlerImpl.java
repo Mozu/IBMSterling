@@ -37,8 +37,8 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
     @Override
     public EventHandlerStatus disabled(ApiContext apiContext, Event event) {
 	try {
-		if (messageService.toggleMessageQueueListener(apiContext.getTenantId())) {
-			messageService.toggleMessageQueueListener(apiContext.getTenantId());
+		if (messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId())) {
+			messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId());
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId(), e);
@@ -50,8 +50,8 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
     @Override
     public EventHandlerStatus enabled(ApiContext apiContext, Event event) {
 	try {
-		if (!messageService.toggleMessageQueueListener(apiContext.getTenantId())) {
-			messageService.toggleMessageQueueListener(apiContext.getTenantId());
+		if (!messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId())) {
+			messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId());
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId(), e);

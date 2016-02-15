@@ -29,6 +29,8 @@ public class SterlingToMozuInventoryMessageListener implements MessageListener {
 
 	private Integer tenantId;
 
+	private Integer siteId;
+
 	private InventoryService inventoryService;
 
 	private ConfigHandler configHandler;
@@ -42,9 +44,10 @@ public class SterlingToMozuInventoryMessageListener implements MessageListener {
 		}
 	}
 
-	public SterlingToMozuInventoryMessageListener(Integer tenantId,
+	public SterlingToMozuInventoryMessageListener(Integer tenantId, Integer siteId,
 			ConfigHandler configHandler, InventoryService inventoryService) {
 		this.tenantId = tenantId;
+		this.siteId = siteId;
 		this.configHandler = configHandler;
 		this.inventoryService = inventoryService;
 	}
@@ -60,7 +63,7 @@ public class SterlingToMozuInventoryMessageListener implements MessageListener {
 				com.mozu.sterling.model.inventory.AvailabilityChange sterlingInventoryChange = (com.mozu.sterling.model.inventory.AvailabilityChange) unmarshaller
 						.unmarshal(messageReader);
 
-				inventoryService.updateInventory(new MozuApiContext(),
+				inventoryService.updateInventory(new MozuApiContext(tenantId, siteId),
 						configHandler.getSetting(tenantId),
 						sterlingInventoryChange);
 

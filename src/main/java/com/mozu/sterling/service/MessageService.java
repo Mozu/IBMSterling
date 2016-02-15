@@ -47,12 +47,12 @@ public class MessageService {
 	 * @return Message text.
 	 * @throws JMSException
 	 */
-	public String readMessage(Integer tenantId) throws Exception {
+	public String readMessage(Integer tenantId, Integer siteId) throws Exception {
 		String message = null;
-		JmsTemplate jmsTemplate = jmsConnectionCache.getTemplate(tenantId);
+		JmsTemplate jmsTemplate = jmsConnectionCache.getTemplate(tenantId, siteId);
 
 		Message msg = jmsTemplate.receive(jmsConnectionCache
-				.getDefaultDestination(tenantId));
+				.getDefaultDestination(tenantId, siteId));
 		if (msg instanceof TextMessage) {
 			message = ((TextMessage) msg).getText();
 		}
@@ -64,11 +64,12 @@ public class MessageService {
 	 * Enables listening via a listener
 	 *
 	 * @param tenantId
+	 * @param siteId
 	 * @return True if the listener is started, otherwise false.
 	 * @throws Exception
 	 */
-	public boolean toggleMessageQueueListener(Integer tenantId)
+	public boolean toggleMessageQueueListener(Integer tenantId, Integer siteId)
 			throws Exception {
-		return jmsConnectionCache.toggleListener(tenantId);
+		return jmsConnectionCache.toggleListener(tenantId, siteId);
 	}
 }
