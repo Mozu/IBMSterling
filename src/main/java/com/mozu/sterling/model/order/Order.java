@@ -220,6 +220,9 @@ public class Order {
     @XmlAttribute(name = "FreightTerms")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String freightTerms;
+    @XmlAttribute(name = "FromOrderDate")
+    @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+    protected String fromOrderDate;
     @XmlAttribute(name = "HasChainedLines")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String hasChainedLines;
@@ -277,6 +280,9 @@ public class Order {
     @XmlAttribute(name = "LinkedSourceKey")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String linkedSourceKey;
+    @XmlAttribute(name = "MaximumRecords")
+    @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+    protected String maximumRecords;
     @XmlAttribute(name = "MaxOrderStatus")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String maxOrderStatus;
@@ -328,6 +334,9 @@ public class Order {
     @XmlAttribute(name = "OrderDate")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String orderDate;
+    @XmlAttribute(name = "OrderDateQryType")
+    @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+    protected String orderDateQryType;
     @XmlAttribute(name = "OrderHeaderKey")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String orderHeaderKey;
@@ -478,6 +487,9 @@ public class Order {
     @XmlAttribute(name = "TermsCode")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String termsCode;
+    @XmlAttribute(name = "ToOrderDate")
+    @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+    protected String toOrderDate;
     @XmlAttribute(name = "TotalAdjustmentAmount")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String totalAdjustmentAmount;
@@ -5003,4 +5015,35 @@ public class Order {
         this.additionalLinePriceSummary = value;
     }
 
+    public String getFromOrderDate() {
+        return fromOrderDate;
+    }
+
+    public void setFromOrderDate(String fromOrderDate) {
+        this.fromOrderDate = fromOrderDate;
+    }
+
+    public String getMaximumRecords() {
+        return maximumRecords;
+    }
+
+    public void setMaximumRecords(String maximumRecords) {
+        this.maximumRecords = maximumRecords;
+    }
+
+    public String getToOrderDate() {
+        return toOrderDate;
+    }
+
+    public void setToOrderDate(String toOrderDate) {
+        this.toOrderDate = toOrderDate;
+    }
+
+    public String getOrderDateQryType() {
+        return orderDateQryType;
+    }
+
+    public void setOrderDateQryType(String orderDateQryType) {
+        this.orderDateQryType = orderDateQryType;
+    }
 }

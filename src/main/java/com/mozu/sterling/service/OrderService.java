@@ -36,7 +36,10 @@ public class OrderService extends SterlingClient {
     public final static String GET_ORDER_LIST_SERVICE_NAME = "getOrderList";
     public final static String GET_ORDER_SERVICE_NAME = "getOrderDetails";
     public final static String UPDATE_ORDER_SERVICE_NAME = "changeOrder";
+    public final static String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    public final static String ORDER_DATE_QRY = "BETWEEN";
 
+    
     @Autowired
     SterlingClient sterlingClient;
 
@@ -66,7 +69,9 @@ public class OrderService extends SterlingClient {
             
             if (orderDate != null && orderDate > 0L) {
                 DateTime orderDateTime = new DateTime (orderDate);
-                inOrder.setOrderDate(orderDateTime.toString("yyyyMMdd"));
+                inOrder.setFromOrderDate(orderDateTime.toString(TIME_FORMAT));
+                inOrder.setToOrderDate(new DateTime().toString(TIME_FORMAT));
+                inOrder.setOrderDateQryType(ORDER_DATE_QRY);
             }
 
             Document inDoc = convertObjectToXml(inOrder, com.mozu.sterling.model.order.Order.class);

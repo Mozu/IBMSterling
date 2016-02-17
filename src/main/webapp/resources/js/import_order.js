@@ -1,4 +1,4 @@
-var ImportOrderController = function($scope, $http, $rootScope, $interval) {
+var ImportOrderController = function($scope, $http, $rootScope, $interval, $filter) {
 	var self = this;
 	$scope.showErrorPage = false;
 	$scope.jobErrors = {};
@@ -29,7 +29,7 @@ var ImportOrderController = function($scope, $http, $rootScope, $interval) {
 
 	// save function
 	$scope.importOrders = function() {
-		$http.post('api/job/importOrder?orderDate='+$scope.orderDate).success(function(data) {
+		$http.post('api/job/importOrder?orderDate='+$filter ('date')(new Date($scope.orderDate), 'yyyy-MM-dd')).success(function(data) {
 			if (data.errorMsg) {
 				$rootScope.errorMessage = "Error: " + data.errorMsg;
 				$rootScope.errorsExist = true;

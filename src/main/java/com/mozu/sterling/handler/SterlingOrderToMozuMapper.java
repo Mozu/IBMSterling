@@ -36,6 +36,7 @@ import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.order.ChargeTransactionDetail;
 import com.mozu.sterling.model.order.ContactInfo;
 import com.mozu.sterling.model.order.CreditCardTransaction;
+import com.mozu.sterling.model.order.Item;
 import com.mozu.sterling.model.order.LineOverallTotals;
 import com.mozu.sterling.model.order.LinePriceInfo;
 import com.mozu.sterling.model.order.Note;
@@ -197,14 +198,19 @@ public class SterlingOrderToMozuMapper {
                     order.setNotes(orderNotes);
                 }
                 if (saleLine.getItem() != null) {
-                    String productCode = saleLine.getItem().getItemID();
+                    Item item = saleLine.getItem();
+                    if (item == null) {
+                        throw new Exception ("No item found in order");
+                    }
+                    String productCode = item.getItemID();
 
+                    boolean isVariant = (item.getPrimaryInformation() != null && "Y".equals(item.getPrimaryInformation().getIsModelItem()));
                     com.mozu.api.contracts.commerceruntime.products.Product lineProduct = getProduct(apiContext,
-                            productCode, false);
+                            productCode, isVariant);
                     orderItem.setProduct(lineProduct);
                 }
                 orderItems.add(orderItem);
-                // Map the discount from Sterling
+ 
                 lineId++;
             }
             order.setItems(orderItems);

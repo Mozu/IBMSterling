@@ -50,8 +50,7 @@
 					</thead>
 					<tbody>
 						<tr ng-repeat="jobItem in jobList">
-							<td class="col-xs-6">{{jobItem.startDateTime | date :
-								'medium'}}</td>
+							<td class="col-xs-6">{{jobItem.startDateTime | date:'yyyy-MM-dd'}}</td>
 							<td class="col-xs-6">{{jobItem.siteId}}</td>
 							<td class="col-xs-6">{{jobItem.readCount}}</td>
 							<td class="col-xs-6">{{jobItem.batchStatus}}</td>
