@@ -53,12 +53,12 @@ public class OrderImportReader extends AbstractPagingItemReader<Order> {
             results = new CopyOnWriteArrayList<Order>();
             List<Order> sales;
             try {
-                logger.debug("Reading all order, no last runtime");
+                logger.debug("Reading all orders, no date range was given");
                 sales = orderService.getSterlingOrders(setting, orderDate);
                 results.addAll(sales);
                 setPageSize(results.size() + 1);
             } catch (Exception e) {
-                throw new RuntimeException("Error while getting sales from LightSpeed:", e);
+                throw new RuntimeException("Error while getting orders from Sterling:", e);
             }
         }
     }

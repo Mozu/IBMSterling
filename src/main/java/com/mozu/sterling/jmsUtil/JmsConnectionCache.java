@@ -9,7 +9,6 @@ import javax.jms.JMSException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +21,6 @@ import com.mozu.sterling.model.Setting;
  */
 @Component
 public class JmsConnectionCache {
-	@Autowired
-	private ApplicationContext applicationContext;
-
 	@Autowired
 	private ConfigHandler configHandler;
 
@@ -61,23 +57,44 @@ public class JmsConnectionCache {
 	 * @param tenantId
 	 * @param siteId
 	 * @param listener
-	 * @return True if the listener is on, otherwise false.
+	 * @return True if the listener is off, otherwise false.
 	 */
-	public boolean toggleListener(Integer tenantId, Integer siteId) throws Exception {
+	public boolean turnOffListener(Integer tenantId, Integer siteId) throws Exception {
 		JmsResource resource = getResource(tenantId, siteId);
+        boolean isListening = false;
 
 		if (resource != null) {
 			if (resource.isListening()) {
 				resource.stopListening();
-			} else {
-				resource.startListening();
-			}
+			} 
+			isListening = resource.isListening();
 		}
 
-		return resource.isListening();
+		return !isListening;
 	}
 
-	@PostConstruct
+    /**
+    *
+    * @param tenantId
+    * @param siteId
+    * @param listener
+    * @return True if the listener is on, otherwise false.
+    */
+   public boolean turnOnListener(Integer tenantId, Integer siteId) throws Exception {
+       JmsResource resource = getResource(tenantId, siteId);
+       boolean isListening = false;
+       
+       if (resource != null) {
+           if (!resource.isListening()) {
+               resource.startListening();
+           }
+           isListening = resource.isListening();
+       }
+
+       return isListening;
+   }
+
+   @PostConstruct
 	public void postConstruct() {
 		jmsResourceMap = new ConcurrentHashMap<Integer, JmsResource>();
 	}

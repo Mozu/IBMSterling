@@ -2,6 +2,8 @@ package com.mozu.sterling.model;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mozu.sterling.jmsUtil.DestinationTypeEnum;
 import com.mozu.sterling.jmsUtil.JmsConnectionStrategyEnum;
@@ -22,10 +24,10 @@ public class Setting {
     protected Map<String, String> locationMap;
     protected Map<String, String> shipMethodMap;
     // jms settings
-    protected String connectionStrategy = JmsConnectionStrategyEnum.DIRECT.strategyName();
+    protected String connectionStrategy;
     protected String providerEndpoint;
     protected String busName;
-    protected String destinationType = DestinationTypeEnum.QUEUE.destinationName();
+    protected String destinationType;
     protected String subscriptionHome;
     protected String createOrderDestinationName;
     protected String updateOrderDestinationName;
@@ -80,7 +82,10 @@ public class Setting {
         this.shipMethodMap = shipMethodMap;
     }
 	public String getConnectionStrategy() {
-		return connectionStrategy;
+	    if (StringUtils.isBlank(this.connectionStrategy)) {
+	        this.connectionStrategy = JmsConnectionStrategyEnum.DIRECT.strategyName();
+	    }
+		return this.connectionStrategy;
 	}
 	public void setConnectionStrategy(String connectionStrategy) {
 		this.connectionStrategy = connectionStrategy;
@@ -98,6 +103,10 @@ public class Setting {
 		this.busName = busName;
 	}
 	public String getDestinationType() {
+	    if (StringUtils.isBlank(this.destinationType)) {
+	        destinationType = DestinationTypeEnum.QUEUE.destinationName();
+	    }
+
 		return destinationType;
 	}
 	public void setDestinationType(String destinationType) {

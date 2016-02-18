@@ -203,6 +203,9 @@ public class ConfigHandler {
         logger.debug("Saving settings into MZDB for " + tenantId);
         MozuApiContext apiContext = new MozuApiContext(tenantId);
         setting.setId(String.valueOf(tenantId));
+        if (StringUtils.isBlank(setting.getConnectionStrategy())) {
+            setting.setConnectionStrategy(JmsConnectionStrategyEnum.DIRECT.strategyName());
+        }
 
         try {
             settingEntityHandler.upsertEntity(apiContext, TENANT_MZDB_ENTITY, String.valueOf(tenantId), setting);

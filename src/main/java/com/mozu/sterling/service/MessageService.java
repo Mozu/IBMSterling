@@ -68,8 +68,19 @@ public class MessageService {
 	 * @return True if the listener is started, otherwise false.
 	 * @throws Exception
 	 */
-	public boolean toggleMessageQueueListener(Integer tenantId, Integer siteId)
+	public boolean turnOnMessageQueueListener(Integer tenantId, Integer siteId)
 			throws Exception {
-		return jmsConnectionCache.toggleListener(tenantId, siteId);
+		return jmsConnectionCache.turnOnListener(tenantId, siteId);
 	}
-}
+    /**
+     * Disables listening via a listener
+     *
+     * @param tenantId
+     * @param siteId
+     * @return True if the listener is started, otherwise false.
+     * @throws Exception
+     */
+    public boolean turnOffMessageQueueListener(Integer tenantId, Integer siteId)
+            throws Exception {
+        return jmsConnectionCache.turnOffListener(tenantId, siteId);
+    }}

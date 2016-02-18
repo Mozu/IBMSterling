@@ -14,7 +14,6 @@ import com.mozu.api.contracts.event.Event;
 import com.mozu.api.events.EventManager;
 import com.mozu.api.events.handlers.ApplicationEventHandler;
 import com.mozu.api.events.model.EventHandlerStatus;
-import com.mozu.base.utils.ApplicationUtils;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.service.MessageService;
 
@@ -37,11 +36,11 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
     @Override
     public EventHandlerStatus disabled(ApiContext apiContext, Event event) {
 	try {
-		if (messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId())) {
-			messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId());
+		if (!messageService.turnOffMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId())) {
+	        logger.error("An error occurred stopping the jms listener for tenant " + apiContext.getTenantId());
 		}
 	} catch (Exception e) {
-		logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId(), e);
+		logger.error("An error occurred stoping the jms listener for tenant " + apiContext.getTenantId(), e);
 	}
 
         return new EventHandlerStatus(HttpStatus.SC_OK);
@@ -50,8 +49,8 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
     @Override
     public EventHandlerStatus enabled(ApiContext apiContext, Event event) {
 	try {
-		if (!messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId())) {
-			messageService.toggleMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId());
+		if (!messageService.turnOnMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId())) {
+            logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId());
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId(), e);

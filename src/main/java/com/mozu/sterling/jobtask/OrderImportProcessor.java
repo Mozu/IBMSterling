@@ -15,7 +15,7 @@ import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.handler.SterlingOrderToMozuMapper;
 import com.mozu.sterling.model.Setting;
 
-@Service("customerExportProcessor")
+@Service("orderImportProcessor")
 @Scope("step")
 public class OrderImportProcessor extends BaseBatchJob implements ItemProcessor<com.mozu.sterling.model.order.Order, Order> {
     private static final Logger logger = LoggerFactory.getLogger(OrderImportProcessor.class);
@@ -27,12 +27,11 @@ public class OrderImportProcessor extends BaseBatchJob implements ItemProcessor<
     ConfigHandler configHandler;
     
     public Order process(com.mozu.sterling.model.order.Order sterlingOrder) throws Exception {
-        logger.debug("CustomerExportProcessor");
+        logger.debug("OrderImportProcessor");
         ApiContext apiContext = new MozuApiContext(tenantId, siteId);
         Setting setting = configHandler.getSetting(tenantId); 
         Order order = orderMapper.saleToOrder(sterlingOrder, apiContext, setting);
         
-        // Only Sync users that are non anonymous users set by LightSpeed. 
         return order;
     }
 }
