@@ -15,6 +15,7 @@ import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.contracts.commerceruntime.orders.OrderNote;
 import com.mozu.api.contracts.commerceruntime.payments.BillingInfo;
 import com.mozu.api.contracts.commerceruntime.payments.Payment;
+import com.mozu.api.contracts.commerceruntime.products.BundledProduct;
 import com.mozu.api.contracts.commerceruntime.products.Product;
 import com.mozu.api.contracts.commerceruntime.products.ProductPrice;
 import com.mozu.api.contracts.core.Address;
@@ -22,10 +23,15 @@ import com.mozu.api.contracts.core.AuditInfo;
 import com.mozu.api.contracts.core.Contact;
 import com.mozu.api.contracts.core.Phone;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.order.BundleComponent;
+import com.mozu.sterling.model.order.BundleComponents;
 import com.mozu.sterling.model.order.ContactInfo;
 import com.mozu.sterling.model.order.HeaderCharge;
 import com.mozu.sterling.model.order.HeaderCharges;
 import com.mozu.sterling.model.order.Item;
+import com.mozu.sterling.model.order.KitLine;
+import com.mozu.sterling.model.order.KitLineTranQuantity;
+import com.mozu.sterling.model.order.KitLines;
 import com.mozu.sterling.model.order.LineCharge;
 import com.mozu.sterling.model.order.LineCharges;
 import com.mozu.sterling.model.order.LineOverallTotals;
@@ -69,8 +75,10 @@ public class MozuOrderToSterlingMapper {
         String serviceCode = null;
         if (setting.getShipMethodMap() != null && mozuOrder.getFulfillmentInfo() != null) {
             String mozuShippingCode = mozuOrder.getFulfillmentInfo().getShippingMethodCode();
-            serviceCode = setting.getShipMethodMap().get(mozuShippingCode.toUpperCase());
-            sterlingOrder.setScacAndService(serviceCode);
+            if(mozuShippingCode!=null){
+            	serviceCode = setting.getShipMethodMap().get(mozuShippingCode.toUpperCase());
+            	sterlingOrder.setScacAndService(serviceCode);
+            }
         }
         sterlingOrder.setOrderDate(mozuOrder.getAuditInfo().getCreateDate().toString("yyyyMMdd"));
         PersonInfoShipTo personInfoShipTo = getPersonInfoShipTo(mozuOrder.getFulfillmentInfo());
@@ -95,7 +103,7 @@ public class MozuOrderToSterlingMapper {
     private OrderLines getOrderLines(List<OrderItem> orderItems,Setting setting,String serviceCode, PersonInfoShipTo personInfoShipTo , OrderLines existingOrderLines) {
        	OrderLines	orderLines = new OrderLines();
         OrderLine orderLine = null;
-        
+       
         for (OrderItem orderItem : orderItems) {
         	OrderLine existingOrderLine=null;
         	if(existingOrderLines!=null)
@@ -108,8 +116,7 @@ public class MozuOrderToSterlingMapper {
             orderLine.setScacAndService(serviceCode);
             orderLine.setPersonInfoShipTo(personInfoShipTo);
             orderLine.setOrderedQty(String.valueOf(orderItem.getQuantity()));
-            orderLine.setInvoicedQuantity(String.valueOf(orderItem.getQuantity()));
-            
+             
             if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Ship")){
             	orderLine.setDeliveryMethod("SHP");
             }else if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Pickup")){
@@ -119,14 +126,26 @@ public class MozuOrderToSterlingMapper {
             if (orderItem.getProduct() != null) {
                 Item sItem = new Item();
                 Product product = orderItem.getProduct();
-                sItem.setItemID(product.getProductCode());
+                if(product.getVariationProductCode()!=null){
+                	sItem.setItemID(product.getVariationProductCode());
+                }else{
+                	sItem.setItemID(product.getProductCode());
+                }
                 sItem.setUPCCode(product.getUpc());
                 sItem.setItemDesc(product.getName());
                 sItem.setItemShortDesc(product.getDescription());
-                sItem.setUnitOfMeasure("EACH");
+                //sItem.setUnitOfMeasure("EACH");
                 productPrice = product.getPrice();
                 orderLine.setItem(sItem);
-            }
+                if(product.getBundledProducts()!=null && product.getBundledProducts().size()>0){
+            	   orderLine.setKitCode("BUNDLE");
+                }
+                if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Digital")){
+                	sItem.setProductLine("DigitalProduct");
+                	
+                }
+           }
+            
             orderLine.setLinePriceInfo(getLinePriceInfo(orderItem, productPrice));
             
           //  if (orderItem.getIsTaxable()!=null && orderItem.getIsTaxable()) {
@@ -306,22 +325,9 @@ public class MozuOrderToSterlingMapper {
     }
     
     protected void setPaymentStatus(Order mozuOrder,com.mozu.sterling.model.order.Order sterlingOrder){
-    	List<Payment> validPayments = new ArrayList<Payment>();
-        List<Payment> payments = mozuOrder.getPayments();
-        for (Payment payment: payments) {
-        	if (!payment.getStatus().equalsIgnoreCase("Voided") &&
-        		!payment.getStatus().equalsIgnoreCase("Declined")) {
-        		validPayments.add(payment);
-        	}
-        }
-        if (validPayments.size()==1) {
-        	Payment payment = validPayments.get(0);
-        	if(payment.getStatus().equalsIgnoreCase("Authorized") || ( payment.getPaymentType().equalsIgnoreCase("Check") && payment.getStatus().equalsIgnoreCase("pending"))){
-        		 sterlingOrder.setPaymentStatus("AUTHORIZED");
-        	}else if(payment.getStatus().equalsIgnoreCase("Collected") ){
-       		     sterlingOrder.setPaymentStatus("PAID");
-       	}
-        	
-        }
+    	if(mozuOrder.getPaymentStatus().equalsIgnoreCase("paid"))
+    		sterlingOrder.setPaymentStatus("PAID");
+    	else
+    		sterlingOrder.setPaymentStatus("AUTHORIZED");
     }
 }

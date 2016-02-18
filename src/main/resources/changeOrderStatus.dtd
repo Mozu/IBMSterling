@@ -1,0 +1,54 @@
+<!ELEMENT OrderStatusChange ( OrderLines? )>
+<!ATTLIST OrderStatusChange AuditTransactionId CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange BaseDropStatus CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange ChangeForAllAvailableQty CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange DocumentType CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange EnterpriseCode CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange IgnoreTransactionDependencies (Y|N) #IMPLIED>
+<!ATTLIST OrderStatusChange ModificationReasonCode CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange ModificationReasonText CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange ModificationReference1 CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange ModificationReference2 CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange ModificationReference3 CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange ModificationReference4 CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange OrderHeaderKey CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange OrderNo CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange OrderReleaseKey CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange ReleaseNo CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange SelectMethod CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange SuppressStatusChangeAudits CDATA #IMPLIED>
+<!ATTLIST OrderStatusChange TransactionId CDATA #REQUIRED>
+<!ATTLIST OrderStatusChange a-dtype NMTOKENS
+                                   "ReleaseNo int">
+
+<!ELEMENT OrderLine ( OrderLineTranQuantity? )>
+<!ATTLIST OrderLine BaseDropStatus CDATA #IMPLIED>
+<!ATTLIST OrderLine ChangeForAllAvailableQty CDATA #IMPLIED>
+<!ATTLIST OrderLine FromBatchNo CDATA #IMPLIED>
+<!ATTLIST OrderLine FromExpectedDeliveryDate CDATA #IMPLIED>
+<!ATTLIST OrderLine FromExpectedShipDate CDATA #IMPLIED>
+<!ATTLIST OrderLine FromLotNo CDATA #IMPLIED>
+<!ATTLIST OrderLine FromRevisionNo CDATA #IMPLIED>
+<!ATTLIST OrderLine OrderLineKey CDATA #IMPLIED>
+<!ATTLIST OrderLine OrderReleaseKey CDATA #IMPLIED>
+<!ATTLIST OrderLine PrimeLineNo CDATA #IMPLIED>
+<!ATTLIST OrderLine Quantity CDATA #IMPLIED>
+<!ATTLIST OrderLine ReleaseNo CDATA #IMPLIED>
+<!ATTLIST OrderLine SubLineNo CDATA #IMPLIED>
+<!ATTLIST OrderLine a-dtype NMTOKENS
+                           "FromExpectedDeliveryDate dateTime
+                            FromExpectedShipDate dateTime
+                            PrimeLineNo int
+                            Quantity decimal
+                            ReleaseNo int
+                            SubLineNo int">
+
+<!ELEMENT OrderLineTranQuantity EMPTY>
+<!ATTLIST OrderLineTranQuantity Quantity CDATA #IMPLIED>
+<!ATTLIST OrderLineTranQuantity TransactionalUOM CDATA #IMPLIED>
+<!ATTLIST OrderLineTranQuantity a-dtype NMTOKENS
+                                       "Quantity decimal">
+
+<!ELEMENT OrderLines ( OrderLine* )>
+
+

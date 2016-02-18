@@ -21,6 +21,9 @@ import com.mozu.sterling.handler.MozuOrderToSterlingMapper;
 import com.mozu.sterling.handler.SterlingOrderToMozuMapper;
 import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.order.OrderList;
+import com.mozu.sterling.model.changeorderstatus.OrderLines;
+import com.mozu.sterling.model.changeorderstatus.OrderStatusChange;
+import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 
 /**
  * Service for reading, mapping, and sending Orders from to Mozu to Sterling.
@@ -38,7 +41,7 @@ public class OrderService extends SterlingClient {
     public final static String UPDATE_ORDER_SERVICE_NAME = "changeOrder";
     public final static String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     public final static String ORDER_DATE_QRY = "BETWEEN";
-
+    public final static String CHANGE_ORDER_STATUS_SERVICE_NAME = "changeOrderStatus ";
     
     @Autowired
     SterlingClient sterlingClient;
@@ -104,7 +107,7 @@ public class OrderService extends SterlingClient {
             Order mozuOrder = orderResource.getOrder(event.getEntityId());
             return createOrder(apiContext, mozuOrder);
         } catch (Exception e) {
-            logger.debug(String.format("Correlation ID: %s. Unable to get Order with id %s from Mozu: %s",
+        	 logger.debug(String.format("Correlation ID: %s. Unable to create Order with id %s in Sterling: %s",
                     event.getCorrelationId(), event.getEntityId(), e.getMessage()));
             throw e;
         }
@@ -175,6 +178,119 @@ public class OrderService extends SterlingClient {
         Document outDoc = sterlingClient.invoke(UPDATE_ORDER_SERVICE_NAME, inDoc, setting);
 
         return outDoc != null;
+    }
+    
+    /**
+     * Cancel an order in Sterling based on a Mozu event.
+     * 
+     * @param apiContext
+     *            the api context
+     * @param event
+     *            the Mozu event.
+     * @return true if the order was updated in Sterling w/o errors.
+     */
+    public boolean cancelSterlingOrder(ApiContext apiContext, Event event) throws Exception {
+        OrderResource orderResource = new OrderResource(apiContext);
+        boolean status=false;
+        Setting setting = configHandler.getSetting(apiContext.getTenantId());
+        try {
+            Order mozuOrder = orderResource.getOrder(event.getEntityId());
+            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
+            if(sterlingOrder !=null){
+            	status= cancelSterlingOrder(setting, mozuOrder, sterlingOrder);
+            }
+        } catch (Exception e) {
+            logger.debug(String.format("Correlation ID: %s. Unable to get Order with id %s from Mozu: %s",
+                    event.getCorrelationId(), event.getEntityId(), e.getMessage()));
+            throw e;
+        }
+		return status;
+    }
+    
+    /**
+     * Set the action of Sterling order to "CANCEL" and send it to the Sterling OMS to cancel existing order
+     * 
+     * @param setting
+     * @param mozuOrder
+     * @param existingSterlingOrder
+     * @return
+     */
+    public boolean cancelSterlingOrder(Setting  setting, Order mozuOrder,  com.mozu.sterling.model.order.Order existingSterlingOrder) throws Exception {
+    	com.mozu.sterling.model.order.Order	sterlingOrder = new com.mozu.sterling.model.order.Order();
+    	sterlingOrder.setOrderHeaderKey(existingSterlingOrder.getOrderHeaderKey());
+    	sterlingOrder.setAction("CANCEL");
+        Document inDoc = this.convertObjectToXml(sterlingOrder, com.mozu.sterling.model.order.Order.class);
+
+        Document outDoc = sterlingClient.invoke(UPDATE_ORDER_SERVICE_NAME, inDoc, setting);
+
+        return outDoc != null;
+    }
+    
+    /**
+     * Complete an order in Sterling based on a Mozu event.
+     * 
+     * @param apiContext
+     *            the api context
+     * @param event
+     *            the Mozu event.
+     * @return true if the order was updated in Sterling w/o errors.
+     */
+    public boolean completeSterlingOrder(ApiContext apiContext, Event event) throws Exception {
+        OrderResource orderResource = new OrderResource(apiContext);
+        boolean status=false;
+        Setting setting = configHandler.getSetting(apiContext.getTenantId());
+        try {
+            Order mozuOrder = orderResource.getOrder(event.getEntityId());
+            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
+            if(sterlingOrder !=null){
+	            for(OrderItem orderItem : mozuOrder.getItems()){
+	            	if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Digital")){
+	            		status= updateSterlingOrderStatus(setting, mozuOrder, sterlingOrder,orderItem);
+	            	}
+	            }
+            }
+           
+           
+        } catch (Exception e) {
+            logger.debug(String.format("Correlation ID: %s. Unable to get Order with id %s from Mozu: %s",
+                    event.getCorrelationId(), event.getEntityId(), e.getMessage()));
+            throw e;
+        }
+		return status;
+    }
+    
+    /**
+     * Converts a Mozu order to a Sterling order and sends to the Sterling OMS to update existing order
+     * 
+     * @param apiContext
+     * @param mozuOrder
+     *            mozu order to send to Sterling
+     * @return
+     */
+    public boolean updateSterlingOrderStatus(Setting  setting, Order mozuOrder,  com.mozu.sterling.model.order.Order existingSterlingOrder,OrderItem orderItem) throws Exception {
+     	OrderStatusChange orderStatusChange =  getOrderStatusChange(setting, existingSterlingOrder, orderItem);
+        Document inDoc = this.convertObjectToXml(orderStatusChange, com.mozu.sterling.model.changeorderstatus.OrderStatusChange.class);
+
+        Document outDoc = sterlingClient.invoke(CHANGE_ORDER_STATUS_SERVICE_NAME, inDoc, setting);
+
+        return outDoc != null;
+    }
+    
+    private OrderStatusChange getOrderStatusChange(Setting  setting,com.mozu.sterling.model.order.Order existingSterlingOrder,OrderItem orderItem){
+    	OrderStatusChange orderStatusChange=new OrderStatusChange();
+    	orderStatusChange.setEnterpriseCode(setting.getSterlingEnterpriseCode());
+    	orderStatusChange.setOrderHeaderKey(existingSterlingOrder.getOrderHeaderKey());
+    	orderStatusChange.setTransactionId("DELIVER_ORDER");
+    	orderStatusChange.setChangeForAllAvailableQty("Y");
+    	orderStatusChange.setBaseDropStatus("3700.7777");
+    	OrderLines orderLines=new OrderLines();
+    	List< com.mozu.sterling.model.changeorderstatus.OrderLine> orderLineList=orderLines.getOrderLine();
+    	com.mozu.sterling.model.changeorderstatus.OrderLine orderLine=new  com.mozu.sterling.model.changeorderstatus.OrderLine();
+    	orderLine.setPrimeLineNo(orderItem.getLineId().toString());
+    	orderLine.setBaseDropStatus("3700.7777");
+    	orderLineList.add(orderLine);
+    	orderStatusChange.setOrderLines(orderLines);
+		return orderStatusChange;
     }
 
     /**
