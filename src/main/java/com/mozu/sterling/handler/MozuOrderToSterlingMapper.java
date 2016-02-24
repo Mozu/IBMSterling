@@ -134,7 +134,7 @@ public class MozuOrderToSterlingMapper {
                 sItem.setUPCCode(product.getUpc());
                 sItem.setItemDesc(product.getName());
                 sItem.setItemShortDesc(product.getDescription());
-                //sItem.setUnitOfMeasure("EACH");
+                sItem.setUnitOfMeasure("EACH");
                 productPrice = product.getPrice();
                 orderLine.setItem(sItem);
                 if(product.getBundledProducts()!=null && product.getBundledProducts().size()>0){
