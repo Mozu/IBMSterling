@@ -15,6 +15,7 @@ import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.contracts.commerceruntime.orders.OrderNote;
 import com.mozu.api.contracts.commerceruntime.payments.BillingInfo;
 import com.mozu.api.contracts.commerceruntime.payments.Payment;
+import com.mozu.api.contracts.commerceruntime.payments.PaymentCard;
 import com.mozu.api.contracts.commerceruntime.products.BundledProduct;
 import com.mozu.api.contracts.commerceruntime.products.Product;
 import com.mozu.api.contracts.commerceruntime.products.ProductPrice;
@@ -28,6 +29,8 @@ import com.mozu.sterling.model.order.BundleComponents;
 import com.mozu.sterling.model.order.ContactInfo;
 import com.mozu.sterling.model.order.HeaderCharge;
 import com.mozu.sterling.model.order.HeaderCharges;
+import com.mozu.sterling.model.order.Instruction;
+import com.mozu.sterling.model.order.Instructions;
 import com.mozu.sterling.model.order.Item;
 import com.mozu.sterling.model.order.KitLine;
 import com.mozu.sterling.model.order.KitLineTranQuantity;
@@ -90,7 +93,7 @@ public class MozuOrderToSterlingMapper {
         sterlingOrder.setHeaderCharges(getHeaderCharges(mozuOrder));
         sterlingOrder.setOrderType(mozuOrder.getType());
         setPaymentStatus(mozuOrder, sterlingOrder);
-        
+        setPayment(mozuOrder, sterlingOrder);
         return sterlingOrder;
     }
 
@@ -100,23 +103,28 @@ public class MozuOrderToSterlingMapper {
      * @param orderItems
      * @return the converted order lines of Sterling.
      */
-    private OrderLines getOrderLines(List<OrderItem> orderItems,Setting setting,String serviceCode, PersonInfoShipTo personInfoShipTo , OrderLines existingOrderLines) {
+    private OrderLines getOrderLines(List<OrderItem> orderItems,Setting setting,String serviceCode, PersonInfoShipTo personInfoShipTo , OrderLines sterlingOrderLines) {
        	OrderLines	orderLines = new OrderLines();
         OrderLine orderLine = null;
-       
+       List<OrderLine> existingSterlingOrderLines=new ArrayList<OrderLine>();
         for (OrderItem orderItem : orderItems) {
-        	OrderLine existingOrderLine=null;
-        	if(existingOrderLines!=null)
-        		existingOrderLine = getExistingSterlingOrderLine(existingOrderLines.getOrderLine(), orderItem);
-           	orderLine = new OrderLine();
-         	if(existingOrderLine!=null)
-         		orderLine.setOrderLineKey(existingOrderLine.getOrderLineKey());
+        	OrderLine existingSterlingOrderLine=null;
+        	orderLine = new OrderLine();
+        	if(sterlingOrderLines!=null){
+        		existingSterlingOrderLine = getExistingSterlingOrderLine(sterlingOrderLines.getOrderLine(), orderItem);
+        		
+        	}
+         	if(existingSterlingOrderLine!=null){
+         		orderLine.setOrderLineKey(existingSterlingOrderLine.getOrderLineKey());
+         		existingSterlingOrderLines.add(existingSterlingOrderLine);
+         	}
+         	
             orderLine.setPrimeLineNo(orderItem.getLineId().toString());
             orderLine.setShipNode(setting.getLocationMap().get(orderItem.getFulfillmentLocationCode()));
             orderLine.setScacAndService(serviceCode);
             orderLine.setPersonInfoShipTo(personInfoShipTo);
             orderLine.setOrderedQty(String.valueOf(orderItem.getQuantity()));
-             
+           
             if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Ship")){
             	orderLine.setDeliveryMethod("SHP");
             }else if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Pickup")){
@@ -159,27 +167,74 @@ public class MozuOrderToSterlingMapper {
                 
           //  }
                 LineCharges lineCharges=new LineCharges();
-                List<LineCharge> lineChargeList=lineCharges.getLineCharge();
                 LineCharge lineChargeDiscount=new LineCharge();
-                lineChargeDiscount.setChargePerUnit(orderItem.getDiscountTotal().toString());
+                lineChargeDiscount.setChargePerLine(orderItem.getDiscountTotal().toString());
                 lineChargeDiscount.setChargeCategory("Discount");
                 lineChargeDiscount.setIsDiscount("Y");
-                lineChargeList.add(lineChargeDiscount);
+                lineCharges.getLineCharge().add(lineChargeDiscount);
                 orderLine.setLineCharges(lineCharges);
                 
             orderLines.getOrderLine().add(orderLine);
             
             
         }
+        
+        orderLines= cancelSterlingOrderLines(sterlingOrderLines, existingSterlingOrderLines, orderLines);
+        
         return orderLines;
+    }
+    
+    private OrderLines cancelSterlingOrderLines(OrderLines sterlingOrderLines,List<OrderLine> existingSterlingOrderLines,OrderLines orderLines ){
+    	if(sterlingOrderLines!=null){
+	        for(OrderLine sterlingOrderLine:sterlingOrderLines.getOrderLine()){
+	        	if(!sterlingOrderLine.getStatus().equalsIgnoreCase("Cancelled")){
+		        	boolean orderLineExists=false;
+		        	for(OrderLine existingSterlingOrderLine:existingSterlingOrderLines){
+		        		if(sterlingOrderLine.getOrderLineKey().equalsIgnoreCase(existingSterlingOrderLine.getOrderLineKey())){
+		        			orderLineExists=true;
+		        			break;
+		        		}
+		        	}
+		        	if(!orderLineExists){
+		        		OrderLine orderLineToBeCancelled =new OrderLine();
+		        		if(sterlingOrderLine.getBundleParentLine() != null){
+		        			boolean bundleParentExists=false;
+		        			for(OrderLine existingSterlingOrderLine:existingSterlingOrderLines){
+		        				if(sterlingOrderLine.getBundleParentLine().getOrderLineKey().equals(existingSterlingOrderLine.getOrderLineKey())){
+		        					bundleParentExists=true;
+		        					break;
+		        				}
+		        			}
+		        			if(!bundleParentExists){
+		        				orderLineToBeCancelled.setPrimeLineNo(sterlingOrderLine.getPrimeLineNo());
+		        				orderLineToBeCancelled.setItem(sterlingOrderLine.getItem());
+		        				orderLineToBeCancelled.setOrderLineKey(sterlingOrderLine.getOrderLineKey());
+		        				orderLineToBeCancelled.setAction("CANCEL");
+		        				orderLines.getOrderLine().add(orderLineToBeCancelled);
+		        			}
+		        		}else{
+		        			orderLineToBeCancelled.setPrimeLineNo(sterlingOrderLine.getPrimeLineNo());
+	        				orderLineToBeCancelled.setItem(sterlingOrderLine.getItem());
+	        				orderLineToBeCancelled.setOrderLineKey(sterlingOrderLine.getOrderLineKey());
+	        				orderLineToBeCancelled.setAction("CANCEL");
+	        				orderLines.getOrderLine().add(orderLineToBeCancelled);
+		        		}
+		            
+		        	}
+	        	}
+	        }
+        }
+		return orderLines;
     }
     
     private OrderLine getExistingSterlingOrderLine(List<OrderLine> orderLines,OrderItem orderItem){
     	OrderLine existingOrderLine =null;
     	for(OrderLine orderLine:orderLines){
-    		if(orderLine.getPrimeLineNo().equals(orderItem.getLineId().toString())){
-    			existingOrderLine=orderLine;
-    		}
+    		if(orderLine.getItem().getItemID().equals(orderItem.getProduct().getProductCode()) && orderLine.getBundleParentLine() == null){
+    	    	existingOrderLine=orderLine;
+    	    	break;
+    	    }
+   		
     	}
 		return existingOrderLine;
     	
@@ -329,5 +384,52 @@ public class MozuOrderToSterlingMapper {
     		sterlingOrder.setPaymentStatus("PAID");
     	else
     		sterlingOrder.setPaymentStatus("AUTHORIZED");
+    }
+    
+    protected void setPayment(Order mozuOrder,com.mozu.sterling.model.order.Order sterlingOrder){
+    	List<Payment> validPayments = new ArrayList<Payment>();
+        List<Payment> payments = mozuOrder.getPayments();
+        for (Payment payment: payments) {
+        	if (!payment.getStatus().equalsIgnoreCase("Voided") &&
+        		!payment.getStatus().equalsIgnoreCase("Declined")) {
+        		validPayments.add(payment);
+        	}
+        }
+        PaymentMethods paymentMethods=new PaymentMethods();
+    	List<PaymentMethod> paymentMethodList = paymentMethods.getPaymentMethod();
+        for(Payment validPayment:validPayments){
+        	PaymentMethod paymentMethod=new PaymentMethod();
+        	
+        	if(validPayment.getPaymentType().equalsIgnoreCase("CreditCard")){
+        		paymentMethod.setPaymentType("CREDIT_CARD");
+        		PaymentCard mozuCard =validPayment.getBillingInfo().getCard();
+                 if (mozuCard!=null) {
+                   paymentMethod.setCreditCardNo(mozuCard.getCardNumberPartOrMask());
+                   paymentMethod.setCreditCardName(mozuCard.getNameOnCard());
+                   paymentMethod.setCreditCardType(mozuCard.getPaymentOrCardType());
+                   paymentMethod.setCreditCardExpDate(String.valueOf(mozuCard.getExpireMonth())+"/"+String.valueOf(mozuCard.getExpireYear()));
+                  
+                 }
+        	}else if(validPayment.getPaymentType().equalsIgnoreCase("Check")){
+        		paymentMethod.setPaymentType("CHECK");
+        		
+        	}else{
+        		paymentMethod.setPaymentType("OTHER");
+        	}
+        //	paymentMethod.setRequestedAuthAmount(validPayment.getAmountRequested().toString());
+        	/*if(validPayment.getStatus().equalsIgnoreCase("Authorized")){
+        		paymentMethod.setTotalAuthorized(validPayment.getAmountRequested().toString());
+        		paymentMethod.setRequestedChargeAmount(validPayment.getAmountRequested().toString());
+        	}else if(validPayment.getStatus().equalsIgnoreCase("Collected")){
+        		paymentMethod.setTotalCharged(validPayment.getAmountCollected().toString());
+        		Double remainingAmount= validPayment.getAmountRequested() - validPayment.getAmountCollected();
+        		paymentMethod.setRequestedChargeAmount(remainingAmount.toString());
+        	}else if(validPayment.getStatus().equalsIgnoreCase("Credited")){
+        		paymentMethod.setTotalRefundedAmount(validPayment.getAmountCredited().toString());
+        	}*/
+        	
+        	paymentMethodList.add(paymentMethod);
+        }
+        sterlingOrder.setPaymentMethods(paymentMethods);
     }
 }
