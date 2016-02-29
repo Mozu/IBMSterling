@@ -1,13 +1,10 @@
 package com.mozu.sterling.service;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -21,25 +18,6 @@ import com.mozu.sterling.jmsUtil.JmsConnectionCache;
 public class MessageService {
 	@Autowired
 	JmsConnectionCache jmsConnectionCache;
-
-//	@Autowired
-//	private JmsTemplate jmsTemplate;
-//	@Value("${queue}")
-//	private String destination;
-//
-//	/**
-//	 * Sends a message to a queue.
-//	 *
-//	 * @param text
-//	 *            Message text.
-//	 */
-//	public void sendMessage(final String text) {
-//		jmsTemplate.send(destination, new MessageCreator() {
-//			public Message createMessage(Session session) throws JMSException {
-//				return session.createTextMessage(text);
-//			}
-//		});
-//	}
 
 	/**
 	 * Receives a message from a queue.
