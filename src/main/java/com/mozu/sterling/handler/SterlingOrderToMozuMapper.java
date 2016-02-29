@@ -18,12 +18,17 @@ import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.commerce.ChangeMessage;
 import com.mozu.api.contracts.commerceruntime.commerce.CommerceUnitPrice;
 import com.mozu.api.contracts.commerceruntime.fulfillment.FulfillmentInfo;
+import com.mozu.api.contracts.commerceruntime.fulfillment.Package;
+import com.mozu.api.contracts.commerceruntime.fulfillment.PackageItem;
+import com.mozu.api.contracts.commerceruntime.fulfillment.Pickup;
+import com.mozu.api.contracts.commerceruntime.fulfillment.PickupItem;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
 import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.contracts.commerceruntime.orders.OrderNote;
 import com.mozu.api.contracts.commerceruntime.payments.BillingInfo;
 import com.mozu.api.contracts.commerceruntime.payments.Payment;
 import com.mozu.api.contracts.commerceruntime.payments.PaymentInteraction;
+import com.mozu.api.contracts.commerceruntime.products.BundledProduct;
 import com.mozu.api.contracts.commerceruntime.products.Product;
 import com.mozu.api.contracts.core.Address;
 import com.mozu.api.contracts.core.AuditInfo;
@@ -55,6 +60,7 @@ public class SterlingOrderToMozuMapper {
 
     public static final String FULFILLED_STATUS = "Fulfilled";
     public static final String NOT_FULFILLED_STATUS = "NotFulfilled";
+    public static final String PACKAGE_STATUS = "Pending";
     // @Autowired
     // SaleToReturnMapper saleToReturnMapper;
 
@@ -130,9 +136,9 @@ public class SterlingOrderToMozuMapper {
         // All sales items go into orderItems
         List<OrderItem> orderItems = new ArrayList<OrderItem>();
         // Items set to Pickup go into pickups
-        // List<Pickup> pickups = new ArrayList<>();
+        List<Pickup> pickups = new ArrayList<>();
         // Items set to Ship go into packages
-        // List<Package> packages = new ArrayList<Package>();
+        List<Package> packages = new ArrayList<Package>();
 
         // List<AppliedDiscount> discounts = new ArrayList<>();
 
@@ -208,68 +214,64 @@ public class SterlingOrderToMozuMapper {
                     com.mozu.api.contracts.commerceruntime.products.Product lineProduct = getProduct(apiContext,
                             productCode, isVariant);
                     orderItem.setProduct(lineProduct);
+
+                    // setup pickup or package
+                    if (orderItem.getFulfillmentMethod().equals("Pickup")) {
+                        Pickup pickup;
+                        List<BundledProduct> bundledProducts =
+                        orderItem.getProduct().getBundledProducts();
+                        if (bundledProducts != null && bundledProducts.size() > 0) {
+	                        for (BundledProduct bp : bundledProducts) {
+		                        pickup = createPickup(getAcceptedDate(sterlingOrder),
+		                        orderItem.getFulfillmentLocationCode(),
+		                        bp.getProductCode(),
+		                        bp.getQuantity() * Integer.valueOf(saleLine.getFillQuantity()), lineId);
+		                        pickups.add(pickup);
+	                        }
+                        } else {
+				 pickup = createPickup(getAcceptedDate(sterlingOrder),
+						 orderItem.getFulfillmentLocationCode(),
+				             productCode,
+				             Integer.valueOf(saleLine.getFillQuantity()), lineId);
+				             pickups.add(pickup);
+                         }
+
+                         order.setPickups(pickups);
+                         lineProduct.setFulfillmentStatus(FULFILLED_STATUS);
+                    } else {
+			Package pkg = new Package();
+                        pkg.setFulfillmentDate(getAcceptedDate(sterlingOrder));
+                        pkg.setFulfillmentLocationCode(orderItem.getFulfillmentLocationCode());
+                        List<PackageItem> packageItems = new ArrayList<>();
+                        if (order.getItems() != null) {
+	                        for (OrderItem mozuOrderItem : order.getItems()) {
+		                        PackageItem pItem = new PackageItem();
+
+		                        if (mozuOrderItem.getProduct() != null) {
+			                        String itemProductCode = ProductMappingUtils
+			                        .getActualProductCode(mozuOrderItem.getProduct());
+			                        pItem.setProductCode(itemProductCode);
+		                        }
+
+		                        pItem.setQuantity(mozuOrderItem.getQuantity());
+		                        packageItems.add(pItem);
+	                        }
+                        }
+                        pkg.setItems(packageItems);
+                        pkg.setStatus(NOT_FULFILLED_STATUS);
+                        packages.add(pkg);
+                        order.setPackages(packages);
+                        lineProduct.setFulfillmentStatus(PACKAGE_STATUS);
+                    }
                 }
                 orderItems.add(orderItem);
- 
+
                 lineId++;
             }
+
             order.setItems(orderItems);
 
-            //
-            // if (orderItem.getFulfillmentMethod().equals("Pickup")) {
-            // Pickup pickup;
-            // List<BundledProduct> bundledProducts =
-            // orderItem.getProduct().getBundledProducts();
-            // if (bundledProducts != null && bundledProducts.size() > 0) {
-            // for (BundledProduct bp : bundledProducts) {
-            // pickup = createPickup(getAcceptedDate(sterlingOrder),
-            // storeLocation,
-            // bp.getProductCode(),
-            // bp.getQuantity() * saleLine.getUnitQuantity(), lineId);
-            // pickups.add(pickup);
-            // }
-            // } else {
-            // pickup = createPickup(getAcceptedDate(sterlingOrder),
-            // storeLocation,
-            // productCode,
-            // saleLine.getUnitQuantity(), lineId);
-            // pickups.add(pickup);
-            // }
-            // order.setPickups(pickups);
-            // lineProduct.setFulfillmentStatus(FULFILLED_STATUS);
-            // } else {
-            // Package pkg = new Package();
-            // pkg.setFulfillmentDate(getAcceptedDate(sterlingOrder));
-            // pkg.setFulfillmentLocationCode(storeLocation.getCode());
-            // List<PackageItem> packageItems = new ArrayList<>();
-            // if (order.getItems() != null) {
-            // for (OrderItem item : order.getItems()) {
-            // PackageItem pItem = new PackageItem();
-            // if (item.getProduct() != null) {
-            // String itemProductCode = ProductMappingUtils
-            // .getActualProductCode(item.getProduct());
-            // pItem.setProductCode(itemProductCode);
-            // }
-            // pItem.setQuantity(item.getQuantity());
-            // packageItems.add(pItem);
-            // }
-            // }
-            // pkg.setItems(packageItems);
-            // pkg.setStatus(NOT_FULFILLED_STATUS);
-            // packages.add(pkg);
-            // order.setPackages(packages);
-            // lineProduct.setFulfillmentStatus(NOT_FULFILLED_STATUS);
-            // }
-            // }
 
-            // }
-            // orderItems.add(orderItem);
-            // }
-            // lineId++;
-            // }
-            // }
-            // order.setOrderDiscounts(discounts);
-            //
             // This section is where we have to makeup default values if not
             String orderStatus = sterlingOrder.getStatus();
             if (orderStatus != null) {
@@ -529,25 +531,24 @@ public class SterlingOrderToMozuMapper {
         return null;
     }
 
-    //
-    // private static Pickup createPickup(DateTime fulfillmentTime, Location
-    // storeLocation, String productCode,
-    // Integer unitQuantity, int lineId) {
-    // Pickup pickup = new Pickup();
-    // pickup.setFulfillmentDate(fulfillmentTime);
-    // pickup.setFulfillmentLocationCode(storeLocation.getCode());
-    // pickup.setStatus(FULFILLED_STATUS);
-    // PickupItem pi = new PickupItem();
-    // pi.setLineId(lineId);
-    // pi.setFulfillmentItemType("Physical");
-    // pi.setProductCode(productCode);
-    // pi.setQuantity(unitQuantity);
-    // List<PickupItem> pickupItems = new ArrayList<>();
-    // pickupItems.add(pi);
-    // pickup.setItems(pickupItems);
-    // return pickup;
-    // }
-    //
+
+     private static Pickup createPickup(DateTime fulfillmentTime, String storeLocation, String productCode,
+		 Integer unitQuantity, int lineId) {
+	     Pickup pickup = new Pickup();
+	     pickup.setFulfillmentDate(fulfillmentTime);
+	     pickup.setFulfillmentLocationCode(storeLocation);
+	     pickup.setStatus(FULFILLED_STATUS);
+	     PickupItem pi = new PickupItem();
+	     pi.setLineId(lineId);
+	     pi.setFulfillmentItemType("Physical");
+	     pi.setProductCode(productCode);
+	     pi.setQuantity(unitQuantity);
+	     List<PickupItem> pickupItems = new ArrayList<>();
+	     pickupItems.add(pi);
+	     pickup.setItems(pickupItems);
+	     return pickup;
+     }
+
     // public static Sale orderToSale(Order order) {
     // Sale sale = new Sale();
     //
