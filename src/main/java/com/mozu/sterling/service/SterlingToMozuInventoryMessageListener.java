@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mozu.api.MozuApiContext;
+import com.mozu.api.contracts.commerceruntime.orders.Order;
+import com.mozu.api.contracts.customer.CustomerAccount;
 import com.mozu.sterling.handler.ConfigHandler;
 
 /**
@@ -44,8 +46,9 @@ public class SterlingToMozuInventoryMessageListener implements MessageListener {
 		}
 	}
 
-	public SterlingToMozuInventoryMessageListener(Integer tenantId, Integer siteId,
-			ConfigHandler configHandler, InventoryService inventoryService) {
+	public SterlingToMozuInventoryMessageListener(Integer tenantId,
+			Integer siteId, ConfigHandler configHandler,
+			InventoryService inventoryService) {
 		this.tenantId = tenantId;
 		this.siteId = siteId;
 		this.configHandler = configHandler;
@@ -56,15 +59,14 @@ public class SterlingToMozuInventoryMessageListener implements MessageListener {
 	public void onMessage(Message message) {
 		if (message instanceof TextMessage) {
 			try {
-
 				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 				StringReader messageReader = new StringReader(
 						((TextMessage) message).getText());
 				com.mozu.sterling.model.inventory.AvailabilityChange sterlingInventoryChange = (com.mozu.sterling.model.inventory.AvailabilityChange) unmarshaller
 						.unmarshal(messageReader);
 
-				inventoryService.updateInventory(new MozuApiContext(tenantId, siteId),
-						configHandler.getSetting(tenantId),
+				inventoryService.updateInventory(new MozuApiContext(tenantId,
+						siteId), configHandler.getSetting(tenantId),
 						sterlingInventoryChange);
 
 			} catch (JMSException e) {

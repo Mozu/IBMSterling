@@ -73,6 +73,10 @@ public class JmsResource {
 		return updateOrderDestination;
 	}
 
+	public Destination getInventoryDestination() {
+		return inventoryDestination;
+	}
+
 	public void startListening() {
 		for (DefaultMessageListenerContainer container : messageListenerContainers) {
 			if (!container.isRunning()) {
