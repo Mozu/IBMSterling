@@ -29,12 +29,16 @@ import com.mozu.sterling.service.UpdateSterlingToMozuOrderMessageListener;
  */
 @Component(value = "directJmsStrategy")
 public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
-	@Autowired
 	private OrderService orderService;
-	@Autowired
 	private InventoryService inventoryService;
-	@Autowired
 	private ConfigHandler configHandler;
+
+	@Autowired
+	public DirectWebsphereJmsStrategy(OrderService orderService, InventoryService inventoryService, ConfigHandler configHandler) {
+		this.orderService = orderService;
+		this.inventoryService = inventoryService;
+		this.configHandler = configHandler;
+	}
 
 	@Override
 	public JmsResourceSetting getJmsResourceSettings(Setting setting,

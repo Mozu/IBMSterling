@@ -113,6 +113,8 @@ public class JmsConnectionCache {
 			Setting setting = configHandler.getSetting(tenantId);
 			resource = jmsResourceMap.putIfAbsent(tenantId,
 					createResource(tenantId, siteId, setting));
+		} else {
+			resource.addSite(siteId);
 		}
 
 		return resource;

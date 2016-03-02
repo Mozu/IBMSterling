@@ -13,9 +13,9 @@ public class JmsResourceSetting {
 	private Destination createOrderDestination;
 	private Destination updateOrderDestination;
 	private Destination inventoryDestination;
-	private MessageListener createOrderMessageListener;
-	private MessageListener updateOrderMessageListener;
-	private MessageListener inventoryMessageListener;
+	private TenantSiteMessageListener createOrderMessageListener;
+	private TenantSiteMessageListener updateOrderMessageListener;
+	private TenantSiteMessageListener inventoryMessageListener;
 	private DestinationTypeEnum destinationType;
 
 	public ConnectionFactory getConnectionFactory() {
@@ -36,18 +36,18 @@ public class JmsResourceSetting {
 	public void setUpdateOrderDestination(Destination updateOrderDestination) {
 		this.updateOrderDestination = updateOrderDestination;
 	}
-	public MessageListener getCreateOrderMessageListener() {
+	public TenantSiteMessageListener getCreateOrderMessageListener() {
 		return createOrderMessageListener;
 	}
 	public void setCreateOrderMessageListener(
-			MessageListener createOrderMessageListener) {
+			TenantSiteMessageListener createOrderMessageListener) {
 		this.createOrderMessageListener = createOrderMessageListener;
 	}
-	public MessageListener getUpdateOrderMessageListener() {
+	public TenantSiteMessageListener getUpdateOrderMessageListener() {
 		return updateOrderMessageListener;
 	}
 	public void setUpdateOrderMessageListener(
-			MessageListener updateOrderMessageListener) {
+			TenantSiteMessageListener updateOrderMessageListener) {
 		this.updateOrderMessageListener = updateOrderMessageListener;
 	}
 	public DestinationTypeEnum getDestinationType() {
@@ -65,7 +65,7 @@ public class JmsResourceSetting {
 	public MessageListener getInventoryMessageListener() {
 		return inventoryMessageListener;
 	}
-	public void setInventoryMessageListener(MessageListener inventoryMessageListener) {
+	public void setInventoryMessageListener(TenantSiteMessageListener inventoryMessageListener) {
 		this.inventoryMessageListener = inventoryMessageListener;
 	}
 }

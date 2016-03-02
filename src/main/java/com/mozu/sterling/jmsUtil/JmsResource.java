@@ -102,6 +102,12 @@ public class JmsResource {
 				&& messageListenerContainers.get(0).isRunning();
 	}
 
+	public void addSite(Integer siteId) {
+		for (DefaultMessageListenerContainer container : messageListenerContainers) {
+			((TenantSiteMessageListener)container.getMessageListener()).addToSites(siteId);
+		}
+	}
+
 	public void close() {
 		for (DefaultMessageListenerContainer container : messageListenerContainers) {
 			if (container != null) {
