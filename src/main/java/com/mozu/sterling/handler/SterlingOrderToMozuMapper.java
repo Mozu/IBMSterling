@@ -239,7 +239,7 @@ public class SterlingOrderToMozuMapper {
                          order.setPickups(pickups);
                          lineProduct.setFulfillmentStatus(FULFILLED_STATUS);
                     } else {
-			Package pkg = new Package();
+			/*Package pkg = new Package();
                         pkg.setFulfillmentDate(getAcceptedDate(sterlingOrder));
                         pkg.setFulfillmentLocationCode(orderItem.getFulfillmentLocationCode());
                         List<PackageItem> packageItems = new ArrayList<>();
@@ -261,7 +261,7 @@ public class SterlingOrderToMozuMapper {
                         pkg.setStatus(NOT_FULFILLED_STATUS);
                         packages.add(pkg);
                         order.setPackages(packages);
-                        lineProduct.setFulfillmentStatus(PACKAGE_STATUS);
+                        lineProduct.setFulfillmentStatus(PACKAGE_STATUS);*/
                     }
                 }
                 orderItems.add(orderItem);
