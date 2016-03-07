@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +14,11 @@ import org.w3c.dom.Document;
 
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
+import com.mozu.api.contracts.commerceruntime.orders.OrderAction;
 import com.mozu.api.contracts.commerceruntime.orders.OrderCollection;
 import com.mozu.api.contracts.event.Event;
 import com.mozu.api.resources.commerce.OrderResource;
+import com.mozu.api.resources.commerce.orders.PaymentResource;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.handler.MozuOrderToSterlingMapper;
 import com.mozu.sterling.handler.SterlingOrderToMozuMapper;
@@ -24,6 +27,8 @@ import com.mozu.sterling.model.order.OrderList;
 import com.mozu.sterling.model.changeorderstatus.OrderLines;
 import com.mozu.sterling.model.changeorderstatus.OrderStatusChange;
 import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
+import com.mozu.api.contracts.commerceruntime.payments.Payment;
+import com.mozu.api.contracts.commerceruntime.payments.PaymentAction;
 
 /**
  * Service for reading, mapping, and sending Orders from to Mozu to Sterling.
@@ -42,6 +47,8 @@ public class OrderService extends SterlingClient {
     public final static String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     public final static String ORDER_DATE_QRY = "BETWEEN";
     public final static String CHANGE_ORDER_STATUS_SERVICE_NAME = "changeOrderStatus ";
+    public static final String CANCEL_ORDER_ACTION = "CancelOrder";
+    public static final String VOID_PAYMENT_ACTION = "VoidPayment";
     
     @Autowired
     SterlingClient sterlingClient;
@@ -361,14 +368,17 @@ public class OrderService extends SterlingClient {
         if (sterlingOrder != null) {
             
             mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, apiContext, setting);
-                    
             OrderResource orderResource = new OrderResource (apiContext);
             OrderCollection existingOrders = orderResource.getOrders(0, null, null,
-                    "externalId eq " + sterlingOrder.getOrderNo(), null, null, null);
+                    "orderNumber eq " + sterlingOrder.getOrderNo(), null, null, null);
             if (existingOrders != null && existingOrders.getItems() != null &&  
                     existingOrders.getItems().size() > 0) {
                 Order existingOrder = existingOrders.getItems().get(0);
-                mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
+                if(sterlingOrder.getStatus().equalsIgnoreCase("Cancelled")){
+            		cancelMozuOrder(apiContext, existingOrder);
+            	}else{
+                    mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
+            	}
             }else {
                 mozuOrder = orderResource.createOrder(mozuOrder);
             }
@@ -377,5 +387,34 @@ public class OrderService extends SterlingClient {
         }
         return mozuOrder;
     }
+    
+    private void cancelMozuOrder(ApiContext apiContext, Order mozuOrder) throws Exception{
+    	PaymentResource paymentResource = new PaymentResource(apiContext);
+    	OrderResource orderResource = new OrderResource(apiContext);
+    	if(mozuOrder.getPayments()!=null){
+        	for (Payment payment : mozuOrder.getPayments()) {
+        		if (StringUtils.equalsIgnoreCase(payment.getStatus(), "voided"))
+                    continue;
+        		List<String> availabePaymentActions = paymentResource.getAvailablePaymentActions(mozuOrder.getId(), payment.getId());
+        		if(availabePaymentActions.contains(VOID_PAYMENT_ACTION)){
+            		PaymentAction paymentAction = new PaymentAction();
+                    paymentAction.setActionName(VOID_PAYMENT_ACTION);
+                    paymentResource.performPaymentAction(paymentAction,
+                    		mozuOrder.getId(), payment.getId());
+        		}
+			}
+    	}
+    	List<String> availabeActions = orderResource.getAvailableActions(mozuOrder.getId());
+    	if(availabeActions.contains(CANCEL_ORDER_ACTION)){
+            logger.debug("Perform Cancel Order action for order number "+ mozuOrder.getOrderNumber()+" on tenanat "+apiContext.getTenantId());
+            OrderAction orderAction = new OrderAction();
+            orderAction.setActionName(CANCEL_ORDER_ACTION);
+            orderResource.performOrderAction(orderAction, mozuOrder.getId());
+            logger.debug("Successfully performed Cancel Order action on order number "+ mozuOrder.getOrderNumber()+" on tenanat "+apiContext.getTenantId());
+    	}
+    }
+
+    
+   
 
 }
