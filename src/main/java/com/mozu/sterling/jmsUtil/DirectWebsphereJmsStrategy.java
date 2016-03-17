@@ -20,6 +20,7 @@ import com.mozu.sterling.service.InventoryService;
 import com.mozu.sterling.service.NewSterlingToMozuOrderMessageListener;
 import com.mozu.sterling.service.OrderService;
 import com.mozu.sterling.service.SterlingToMozuInventoryMessageListener;
+import com.mozu.sterling.service.SterlingToMozuOrderShipmentMessageListener;
 import com.mozu.sterling.service.UpdateSterlingToMozuOrderMessageListener;
 
 /**
@@ -55,6 +56,8 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 				.setUpdateOrderDestination(getUpdateOrderDestination(setting));
 		jmsResourceSetting
 				.setInventoryDestination(getInventoryDestination(setting));
+		jmsResourceSetting
+				.setShipmentDestination(getShipmentDestination(setting));
 
 		jmsResourceSetting
 				.setCreateOrderMessageListener(new NewSterlingToMozuOrderMessageListener(
@@ -65,7 +68,10 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 		jmsResourceSetting
 				.setInventoryMessageListener(new SterlingToMozuInventoryMessageListener(
 						tenantId, siteId, configHandler, inventoryService));
-
+		
+		jmsResourceSetting.setOrderShipmentMessageListener(new SterlingToMozuOrderShipmentMessageListener(
+				tenantId, siteId, configHandler, orderService));
+		
 		return jmsResourceSetting;
 	}
 
@@ -104,6 +110,12 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 	protected Destination getInventoryDestination(Setting setting)
 			throws JMSException {
 		return createDestination(setting.getInventoryDestinationName(),
+				DestinationTypeEnum.from(setting.getDestinationType()));
+	}
+	
+	protected Destination getShipmentDestination(Setting setting)
+			throws JMSException {
+		return createDestination(setting.getShipmentDestinationName(),
 				DestinationTypeEnum.from(setting.getDestinationType()));
 	}
 

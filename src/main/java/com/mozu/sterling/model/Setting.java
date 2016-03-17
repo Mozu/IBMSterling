@@ -32,8 +32,9 @@ public class Setting {
     protected String createOrderDestinationName;
     protected String updateOrderDestinationName;
     protected String inventoryDestinationName;
-
-    public String getId() {
+    protected String shipmentDestinationName;
+  
+	public String getId() {
         return id;
     }
     public void setId(String id) {
@@ -135,5 +136,12 @@ public class Setting {
 	}
 	public void setInventoryDestinationName(String inventoryDestinationName) {
 		this.inventoryDestinationName = inventoryDestinationName;
+	}
+	
+	public String getShipmentDestinationName() {
+		return shipmentDestinationName;
+	}
+	public void setShipmentDestinationName(String shipmentDestinationName) {
+		this.shipmentDestinationName = shipmentDestinationName;
 	}
 }

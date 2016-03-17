@@ -15,6 +15,7 @@ import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.resources.commerce.OrderResource;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.shipment.Shipment;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations= {"file:src/main/webapp/WEB-INF/spring/servlet-context.xml"})
@@ -27,7 +28,7 @@ public class OrderSyncServiceTest {
 	 
 	 protected static final int TENANT_ID = 4449;
 	 protected static final int SITE_ID = 7280;
-	 String orderId="07c699b9157c283accca391600001161";
+	 String orderId="07eb533d78bf8a2c84174c5d00001161";
 	 
 	 @Test
 	 public void exportOrderToSterlingTest() throws Exception{
@@ -68,6 +69,18 @@ public class OrderSyncServiceTest {
 		           	}
 		        }
 	     }
+	 }
+	 
+	 @Test
+	 public void importShipmentDetailsTest() throws Exception{
+		 ApiContext apiContext = new MozuApiContext(TENANT_ID);
+	     apiContext.setSiteId(SITE_ID);
+	     Setting setting = configHandler.getSetting(apiContext.getTenantId());
+	     String shipmentKey="20160317111453290534";
+	     String shipmentNo="100000185";
+		 Shipment shipment= orderService.getSterlingShipmentDetail(setting, shipmentKey, shipmentNo);
+		 orderService.importSterlingShipment(apiContext, setting, shipment);
+		 System.out.println(shipment.getOrderNo());
 	 }
 
 }

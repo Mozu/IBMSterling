@@ -47,6 +47,7 @@ import com.mozu.sterling.model.order.Notes;
 import com.mozu.sterling.model.order.OrderLine;
 import com.mozu.sterling.model.order.OrderLines;
 import com.mozu.sterling.model.order.OverallTotals;
+import com.mozu.sterling.model.order.PaymentDetails;
 import com.mozu.sterling.model.order.PaymentMethod;
 import com.mozu.sterling.model.order.PaymentMethods;
 import com.mozu.sterling.model.order.PersonInfo;
@@ -124,6 +125,7 @@ public class MozuOrderToSterlingMapper {
             orderLine.setScacAndService(serviceCode);
             orderLine.setPersonInfoShipTo(personInfoShipTo);
             orderLine.setOrderedQty(String.valueOf(orderItem.getQuantity()));
+            
            
             if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Ship")){
             	orderLine.setDeliveryMethod("SHP");
@@ -264,7 +266,7 @@ public class MozuOrderToSterlingMapper {
             AuditInfo noteInfo = orderNote.getAuditInfo();
             if (noteInfo != null) {
                 sterlingNote.setContactUser(noteInfo.getCreateBy());
-                sterlingNote.setContactTime(noteInfo.getCreateDate().toString("yyyyMMdd HH:mm"));
+                sterlingNote.setContactTime(noteInfo.getCreateDate()!=null?noteInfo.getCreateDate().toString("yyyyMMdd HH:mm"):null);
             }
             sterlingNotes.getNote().add(sterlingNote);
         }
@@ -397,9 +399,10 @@ public class MozuOrderToSterlingMapper {
         }
         PaymentMethods paymentMethods=new PaymentMethods();
     	List<PaymentMethod> paymentMethodList = paymentMethods.getPaymentMethod();
+    	
         for(Payment validPayment:validPayments){
         	PaymentMethod paymentMethod=new PaymentMethod();
-        	
+        	PaymentDetails paymentDetails= new PaymentDetails();
         	if(validPayment.getPaymentType().equalsIgnoreCase("CreditCard")){
         		paymentMethod.setPaymentType("CREDIT_CARD");
         		PaymentCard mozuCard =validPayment.getBillingInfo().getCard();
@@ -412,21 +415,24 @@ public class MozuOrderToSterlingMapper {
                  }
         	}else if(validPayment.getPaymentType().equalsIgnoreCase("Check")){
         		paymentMethod.setPaymentType("CHECK");
+        	//	paymentDetails.setChargeType("AUTHORIZATION");
+            	//paymentDetails.setRequestAmount(validPayment.getAmountRequested().toString());
+            	//paymentMethod.getPaymentDetails().add(paymentDetails);
         		
         	}else{
         		paymentMethod.setPaymentType("OTHER");
         	}
-        //	paymentMethod.setRequestedAuthAmount(validPayment.getAmountRequested().toString());
-        	/*if(validPayment.getStatus().equalsIgnoreCase("Authorized")){
-        		paymentMethod.setTotalAuthorized(validPayment.getAmountRequested().toString());
-        		paymentMethod.setRequestedChargeAmount(validPayment.getAmountRequested().toString());
+        	
+        	
+        	if(validPayment.getStatus().equalsIgnoreCase("Authorized")){
+        		paymentDetails.setChargeType("AUTHORIZATION");
+            	paymentDetails.setProcessedAmount(validPayment.getAmountRequested().toString());
+            	paymentMethod.getPaymentDetails().add(paymentDetails);
         	}else if(validPayment.getStatus().equalsIgnoreCase("Collected")){
-        		paymentMethod.setTotalCharged(validPayment.getAmountCollected().toString());
-        		Double remainingAmount= validPayment.getAmountRequested() - validPayment.getAmountCollected();
-        		paymentMethod.setRequestedChargeAmount(remainingAmount.toString());
-        	}else if(validPayment.getStatus().equalsIgnoreCase("Credited")){
-        		paymentMethod.setTotalRefundedAmount(validPayment.getAmountCredited().toString());
-        	}*/
+        		paymentDetails.setChargeType("CHARGE");
+            	paymentDetails.setProcessedAmount(validPayment.getAmountCollected().toString());
+            	paymentMethod.getPaymentDetails().add(paymentDetails);
+        	}
         	
         	paymentMethodList.add(paymentMethod);
         }

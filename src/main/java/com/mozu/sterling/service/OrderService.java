@@ -2,7 +2,6 @@ package com.mozu.sterling.service;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
@@ -11,24 +10,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
-
 import com.mozu.api.ApiContext;
+import com.mozu.api.contracts.commerceruntime.fulfillment.FulfillmentAction;
+import com.mozu.api.contracts.commerceruntime.fulfillment.PackageItem;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
 import com.mozu.api.contracts.commerceruntime.orders.OrderAction;
 import com.mozu.api.contracts.commerceruntime.orders.OrderCollection;
 import com.mozu.api.contracts.event.Event;
 import com.mozu.api.resources.commerce.OrderResource;
+import com.mozu.api.resources.commerce.orders.FulfillmentActionResource;
+import com.mozu.api.resources.commerce.orders.PackageResource;
 import com.mozu.api.resources.commerce.orders.PaymentResource;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.handler.MozuOrderToSterlingMapper;
 import com.mozu.sterling.handler.SterlingOrderToMozuMapper;
+import com.mozu.sterling.handler.SterlingShipmentToMozuMapper;
 import com.mozu.sterling.model.Setting;
 import com.mozu.sterling.model.order.OrderList;
+import com.mozu.sterling.model.shipment.Shipment;
 import com.mozu.sterling.model.changeorderstatus.OrderLines;
 import com.mozu.sterling.model.changeorderstatus.OrderStatusChange;
 import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.contracts.commerceruntime.payments.Payment;
 import com.mozu.api.contracts.commerceruntime.payments.PaymentAction;
+
 
 /**
  * Service for reading, mapping, and sending Orders from to Mozu to Sterling.
@@ -50,6 +55,9 @@ public class OrderService extends SterlingClient {
     public static final String CANCEL_ORDER_ACTION = "CancelOrder";
     public static final String VOID_PAYMENT_ACTION = "VoidPayment";
     
+    public static final String FULFILLED_STATUS = "Fulfilled";
+    public static final String NOT_FULFILLED_STATUS = "NotFulfilled";
+    
     @Autowired
     SterlingClient sterlingClient;
 
@@ -61,6 +69,9 @@ public class OrderService extends SterlingClient {
 
     @Autowired
     SterlingOrderToMozuMapper sterlingOrderToMozuMapper;
+    
+    @Autowired
+    SterlingShipmentToMozuMapper sterlingShipmentToMozuMapper;
     
     public OrderService() throws Exception {
         super();
@@ -363,14 +374,17 @@ public class OrderService extends SterlingClient {
         return importSterlingOrder (apiContext, setting, sterlingOrder);
     }
     
+    
     public Order importSterlingOrder (ApiContext apiContext, Setting setting, com.mozu.sterling.model.order.Order sterlingOrder) throws Exception {
         Order mozuOrder = null;
         if (sterlingOrder != null) {
             
             mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, apiContext, setting);
+            ObjectMapper mapper=new ObjectMapper();
+            String jsonString = mapper.writeValueAsString(mozuOrder);
             OrderResource orderResource = new OrderResource (apiContext);
             OrderCollection existingOrders = orderResource.getOrders(0, null, null,
-                    "orderNumber eq " + sterlingOrder.getOrderNo(), null, null, null);
+                    "externalId eq " + sterlingOrder.getOrderNo(), null, null, null);
             if (existingOrders != null && existingOrders.getItems() != null &&  
                     existingOrders.getItems().size() > 0) {
                 Order existingOrder = existingOrders.getItems().get(0);
@@ -386,6 +400,80 @@ public class OrderService extends SterlingClient {
             logger.info ("Order cannot be null.");
         }
         return mozuOrder;
+    }
+    
+  
+    
+    public Order importSterlingShipment (ApiContext apiContext, Setting setting, Shipment sterlingShipment) throws Exception {
+        Order mozuOrder = null;
+        if (sterlingShipment != null) {
+        	OrderResource orderResource = new OrderResource (apiContext);
+            OrderCollection existingOrders = orderResource.getOrders(0, null, null,
+                    "orderNumber eq " + sterlingShipment.getShipmentLines().getShipmentLine().get(0).getOrderNo(), null, null, null);
+            if (existingOrders != null && existingOrders.getItems() != null &&  
+                    existingOrders.getItems().size() > 0) {
+                Order existingOrder = existingOrders.getItems().get(0);
+            mozuOrder = sterlingShipmentToMozuMapper.shipmentToFulFillment(sterlingShipment, existingOrder, apiContext, setting);
+            shipOrder(mozuOrder, apiContext);
+          
+            }
+               
+        } else {
+            logger.info ("Order cannot be null.");
+        }
+        return mozuOrder;
+    }
+    
+    private void shipOrder(Order order, ApiContext context) throws Exception {
+        PackageResource packageResource = new PackageResource(context);
+        FulfillmentActionResource fulFillmentResource = new FulfillmentActionResource(context);
+        FulfillmentAction action = new FulfillmentAction();
+        action.setPackageIds(new ArrayList<String>());
+
+        for (com.mozu.api.contracts.commerceruntime.fulfillment.Package pkg : order.getPackages()) {
+            List<PackageItem> packageItems = new ArrayList<PackageItem>();
+            com.mozu.api.contracts.commerceruntime.fulfillment.Package existingPackage = null;
+           /* if (existingOrder.getPackages().size() > 0) { // check to see if the
+                                                          // items are already
+                                                          // in existing package
+                for (PackageItem pkgItem : pkg.getItems()) {
+                    existingPackage = checkPkgItem(pkgItem, existingOrder, pkg.getTrackingNumber());
+                    if (existingPackage == null)
+                        packageItems.add(pkgItem);
+                    else { // Check Qty Diffs
+                        PackageItem newPkgItem = getQtyDiffPackageItem(pkgItem,
+                                existingOrder.getPackages(), pkg.getTrackingNumber());
+
+                        if (newPkgItem != null)
+                            packageItems.add(newPkgItem);
+                    }
+                }
+
+            } else {*/
+                packageItems = pkg.getItems();
+            //}
+
+            if (packageItems.size() > 0) {
+                pkg.setItems(packageItems);
+                ObjectMapper mapper = new ObjectMapper();
+                String jsonInString = mapper.writeValueAsString(pkg);
+                logger.debug(jsonInString);  
+                com.mozu.api.contracts.commerceruntime.fulfillment.Package pkg1 = packageResource
+                        .createPackage(pkg, order.getId());
+
+                if (StringUtils.equals(pkg.getStatus(), FULFILLED_STATUS)) {
+                    action.getPackageIds().add(pkg1.getId());
+                }
+            } else {
+                packageResource.updatePackage(existingPackage, order.getId(),
+                        existingPackage.getId());
+            }
+        }
+        if (action.getPackageIds().size() > 0) {
+            action.setActionName("Ship");
+            fulFillmentResource.performFulfillmentAction(action, order.getId());
+        }
+
     }
     
     private void cancelMozuOrder(ApiContext apiContext, Order mozuOrder) throws Exception{
@@ -413,8 +501,34 @@ public class OrderService extends SterlingClient {
             logger.debug("Successfully performed Cancel Order action on order number "+ mozuOrder.getOrderNumber()+" on tenanat "+apiContext.getTenantId());
     	}
     }
-
     
+    
+
+    public Shipment getSterlingShipmentDetail(Setting setting, String shipmentKey, String shipmentNo ) throws Exception {
+    	Shipment sterlingShipment = null;
+        if (StringUtils.isNotBlank(setting.getSterlingUrl())) {
+        	com.mozu.sterling.model.shipmentInput.Shipment inShipment = new com.mozu.sterling.model.shipmentInput.Shipment();
+            if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
+            	inShipment.setSellerOrganizationCode("Aurora");
+            }
+
+            inShipment.setShipmentKey(shipmentKey);
+            inShipment.setShipmentNo(shipmentNo);
+            Document inDoc = convertObjectToXml(inShipment, com.mozu.sterling.model.shipmentInput.Shipment.class);
+            Document outDoc = null;
+            try {
+                outDoc = this.invoke("getShipmentDetails", inDoc, setting);
+                sterlingShipment = (Shipment) convertXmlToObject(outDoc, Shipment.class);
+            } catch (Exception e) {
+                logger.warn("Unable to get order list from Sterling: " + e.getMessage());
+            }
+
+        } else {
+            logger.warn("Cannot get Sterling ship nodes because the settings aren't set.");
+        }
+        return sterlingShipment;
+
+    }
    
 
 }

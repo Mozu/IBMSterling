@@ -13,9 +13,11 @@ public class JmsResourceSetting {
 	private Destination createOrderDestination;
 	private Destination updateOrderDestination;
 	private Destination inventoryDestination;
+	private Destination shipmentDestination;
 	private TenantSiteMessageListener createOrderMessageListener;
 	private TenantSiteMessageListener updateOrderMessageListener;
 	private TenantSiteMessageListener inventoryMessageListener;
+	private TenantSiteMessageListener OrderShipmentMessageListener;
 	private DestinationTypeEnum destinationType;
 
 	public ConnectionFactory getConnectionFactory() {
@@ -67,5 +69,19 @@ public class JmsResourceSetting {
 	}
 	public void setInventoryMessageListener(TenantSiteMessageListener inventoryMessageListener) {
 		this.inventoryMessageListener = inventoryMessageListener;
+	}
+	
+	public Destination getShipmentDestination() {
+		return shipmentDestination;
+	}
+	public void setShipmentDestination(Destination shipmentDestination) {
+		this.shipmentDestination = shipmentDestination;
+	}
+	public TenantSiteMessageListener getOrderShipmentMessageListener() {
+		return OrderShipmentMessageListener;
+	}
+	public void setOrderShipmentMessageListener(
+			TenantSiteMessageListener orderShipmentMessageListener) {
+		OrderShipmentMessageListener = orderShipmentMessageListener;
 	}
 }

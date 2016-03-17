@@ -10,6 +10,7 @@ package com.mozu.sterling.model.order;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -19,14 +20,19 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.NormalizedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.mozu.sterling.model.order.PaymentDetails;
+import com.mozu.sterling.model.order.PaymentDetailsList;
+
 
 /**
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "personInfoBillTo"
-})
+	    "paymentDetails",
+	    "paymentDetailsList",
+	    "personInfoBillTo"
+	})
 @XmlRootElement(name = "PaymentMethod")
 public class PaymentMethod {
 
@@ -188,6 +194,10 @@ public class PaymentMethod {
     protected String unlimitedCharges;
     @XmlAttribute(name = "a-dtype")
     protected List<String> aDtype;
+    @XmlElement(name = "PaymentDetails")
+    protected List<PaymentDetails> paymentDetails;
+    @XmlElement(name = "PaymentDetailsList")
+    protected PaymentDetailsList paymentDetailsList;
     @XmlElement(name = "PersonInfoBillTo")
     protected PersonInfoBillTo personInfoBillTo;
 
@@ -1466,6 +1476,60 @@ public class PaymentMethod {
             aDtype = new ArrayList<String>();
         }
         return this.aDtype;
+    }
+    
+
+    /**
+     * Gets the value of the paymentDetails property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the paymentDetails property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getPaymentDetails().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link PaymentDetails }
+     * 
+     * 
+     */
+    public List<PaymentDetails> getPaymentDetails() {
+        if (paymentDetails == null) {
+            paymentDetails = new ArrayList<PaymentDetails>();
+        }
+        return this.paymentDetails;
+    }
+
+    /**
+     * Gets the value of the paymentDetailsList property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link PaymentDetailsList }
+     *     
+     */
+    public PaymentDetailsList getPaymentDetailsList() {
+        return paymentDetailsList;
+    }
+
+    /**
+     * Sets the value of the paymentDetailsList property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link PaymentDetailsList }
+     *     
+     */
+    public void setPaymentDetailsList(PaymentDetailsList value) {
+        this.paymentDetailsList = value;
     }
 
     /**
