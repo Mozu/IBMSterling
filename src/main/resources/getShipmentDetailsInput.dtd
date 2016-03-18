@@ -1,0 +1,6 @@
+<!ELEMENT Shipment EMPTY>
+<!ATTLIST Shipment ReadFromHistory CDATA #IMPLIED>
+<!ATTLIST Shipment SellerOrganizationCode CDATA #IMPLIED>
+<!ATTLIST Shipment ShipNode CDATA #IMPLIED>
+<!ATTLIST Shipment ShipmentKey CDATA #IMPLIED>
+<!ATTLIST Shipment ShipmentNo CDATA #IMPLIED>
