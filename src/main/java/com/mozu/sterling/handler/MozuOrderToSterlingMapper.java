@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.commerce.CommerceUnitPrice;
 import com.mozu.api.contracts.commerceruntime.discounts.AppliedDiscount;
 import com.mozu.api.contracts.commerceruntime.discounts.ShippingDiscount;
@@ -16,30 +17,24 @@ import com.mozu.api.contracts.commerceruntime.orders.OrderNote;
 import com.mozu.api.contracts.commerceruntime.payments.BillingInfo;
 import com.mozu.api.contracts.commerceruntime.payments.Payment;
 import com.mozu.api.contracts.commerceruntime.payments.PaymentCard;
-import com.mozu.api.contracts.commerceruntime.products.BundledProduct;
 import com.mozu.api.contracts.commerceruntime.products.Product;
+import com.mozu.api.contracts.commerceruntime.products.ProductOption;
 import com.mozu.api.contracts.commerceruntime.products.ProductPrice;
 import com.mozu.api.contracts.core.Address;
 import com.mozu.api.contracts.core.AuditInfo;
 import com.mozu.api.contracts.core.Contact;
 import com.mozu.api.contracts.core.Phone;
+import com.mozu.api.resources.commerce.catalog.admin.ProductResource;
 import com.mozu.sterling.model.Setting;
-import com.mozu.sterling.model.order.BundleComponent;
-import com.mozu.sterling.model.order.BundleComponents;
 import com.mozu.sterling.model.order.ContactInfo;
 import com.mozu.sterling.model.order.HeaderCharge;
 import com.mozu.sterling.model.order.HeaderCharges;
-import com.mozu.sterling.model.order.Instruction;
-import com.mozu.sterling.model.order.Instructions;
 import com.mozu.sterling.model.order.Item;
 import com.mozu.sterling.model.order.KitLine;
-import com.mozu.sterling.model.order.KitLineTranQuantity;
 import com.mozu.sterling.model.order.KitLines;
 import com.mozu.sterling.model.order.LineCharge;
 import com.mozu.sterling.model.order.LineCharges;
-import com.mozu.sterling.model.order.LineOverallTotals;
 import com.mozu.sterling.model.order.LinePriceInfo;
-import com.mozu.sterling.model.order.LineRemainingTotals;
 import com.mozu.sterling.model.order.LineTax;
 import com.mozu.sterling.model.order.LineTaxes;
 import com.mozu.sterling.model.order.Note;
@@ -68,8 +63,8 @@ public class MozuOrderToSterlingMapper {
      * @param mozuOrder
      * @return
      */
-    public com.mozu.sterling.model.order.Order mapMozuOrderToSterling(Order mozuOrder, com.mozu.sterling.model.order.Order existingSterlingOrder, Setting setting) {
-    	com.mozu.sterling.model.order.Order	sterlingOrder = new com.mozu.sterling.model.order.Order();
+    public com.mozu.sterling.model.order.Order mapMozuOrderToSterling(Order mozuOrder, com.mozu.sterling.model.order.Order existingSterlingOrder, Setting setting, ApiContext apiContext) throws Exception {
+	com.mozu.sterling.model.order.Order	sterlingOrder = new com.mozu.sterling.model.order.Order();
         String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
         sterlingOrder.setOrderNo(orderNoStr);
         sterlingOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
@@ -88,7 +83,7 @@ public class MozuOrderToSterlingMapper {
         sterlingOrder.setOrderDate(mozuOrder.getAuditInfo().getCreateDate().toString("yyyyMMdd"));
         PersonInfoShipTo personInfoShipTo = getPersonInfoShipTo(mozuOrder.getFulfillmentInfo());
         OrderLines existingOrderLines = existingSterlingOrder!=null? existingSterlingOrder.getOrderLines(): null;
-        sterlingOrder.setOrderLines(getOrderLines(mozuOrder.getItems(), setting, serviceCode, personInfoShipTo,existingOrderLines));
+        sterlingOrder.setOrderLines(getOrderLines(mozuOrder.getItems(), setting, serviceCode, personInfoShipTo,existingOrderLines, apiContext));
         sterlingOrder.setPersonInfoShipTo(personInfoShipTo);
         sterlingOrder.setPersonInfoBillTo(getPersonInfoBillTo(mozuOrder.getBillingInfo()));
         sterlingOrder.setNotes(getNotes(mozuOrder.getNotes()));
@@ -105,8 +100,8 @@ public class MozuOrderToSterlingMapper {
      * @param orderItems
      * @return the converted order lines of Sterling.
      */
-    private OrderLines getOrderLines(List<OrderItem> orderItems,Setting setting,String serviceCode, PersonInfoShipTo personInfoShipTo , OrderLines sterlingOrderLines) {
-       	OrderLines	orderLines = new OrderLines();
+    private OrderLines getOrderLines(List<OrderItem> orderItems,Setting setting,String serviceCode, PersonInfoShipTo personInfoShipTo , OrderLines sterlingOrderLines, ApiContext apiContext) throws Exception {
+	OrderLines	orderLines = new OrderLines();
         OrderLine orderLine = null;
        List<OrderLine> existingSterlingOrderLines=new ArrayList<OrderLine>();
         for (OrderItem orderItem : orderItems) {
@@ -151,8 +146,9 @@ public class MozuOrderToSterlingMapper {
                 sItem.setUnitOfMeasure("EACH");
                 productPrice = product.getPrice();
                 orderLine.setItem(sItem);
+                orderLine.setKitLines(createKitLinesFromProductOptions(product.getOptions(), apiContext));
                 if(product.getBundledProducts()!=null && product.getBundledProducts().size()>0){
-            	   orderLine.setKitCode("BUNDLE");
+		   orderLine.setKitCode("BUNDLE");
                 }
                 if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Digital")){
                 	sItem.setProductLine("DigitalProduct");
@@ -441,5 +437,60 @@ public class MozuOrderToSterlingMapper {
         	paymentMethodList.add(paymentMethod);
         }
         sterlingOrder.setPaymentMethods(paymentMethods);
+    }
+
+    protected KitLines createKitLinesFromProductOptions(List<ProductOption> productOptions, ApiContext apiContext) throws Exception {
+	KitLines kitLines = new KitLines();
+	List<KitLine> kitLineList = kitLines.getKitLine();
+
+	if (productOptions != null && !productOptions.isEmpty()) {
+		for (ProductOption productOption : productOptions) {
+			KitLine kitLine = new KitLine();
+			kitLine.setItemShortDesc(productOption.getName());
+
+			if (productOption.getDataType() == null) {
+				// This is an extra product that is paired with this product.
+				if (productOption.getShopperEnteredValue() == null) {
+					String extraProduct = productOption.getValue().toString();
+					kitLine.setItemID(extraProduct);
+					kitLine.setProductClass(isVariantProduct(extraProduct, apiContext) ? "TRUE" : "FALSE");
+				} else {
+					kitLine.setItemID(productOption.getShopperEnteredValue().toString());
+				}
+			} else {
+				// This would be ideal if datatype is dependable
+				switch (productOption.getDataType().toLowerCase()) {
+					case "product":
+						String extraProduct = productOption.getValue().toString();
+						kitLine.setItemID(extraProduct);
+						kitLine.setProductClass(isVariantProduct(extraProduct, apiContext) ? "TRUE" : "FALSE");
+						break;
+					case "text":
+						kitLine.setItemID(productOption.getShopperEnteredValue().toString());
+						break;
+					case "number":
+						kitLine.setItemID(String.valueOf(productOption.getShopperEnteredValue()));
+						break;
+				}
+			}
+
+			kitLineList.add(kitLine);
+		}
+	}
+
+	return kitLines;
+    }
+
+    protected boolean isVariantProduct(String productCode, ApiContext apiContext) throws Exception{
+	ProductResource productResource = new ProductResource(apiContext);
+	com.mozu.api.contracts.productadmin.Product adminProduct = productResource.getProduct(productCode, "isVariation");
+
+	boolean isVariation = false;
+
+	if (adminProduct != null) {
+		isVariation = Boolean.TRUE.equals(adminProduct.getIsValidForProductType());
+	}
+
+	return isVariation;
     }
 }

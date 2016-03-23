@@ -142,7 +142,7 @@ public class OrderService extends SterlingClient {
     public boolean createOrder(ApiContext apiContext, Order mozuOrder) throws Exception {
         Setting setting = configHandler.getSetting(apiContext.getTenantId());
         com.mozu.sterling.model.order.Order sterlingOrder = mozuOrderToSterlingMapper.mapMozuOrderToSterling(mozuOrder, null,
-                setting);
+                setting, apiContext);
 
         Document inDoc = this.convertObjectToXml(sterlingOrder, com.mozu.sterling.model.order.Order.class);
 
@@ -168,7 +168,7 @@ public class OrderService extends SterlingClient {
             Order mozuOrder = orderResource.getOrder(event.getEntityId());
             com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
             if(sterlingOrder !=null){
-            	status= updateSterlingOrder(setting, mozuOrder, sterlingOrder);
+		status= updateSterlingOrder(setting, mozuOrder, sterlingOrder, apiContext);
             }
         } catch (Exception e) {
             logger.debug(String.format("Correlation ID: %s. Unable to get Order with id %s from Mozu: %s",
@@ -186,10 +186,10 @@ public class OrderService extends SterlingClient {
      *            mozu order to send to Sterling
      * @return
      */
-    public boolean updateSterlingOrder(Setting  setting, Order mozuOrder,  com.mozu.sterling.model.order.Order existingSterlingOrder) throws Exception {
-        
+    public boolean updateSterlingOrder(Setting  setting, Order mozuOrder,  com.mozu.sterling.model.order.Order existingSterlingOrder, ApiContext apiContext) throws Exception {
+
         com.mozu.sterling.model.order.Order sterlingOrder = mozuOrderToSterlingMapper.mapMozuOrderToSterling(mozuOrder, existingSterlingOrder,
-                setting);
+                setting, apiContext);
 
         Document inDoc = this.convertObjectToXml(sterlingOrder, com.mozu.sterling.model.order.Order.class);
 
