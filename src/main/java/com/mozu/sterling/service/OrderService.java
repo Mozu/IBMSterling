@@ -380,8 +380,6 @@ public class OrderService extends SterlingClient {
         if (sterlingOrder != null) {
             
             mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, apiContext, setting);
-            ObjectMapper mapper=new ObjectMapper();
-            String jsonString = mapper.writeValueAsString(mozuOrder);
             OrderResource orderResource = new OrderResource (apiContext);
             OrderCollection existingOrders = orderResource.getOrders(0, null, null,
                     "externalId eq " + sterlingOrder.getOrderNo(), null, null, null);
@@ -413,8 +411,8 @@ public class OrderService extends SterlingClient {
             if (existingOrders != null && existingOrders.getItems() != null &&  
                     existingOrders.getItems().size() > 0) {
                 Order existingOrder = existingOrders.getItems().get(0);
-            mozuOrder = sterlingShipmentToMozuMapper.shipmentToFulFillment(sterlingShipment, existingOrder, apiContext, setting);
-            shipOrder(mozuOrder, apiContext);
+                mozuOrder = sterlingShipmentToMozuMapper.mapSterlingShipmentToMozuFulFillment(sterlingShipment,existingOrder, apiContext, setting);
+                shipOrder(mozuOrder, apiContext);
           
             }
                

@@ -56,6 +56,7 @@ import com.mozu.sterling.model.order.PersonInfoContact;
 import com.mozu.sterling.model.order.PersonInfoMarkFor;
 import com.mozu.sterling.model.order.PersonInfoShipTo;
 import com.mozu.sterling.model.order.PersonInfoSoldTo;
+import com.mozu.sterling.model.order.PrimaryInformation;
 import com.mozu.sterling.model.organization.ShipNode;
 import com.mozu.sterling.service.SterlingClient;
 
@@ -138,6 +139,9 @@ public class MozuOrderToSterlingMapper {
                 Product product = orderItem.getProduct();
                 if(product.getVariationProductCode()!=null){
                 	sItem.setItemID(product.getVariationProductCode());
+                	PrimaryInformation primaryInformation=new PrimaryInformation();
+                	primaryInformation.setIsModelItem("Y");
+                	sItem.setPrimaryInformation(primaryInformation);
                 }else{
                 	sItem.setItemID(product.getProductCode());
                 }
