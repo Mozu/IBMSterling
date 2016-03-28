@@ -11,7 +11,9 @@
 	
 	<appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
       <param name="append" value="true"/>
-      <param name="file" value="/logs/sterling.log"/>
+      <param name="file" value="${catalina.home}/logs/sterling.log"/>
+      <param name="MaxFileSize" value="10MB"/>
+      <param name="MaxBackupIndex" value="5"/>
       <layout class="org.apache.log4j.PatternLayout">
         <param name="ConversionPattern" value="%d{DATE} - %-5p: %c - %m%n" />
       </layout>
@@ -22,6 +24,9 @@
         <level value="debug" />
     </logger>
 
+  <logger name="com.mozu.api">
+        <level value="info" />
+    </logger>
     <!-- 3rdparty Loggers -->
     <logger name="org.springframework.core">
         <level value="info" />
