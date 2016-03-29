@@ -83,6 +83,12 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
             logger.error(String.format("An error occurred installing settings schema for tenant %d: %s", apiContext.getTenantId(), e.getMessage()));
             new EventHandlerStatus(e.getMessage(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
+        try {
+			configHandler.addLocationType(apiContext);
+		} catch (Exception e) {
+			 logger.error(String.format("An error occurred while adding location type for tenant %d: %s", apiContext.getTenantId(), e.getMessage()));
+	         new EventHandlerStatus(e.getMessage(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
+		}
         return enableApplication(apiContext);
     }
 
@@ -107,6 +113,12 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
             logger.error(String.format("An error occurred installing settings schema for tenant %d: %s", apiContext.getTenantId(), e.getMessage()));
             new EventHandlerStatus(e.getMessage(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
+        try {
+			configHandler.addLocationType(apiContext);
+		} catch (Exception e) {
+			 logger.error(String.format("An error occurred while adding location type for tenant %d: %s", apiContext.getTenantId(), e.getMessage()));
+	         new EventHandlerStatus(e.getMessage(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
+		}
         return enableApplication(apiContext);
     }
     

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import com.mozu.api.ApiContext;
 import com.mozu.api.ApiError;
 import com.mozu.api.ApiException;
@@ -41,6 +39,7 @@ import com.mozu.sterling.model.SiteMap;
 import com.mozu.sterling.model.organization.Organization;
 import com.mozu.sterling.model.organization.ShipNode;
 import com.mozu.sterling.model.shipping.CarrierService;
+import com.mozu.sterling.service.LocationService;
 import com.mozu.sterling.service.MozuShippingService;
 import com.mozu.sterling.service.SterlingOrganizationService;
 
@@ -63,6 +62,9 @@ public class ConfigHandler {
     @Autowired
     @Qualifier("sterlingOrganizationService")
     SterlingOrganizationService organizationService;
+    
+    @Autowired
+    LocationService locationService;
 
     @Autowired
     MozuShippingService mozuShippingService;
@@ -370,4 +372,12 @@ public class ConfigHandler {
         }
         return mozuCarrierCode;
     }
+    
+    public void addLocationType(ApiContext apiContext) throws Exception{
+    	List<String> locationTypeList = locationService.getLocationTypeList();
+        for (String locationTypeCode : locationTypeList) {
+        	locationService.createLocationType(apiContext, locationTypeCode);
+		}
+    }
+    
 }

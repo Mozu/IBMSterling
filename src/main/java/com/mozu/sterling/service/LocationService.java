@@ -66,11 +66,11 @@ public class LocationService extends SterlingOrganizationService {
      */
     public Location createOrUpdateLocation(ShipNode shipNode, ApiContext apiContext ) throws Exception {
         Location location = getMozuLocation(shipNode.getNodeOrgCode(), apiContext);
-        location=mapLocation(apiContext,shipNode, new Location());  
+        Location mappedLocation=mapLocation(apiContext,shipNode);  
         if(location == null){
-            location=addMozuLocation(location,apiContext );
+            location=addMozuLocation(mappedLocation,apiContext );
         }else{
-            location=updateMozuLocation(location, apiContext);
+            location=updateMozuLocation(mappedLocation, apiContext);
         }
         return location;
         
@@ -85,9 +85,9 @@ public class LocationService extends SterlingOrganizationService {
      * @throws Exception
      */
     
-    public Location mapLocation(ApiContext apiContext ,ShipNode shipNode, Location location) throws Exception{
+    public Location mapLocation(ApiContext apiContext ,ShipNode shipNode) throws Exception{
         logger.info("Map Sterling location to Mozu location");
-        
+        Location location=new Location();
         location.setName(shipNode.getDescription());
         location.setDescription(shipNode.getDescription());
         location.setCode(shipNode.getNodeOrgCode());
