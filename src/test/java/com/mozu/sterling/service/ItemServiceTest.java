@@ -28,7 +28,8 @@ public class ItemServiceTest {
     @Autowired 
     ConfigHandler configHandler;
     
-    @Ignore
+   @Ignore
+   @Test
     public void getItemTest () throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
         
@@ -41,6 +42,7 @@ public class ItemServiceTest {
     }
     
     @Ignore
+    @Test
     public void getAllItemTest () throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
         
