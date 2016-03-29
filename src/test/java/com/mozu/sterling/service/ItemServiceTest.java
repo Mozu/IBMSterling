@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class ItemServiceTest {
     @Autowired 
     ConfigHandler configHandler;
     
-    @Test
+    @Ignore
     public void getItemTest () throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
         
@@ -39,7 +40,7 @@ public class ItemServiceTest {
 
     }
     
-    @Test
+    @Ignore
     public void getAllItemTest () throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
         
