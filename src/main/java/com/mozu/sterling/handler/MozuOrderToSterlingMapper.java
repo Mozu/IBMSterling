@@ -141,14 +141,15 @@ public class MozuOrderToSterlingMapper {
                 	sItem.setItemID(product.getProductCode());
                 }
                 sItem.setUPCCode(product.getUpc());
-                sItem.setItemDesc(product.getName());
-                sItem.setItemShortDesc(product.getDescription());
+                sItem.setItemShortDesc((product.getName()!=null && product.getName().length()>200)?product.getName().substring(0, 199):product.getName());
+                sItem.setItemDesc((product.getDescription()!=null && product.getDescription().length()>500) ? product.getDescription().substring(0, 499):product.getDescription());
+               
                 sItem.setUnitOfMeasure("EACH");
                 productPrice = product.getPrice();
                 orderLine.setItem(sItem);
                 orderLine.setKitLines(createKitLinesFromProductOptions(product.getOptions(), apiContext));
                 if(product.getBundledProducts()!=null && product.getBundledProducts().size()>0){
-		   orderLine.setKitCode("BUNDLE");
+                		orderLine.setKitCode("BUNDLE");
                 }
                 if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Digital")){
                 	sItem.setProductLine("DigitalProduct");
