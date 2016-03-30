@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import com.mozu.api.ApiContext;
 import com.mozu.api.MozuApiContext;
 import com.mozu.api.contracts.core.Address;
 import com.mozu.api.contracts.location.Coordinates;
+import com.mozu.api.contracts.location.FulfillmentType;
 import com.mozu.api.contracts.location.Location;
 import com.mozu.api.contracts.location.LocationType;
 import com.mozu.api.contracts.location.ShippingOriginContact;
@@ -112,20 +114,20 @@ public class LocationService extends SterlingOrganizationService {
         
         ShippingOriginContact shippingOriginContact = new ShippingOriginContact();
         if(shipNode.getShipNodePersonInfo()!=null){
-            shippingOriginContact.setCompanyOrOrganization(shipNode.getContactPersonInfo().getCompany());
-            shippingOriginContact.setEmail(shipNode.getContactPersonInfo().getEMailID());
-            shippingOriginContact.setFirstName(shipNode.getContactPersonInfo().getFirstName());
-            shippingOriginContact.setLastNameOrSurname(shipNode.getContactPersonInfo().getLastName());
-            shippingOriginContact.setMiddleNameOrInitial(shipNode.getContactPersonInfo().getMiddleName());
-            String phoneNumber = shipNode.getContactPersonInfo().getDayPhone();
+            shippingOriginContact.setCompanyOrOrganization(StringUtils.isEmpty(shipNode.getShipNodePersonInfo().getCompany())?shipNode.getOrganization().getOrganizationName():shipNode.getShipNodePersonInfo().getCompany());
+            shippingOriginContact.setEmail(shipNode.getShipNodePersonInfo().getEMailID());
+            shippingOriginContact.setFirstName(shipNode.getShipNodePersonInfo().getFirstName());
+            shippingOriginContact.setLastNameOrSurname(shipNode.getShipNodePersonInfo().getLastName());
+            shippingOriginContact.setMiddleNameOrInitial(shipNode.getShipNodePersonInfo().getMiddleName());
+            String phoneNumber = shipNode.getShipNodePersonInfo().getDayPhone();
             if(phoneNumber==null){
-                phoneNumber=shipNode.getContactPersonInfo().getEveningPhone();
+                phoneNumber=shipNode.getShipNodePersonInfo().getEveningPhone();
             }
             if(phoneNumber==null){
-                phoneNumber = shipNode.getContactPersonInfo().getMobilePhone();
+                phoneNumber = shipNode.getShipNodePersonInfo().getMobilePhone();
             }
             if(phoneNumber==null){
-                phoneNumber = shipNode.getContactPersonInfo().getOtherPhone();
+                phoneNumber = shipNode.getShipNodePersonInfo().getOtherPhone();
             }
             
             shippingOriginContact.setPhoneNumber(phoneNumber);
@@ -133,16 +135,25 @@ public class LocationService extends SterlingOrganizationService {
         location.setShippingOriginContact(shippingOriginContact);
         
         List<LocationType> locationTypes = new ArrayList<LocationType>();
-        if(shipNode.getNodeType().equalsIgnoreCase("Store")){
-            LocationType locationType=new LocationType();
-            locationType.setCode("Store");
-            locationTypes.add(locationType);
-        }else{
+        List<FulfillmentType> fulfillmentTypes = new ArrayList<FulfillmentType>();
+        FulfillmentType fulfillmentType = new FulfillmentType();
+        if(shipNode.getNodeType().equalsIgnoreCase("DC")){
             LocationType locationType=new LocationType();
             locationType.setCode("Warehouse");
             locationTypes.add(locationType);
+            fulfillmentType.setCode("DS");
+            fulfillmentType.setName("Direct Ship");
+            
+        }else{
+            LocationType locationType=new LocationType();
+            locationType.setCode("Store");
+            locationTypes.add(locationType);
+            fulfillmentType.setCode("SP");
+            fulfillmentType.setName("In Store Pickup");
         }
         location.setLocationTypes(locationTypes);
+        fulfillmentTypes.add(fulfillmentType);
+        location.setFulfillmentTypes(fulfillmentTypes);
         return location;
     }
     

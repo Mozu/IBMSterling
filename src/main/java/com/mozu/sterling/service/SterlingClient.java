@@ -135,7 +135,7 @@ public class SterlingClient {
     public String printXmlDocument (Document doc) {
         OutputFormat format = new OutputFormat(doc, "UTF-8", true);
         StringWriter stringWriter = new StringWriter();
-        XMLSerializer serializer = new XMLSerializer(System.out, format);
+        XMLSerializer serializer = new XMLSerializer(stringWriter, format);
         try {
             serializer.serialize(doc);
         } catch (Exception e) {
