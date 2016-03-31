@@ -107,6 +107,7 @@ dependencies {
     compile files('./lib/com.ibm.ws.sib.client.thin.jms_8.5.0.jar')
     compile files('./lib/com.ibm.ws.ejb.thinclient_8.5.0.jar')
     compile files('./lib/com.ibm.ws.orb_8.5.0.jar')
+    compile files('./lib/bootstrap.jar')
     compile 'xerces:xerces:2.4.0'
 
     // Declare the dependency for your favourite test framework you want to use in your tests.

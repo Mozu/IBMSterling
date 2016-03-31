@@ -57,6 +57,7 @@ public class ApplicationEventHandlerImpl implements ApplicationEventHandler {
     @Override
     public EventHandlerStatus enabled(ApiContext apiContext, Event event) {
 	try {
+		logger.info("Starting the jms listener for tenant " + apiContext.getTenantId());
 		if (!messageService.turnOnMessageQueueListener(apiContext.getTenantId(), apiContext.getSiteId())) {
             logger.error("An error occurred starting the jms listener for tenant " + apiContext.getTenantId());
 		}
