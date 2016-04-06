@@ -81,10 +81,12 @@ public class MozuOrderToSterlingMapper {
             }
         }
         sterlingOrder.setOrderDate(mozuOrder.getAuditInfo().getCreateDate().toString("yyyyMMdd"));
-        PersonInfoShipTo personInfoShipTo = getPersonInfoShipTo(mozuOrder.getFulfillmentInfo());
+        PersonInfoShipTo personInfoShipTo = getPersonInfoShipTo(mozuOrder.getFulfillmentInfo().getFulfillmentContact());
         OrderLines existingOrderLines = existingSterlingOrder!=null? existingSterlingOrder.getOrderLines(): null;
         sterlingOrder.setOrderLines(getOrderLines(mozuOrder.getItems(), setting, serviceCode, personInfoShipTo,existingOrderLines, apiContext));
-        sterlingOrder.setPersonInfoShipTo(personInfoShipTo);
+       if(personInfoShipTo!=null){
+        	sterlingOrder.setPersonInfoShipTo(personInfoShipTo);
+        }
         sterlingOrder.setPersonInfoBillTo(getPersonInfoBillTo(mozuOrder.getBillingInfo()));
         sterlingOrder.setNotes(getNotes(mozuOrder.getNotes()));
         sterlingOrder.setHeaderCharges(getHeaderCharges(mozuOrder));
@@ -119,7 +121,9 @@ public class MozuOrderToSterlingMapper {
             orderLine.setPrimeLineNo(orderItem.getLineId().toString());
             orderLine.setShipNode(setting.getLocationMap().get(orderItem.getFulfillmentLocationCode()));
             orderLine.setScacAndService(serviceCode);
-            orderLine.setPersonInfoShipTo(personInfoShipTo);
+             if(personInfoShipTo!=null){
+            	orderLine.setPersonInfoShipTo(personInfoShipTo);
+            }
             orderLine.setOrderedQty(String.valueOf(orderItem.getQuantity()));
             
            
@@ -318,10 +322,12 @@ public class MozuOrderToSterlingMapper {
         return personInfo;
     }
 
-    protected PersonInfoShipTo getPersonInfoShipTo(FulfillmentInfo fulfillmentInfo) {
-        PersonInfoShipTo personInfoShipTo = new PersonInfoShipTo();
-        BeanUtils.copyProperties(getPersonInfo(fulfillmentInfo.getFulfillmentContact()), personInfoShipTo);
-
+     protected PersonInfoShipTo getPersonInfoShipTo(Contact fulfillmentContact) {
+        PersonInfoShipTo personInfoShipTo =null;
+        if(fulfillmentContact!=null){
+        	personInfoShipTo = new PersonInfoShipTo();
+        	BeanUtils.copyProperties(getPersonInfo(fulfillmentContact), personInfoShipTo);
+        }
         // personInfoShipTo.setIsCommercialAddress(fulfillmentInfo.getIsDestinationCommercial().toString());
         return personInfoShipTo;
     }

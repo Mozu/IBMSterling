@@ -85,32 +85,20 @@ public class SterlingShipmentToMozuMapper {
 	        }
 			
 			if(mozuLineId!=null){
+				DateTime sterlingTime = convertFromSterlingTime(sterlingShipment.getActualShipmentDate());
+				String fulfillmentLocation = getfulfillmentlocation(sterlingShipment.getShipNode(), setting);
 		        if (sterlingShipment.getDeliveryMethod().equals("PICK")) {
-		          /*  Pickup pickup;
-		            List<BundledProduct> bundledProducts =
-		            orderItem.getProduct().getBundledProducts();
-		            if (bundledProducts != null && bundledProducts.size() > 0) {
-		                for (BundledProduct bp : bundledProducts) {
-		                    pickup = createPickup(order.getAcceptedDate(),
-		                    orderItem.getFulfillmentLocationCode(),
-		                    bp.getProductCode(),
-		                    bp.getQuantity() * Integer.valueOf(orderItem.getQuantity()), orderItem.getLineId());
-		                    pickups.add(pickup);
-		                }
-		            } else {
-		            	pickup = createPickup(order.getAcceptedDate(),
-						orderItem.getFulfillmentLocationCode(),
-						orderItem.getProduct().getProductCode(),
-						Integer.valueOf(orderItem.getQuantity()), orderItem.getLineId());
-			            pickups.add(pickup);
-		             }
-	
-		             order.setPickups(pickups);
-		             orderItem.getProduct().setFulfillmentStatus(packageStatus);*/
+		           
+		           Pickup pickup = createPickup(sterlingShipment, shipLine, Double.valueOf(shipLine.getQuantity()).intValue(), 
+		        			mozuLineId, sterlingTime, fulfillmentLocation);
+		          
+			       pickups.add(pickup);
+		           order.setPickups(pickups);
+		           order.getItems().get(0).getProduct().setFulfillmentStatus(FULFILLED_STATUS);
 		        } else if (sterlingShipment.getDeliveryMethod().equals("SHP")){
 		        	
 		        	Package pkg= createPackage(sterlingShipment, shipLine, Double.valueOf(shipLine.getQuantity()).intValue(), 
-		        			mozuLineId, convertFromSterlingTime(sterlingShipment.getActualShipmentDate()), getfulfillmentlocation(sterlingShipment.getShipNode(), setting));
+		        			mozuLineId, sterlingTime ,fulfillmentLocation );
 		            packages.add(pkg);
 		            order.setPackages(packages);
 		            order.getItems().get(0).getProduct().setFulfillmentStatus(FULFILLED_STATUS);
@@ -208,16 +196,19 @@ public class SterlingShipmentToMozuMapper {
         return pkg;
 	}
 	
-	private static Pickup createPickup(DateTime fulfillmentTime, String storeLocation, String productCode,
-			Integer unitQuantity, int lineId) {
+	private static Pickup createPickup(Shipment sterlingShipment,ShipmentLine shipLine,
+			Integer unitQuantity, int lineId,DateTime fulfillmentTime, String storeLocation) {
 			Pickup pickup = new Pickup();
 			pickup.setFulfillmentDate(fulfillmentTime);
 			pickup.setFulfillmentLocationCode(storeLocation);
 			pickup.setStatus(FULFILLED_STATUS);
+			
 			PickupItem pi = new PickupItem();
 			pi.setLineId(lineId);
 			pi.setFulfillmentItemType("Physical");
-			pi.setProductCode(productCode);
+			if (shipLine.getItemID() != null) {
+		  		  pi.setProductCode(shipLine.getItemID());
+		    }
 			pi.setQuantity(unitQuantity);
 			List<PickupItem> pickupItems = new ArrayList<>();
 			pickupItems.add(pi);

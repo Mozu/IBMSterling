@@ -136,23 +136,25 @@ public class LocationService extends SterlingOrganizationService {
         
         List<LocationType> locationTypes = new ArrayList<LocationType>();
         List<FulfillmentType> fulfillmentTypes = new ArrayList<FulfillmentType>();
-        FulfillmentType fulfillmentType = new FulfillmentType();
+       
         if(shipNode.getNodeType().equalsIgnoreCase("DC")){
             LocationType locationType=new LocationType();
             locationType.setCode("Warehouse");
             locationTypes.add(locationType);
-            fulfillmentType.setCode("DS");
-            fulfillmentType.setName("Direct Ship");
-            
         }else{
             LocationType locationType=new LocationType();
             locationType.setCode("Store");
             locationTypes.add(locationType);
-            fulfillmentType.setCode("SP");
-            fulfillmentType.setName("In Store Pickup");
+            FulfillmentType fulfillmentTypeSP = new FulfillmentType();
+            fulfillmentTypeSP.setCode("SP");
+            fulfillmentTypeSP.setName("In Store Pickup");
+            fulfillmentTypes.add(fulfillmentTypeSP);
         }
         location.setLocationTypes(locationTypes);
-        fulfillmentTypes.add(fulfillmentType);
+        FulfillmentType fulfillmentTypeDS = new FulfillmentType();
+        fulfillmentTypeDS.setCode("DS");
+        fulfillmentTypeDS.setName("Direct Ship");
+        fulfillmentTypes.add(fulfillmentTypeDS);
         location.setFulfillmentTypes(fulfillmentTypes);
         return location;
     }

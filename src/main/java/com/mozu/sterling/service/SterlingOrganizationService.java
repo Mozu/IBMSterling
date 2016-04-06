@@ -138,9 +138,9 @@ public class SterlingOrganizationService extends SterlingClient {
     public List<Organization> getSellerOrganizations (Setting setting) throws Exception {
         Organization organization = new Organization();
         organization.setIsSeller("Y");
-        if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
-            organization.setCatalogOrganizationCode(setting.getSterlingEnterpriseCode());
-        }
+       // if (StringUtils.isNotBlank(setting.getSterlingEnterpriseCode())) {
+          //  organization.setCatalogOrganizationCode(setting.getSterlingEnterpriseCode());
+       //}
         return getOrganizationList(setting, organization); 
     }
 

@@ -2,6 +2,7 @@ package com.mozu.sterling.service;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
@@ -10,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
+
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.fulfillment.FulfillmentAction;
 import com.mozu.api.contracts.commerceruntime.fulfillment.PackageItem;
+import com.mozu.api.contracts.commerceruntime.fulfillment.PickupItem;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
 import com.mozu.api.contracts.commerceruntime.orders.OrderAction;
 import com.mozu.api.contracts.commerceruntime.orders.OrderCollection;
@@ -21,6 +24,7 @@ import com.mozu.api.resources.commerce.OrderResource;
 import com.mozu.api.resources.commerce.orders.FulfillmentActionResource;
 import com.mozu.api.resources.commerce.orders.PackageResource;
 import com.mozu.api.resources.commerce.orders.PaymentResource;
+import com.mozu.api.resources.commerce.orders.PickupResource;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.handler.MozuOrderToSterlingMapper;
 import com.mozu.sterling.handler.SterlingOrderToMozuMapper;
@@ -412,8 +416,11 @@ public class OrderService extends SterlingClient {
                     existingOrders.getItems().size() > 0) {
                 Order existingOrder = existingOrders.getItems().get(0);
                 mozuOrder = sterlingShipmentToMozuMapper.mapSterlingShipmentToMozuFulFillment(sterlingShipment,existingOrder, apiContext, setting);
-                shipOrder(mozuOrder, apiContext);
-          
+                if(mozuOrder.getPackages().size()>0){
+                	shipOrder(mozuOrder, apiContext);
+                }else if(mozuOrder.getPickups().size()>0){
+                	pickOrder(mozuOrder, apiContext);
+                }
             }
                
         } else {
@@ -430,42 +437,15 @@ public class OrderService extends SterlingClient {
 
         for (com.mozu.api.contracts.commerceruntime.fulfillment.Package pkg : order.getPackages()) {
             List<PackageItem> packageItems = new ArrayList<PackageItem>();
-            com.mozu.api.contracts.commerceruntime.fulfillment.Package existingPackage = null;
-           /* if (existingOrder.getPackages().size() > 0) { // check to see if the
-                                                          // items are already
-                                                          // in existing package
-                for (PackageItem pkgItem : pkg.getItems()) {
-                    existingPackage = checkPkgItem(pkgItem, existingOrder, pkg.getTrackingNumber());
-                    if (existingPackage == null)
-                        packageItems.add(pkgItem);
-                    else { // Check Qty Diffs
-                        PackageItem newPkgItem = getQtyDiffPackageItem(pkgItem,
-                                existingOrder.getPackages(), pkg.getTrackingNumber());
-
-                        if (newPkgItem != null)
-                            packageItems.add(newPkgItem);
-                    }
-                }
-
-            } else {*/
-                packageItems = pkg.getItems();
-            //}
-
+            packageItems = pkg.getItems();
             if (packageItems.size() > 0) {
-                pkg.setItems(packageItems);
-                ObjectMapper mapper = new ObjectMapper();
-                String jsonInString = mapper.writeValueAsString(pkg);
-                logger.debug(jsonInString);  
-                com.mozu.api.contracts.commerceruntime.fulfillment.Package pkg1 = packageResource
+               com.mozu.api.contracts.commerceruntime.fulfillment.Package pkg1 = packageResource
                         .createPackage(pkg, order.getId());
 
                 if (StringUtils.equals(pkg.getStatus(), FULFILLED_STATUS)) {
                     action.getPackageIds().add(pkg1.getId());
                 }
-            } else {
-                packageResource.updatePackage(existingPackage, order.getId(),
-                        existingPackage.getId());
-            }
+            } 
         }
         if (action.getPackageIds().size() > 0) {
             action.setActionName("Ship");
@@ -473,6 +453,32 @@ public class OrderService extends SterlingClient {
         }
 
     }
+    
+    private void pickOrder(Order order, ApiContext context) throws Exception {
+        PickupResource pickupResource = new PickupResource(context);
+        FulfillmentActionResource fulFillmentResource = new FulfillmentActionResource(context);
+        FulfillmentAction action = new FulfillmentAction();
+        action.setPickupIds(new ArrayList<String>());
+
+        for (com.mozu.api.contracts.commerceruntime.fulfillment.Pickup pickup : order.getPickups()) {
+            List<PickupItem> pickupItems = new ArrayList<PickupItem>();
+            pickupItems = pickup.getItems();
+            if (pickupItems.size() > 0) {
+               com.mozu.api.contracts.commerceruntime.fulfillment.Pickup pickup1 = pickupResource
+                        .createPickup(pickup, order.getId());
+
+                if (StringUtils.equals(pickup.getStatus(), FULFILLED_STATUS)) {
+                    action.getPickupIds().add(pickup1.getId());
+                }
+            } 
+        }
+        if (action.getPickupIds().size() > 0) {
+            action.setActionName("PickUp");
+            fulFillmentResource.performFulfillmentAction(action, order.getId());
+        }
+
+    }
+    
     
     private void cancelMozuOrder(ApiContext apiContext, Order mozuOrder) throws Exception{
     	PaymentResource paymentResource = new PaymentResource(apiContext);
