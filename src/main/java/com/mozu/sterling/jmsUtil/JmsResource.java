@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
+
 /**
  * Contains jms types needed to read and write to a single location.
  *
@@ -38,6 +39,7 @@ public class JmsResource {
 		this.connectionFactory = setting.getConnectionFactory();
 		this.createOrderDestination = setting.getCreateOrderDestination();
 		this.updateOrderDestination = setting.getUpdateOrderDestination();
+		this.inventoryDestination = setting.getInventoryDestination();
 		this.shipmentDestination = setting.getShipmentDestination();
 
 		messageListenerContainers = new ArrayList<DefaultMessageListenerContainer>();

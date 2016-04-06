@@ -92,7 +92,7 @@ public class SterlingQueueTest {
 		setting.setBusName("JMSSterlingBus");
 		setting.setCreateOrderDestinationName("q_ordercreate");
 		setting.setUpdateOrderDestinationName("q_orderupdate");
-		setting.setInventoryDestinationName("q_agent");
+		setting.setInventoryDestinationName("q_inventorychange");
 		setting.setDestinationType(DestinationTypeEnum.QUEUE.destinationName());
 
 		Map<String, String> shipMethodMap = new HashMap<String, String>();
@@ -134,40 +134,7 @@ public class SterlingQueueTest {
 		//An order create/update is expected to be queued up form on sterling
 
 		//Write an inventory message
-/*
-		JmsTemplate template = jmsResource.getJmsTemplate();
-		template.send(jmsResource.getInventoryDestination(), new MessageCreator() {
 
-			@Override
-			public Message createMessage(Session session) throws JMSException {
-				AvailabilityChange availabilityChange = new AvailabilityChange();
-				availabilityChange.setNode("sterling_node1");
-				availabilityChange.setOnhandAvailableQuantity("101");
-
-				Item item = new Item();
-				item.setItemID("AuroraWMDRS-001");
-				availabilityChange.setItem(item);
-
-				String message = "";
-
-				try {
-					JAXBContext jaxbContext = JAXBContext
-							.newInstance(com.mozu.sterling.model.inventory.AvailabilityChange.class);
-
-					Marshaller marshaller = jaxbContext.createMarshaller();
-					StringWriter stringWriter = new StringWriter();
-					marshaller.marshal(availabilityChange, stringWriter);
-					message = stringWriter.toString();
-
-				} catch (JAXBException jaxbEx) {
-					logger.error("Error getting jaxb context.");
-				}
-
-				return session.createTextMessage(message);
-			}
-
-		});
-*/
 		Thread.sleep(30000); // wait for the listener to process the message
 
 

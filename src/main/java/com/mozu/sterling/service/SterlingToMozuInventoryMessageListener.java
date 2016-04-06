@@ -11,10 +11,15 @@ import javax.jms.TextMessage;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import com.mozu.api.ApiContext;
 import com.mozu.api.MozuApiContext;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.jmsUtil.TenantSiteMessageListener;
@@ -25,8 +30,23 @@ import com.mozu.sterling.model.Setting;
  * create a unique durable subscription. Not thread safe as it is tied to a
  * tenant.
  *
+ * <pre>
+ * <InventoryItem ItemID="AuroraWMDRS-018" ProductClass="" UnitOfMeasure="EACH">
+ *    <AvailabilityChanges>
+ *        <AvailabilityChange AgentCriteriaId="REALTIME_ATP_MONITOR_OP1"
+ *            AlertLevel="0" AlertQuantity="2147483647.00"
+ *            AlertRaisedOn="2016-04-05T07:50:50-04:00"
+ *            AlertType="REALTIME_ONHAND"
+ *            FirstFutureAvailableDate="2500-01-01"
+ *            FutureAvailableDate="2500-01-01"
+ *            FutureAvailableQuantity="0.00" MonitorOption="1" Node=""
+ *            OnhandAvailableDate="2016-04-05" OnhandAvailableQuantity="400.00"/>
+ *    </AvailabilityChanges>
+ * </InventoryItem>
+ * </pre>
  */
-public class SterlingToMozuInventoryMessageListener implements TenantSiteMessageListener {
+public class SterlingToMozuInventoryMessageListener implements
+		TenantSiteMessageListener {
 	private static final Logger logger = LoggerFactory
 			.getLogger(SterlingToMozuInventoryMessageListener.class);
 	private static JAXBContext jaxbContext = null;
@@ -42,7 +62,7 @@ public class SterlingToMozuInventoryMessageListener implements TenantSiteMessage
 	static {
 		try {
 			jaxbContext = JAXBContext
-					.newInstance(com.mozu.sterling.model.inventory.AvailabilityChange.class);
+					.newInstance(com.mozu.sterling.model.inventory.InventoryItem.class);
 		} catch (JAXBException jaxbEx) {
 			logger.error("Error getting jaxb context.");
 		}
@@ -65,29 +85,53 @@ public class SterlingToMozuInventoryMessageListener implements TenantSiteMessage
 				Setting setting = configHandler.getSetting(tenantId);
 
 				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-				StringReader messageReader = new StringReader(
-						((TextMessage) message).getText());
-				com.mozu.sterling.model.inventory.AvailabilityChange sterlingInventoryChange = (com.mozu.sterling.model.inventory.AvailabilityChange) unmarshaller
-						.unmarshal(messageReader);
+				DocumentBuilderFactory factory = DocumentBuilderFactory
+						.newInstance();
+				DocumentBuilder builder;
+				Document document = null;
+				builder = factory.newDocumentBuilder();
+				document = builder.parse(new InputSource(new StringReader(
+						((TextMessage) message).getText())));
+				com.mozu.sterling.model.inventory.InventoryItem sterlingInventoryItem = (com.mozu.sterling.model.inventory.InventoryItem) unmarshaller
+						.unmarshal(document);
+
+				String organizationCode = sterlingInventoryItem
+						.getOrganizationCode();
 
 				Set<Integer> theSiteId = new HashSet<Integer>();
 
-				for (Entry<String, String> entry : setting.getSiteMap().entrySet()) {
-					if (entry.getValue().equals(sterlingInventoryChange.getInventoryItem().getInventoryOrganizationCode())) {
+				for (Entry<String, String> entry : setting.getSiteMap()
+						.entrySet()) {
+					if (entry.getValue().equals(organizationCode)) {
 						theSiteId.add(Integer.valueOf(entry.getKey()));
 					}
+				}
+
+				if (theSiteId.isEmpty() && setting.getSiteMap() != null
+						&& !setting.getSiteMap().isEmpty()) {
+					theSiteId.add(Integer.valueOf(setting.getSiteMap().keySet()
+							.iterator().next()));
 				}
 
 				theSiteId.retainAll(siteSet);
 
 				if (!theSiteId.isEmpty() && theSiteId.size() == 1) {
-				inventoryService.updateInventory(new MozuApiContext(tenantId,
-						theSiteId.iterator().next()), configHandler.getSetting(tenantId),
-						sterlingInventoryChange);
-				} else {
-					logger.warn("No sites or more than one site matched for the sterling order.");
-				}
+					ApiContext mozuApiContext = new MozuApiContext(tenantId,
+							theSiteId.iterator().next());
 
+					if (sterlingInventoryItem.getAvailabilityChanges() != null) {
+						for (com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange : sterlingInventoryItem
+								.getAvailabilityChanges()
+								.getAvailabilityChange()) {
+							inventoryService.updateInventory(mozuApiContext,
+									configHandler.getSetting(tenantId),
+									sterlingInventoryItem.getItemID(),
+									availabilityChange);
+						}
+					}
+				} else {
+					logger.warn("No sites or more than one site matched for the sterling inventory adjustment.");
+				}
 			} catch (JMSException e) {
 				logger.error("Failed to read message.", e);
 			} catch (JAXBException jaxbEx) {

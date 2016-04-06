@@ -147,12 +147,23 @@ public class MozuOrderToSterlingMapper {
                 sItem.setUnitOfMeasure("EACH");
                 productPrice = product.getPrice();
                 orderLine.setItem(sItem);
-                orderLine.setKitLines(createKitLinesFromProductOptions(product.getOptions(), apiContext));
-                if(product.getBundledProducts()!=null && product.getBundledProducts().size()>0){
-                		orderLine.setKitCode("BUNDLE");
+
+                KitLines kitLines = createKitLinesFromProductOptions(product, product.getOptions(), apiContext);
+                orderLine.setKitLines(kitLines);
+
+                if (kitLines.getKitLine() != null && !kitLines.getKitLine().isEmpty()) {
+			sItem.setUPCCode("");
+			sItem.setItemDesc("Mozu dynamic physical kit.");
+			sItem.setItemID("MozuKit");
+
+			orderLine.setKitCode("Dynamic Physical Kit");
+                } else {
+	                if(product.getBundledProducts()!=null && product.getBundledProducts().size()>0){
+				orderLine.setKitCode("BUNDLE");
+	                }
                 }
                 if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Digital")){
-                	sItem.setProductLine("DigitalProduct");
+			sItem.setProductLine("DigitalProduct");
                 	
                 }
            }
@@ -440,7 +451,7 @@ public class MozuOrderToSterlingMapper {
         sterlingOrder.setPaymentMethods(paymentMethods);
     }
 
-    protected KitLines createKitLinesFromProductOptions(List<ProductOption> productOptions, ApiContext apiContext) throws Exception {
+    protected KitLines createKitLinesFromProductOptions(Product product, List<ProductOption> productOptions, ApiContext apiContext) throws Exception {
 	KitLines kitLines = new KitLines();
 	List<KitLine> kitLineList = kitLines.getKitLine();
 
@@ -476,6 +487,16 @@ public class MozuOrderToSterlingMapper {
 			}
 
 			kitLineList.add(kitLine);
+		}
+
+		// If there are kitlines, then the product itself is a kitline
+		if (!kitLineList.isEmpty()) {
+			KitLine kitLine = new KitLine();
+			kitLine.setItemShortDesc(product.getName());
+			kitLine.setItemID(product.getProductCode());
+			kitLine.setProductClass(isVariantProduct(product.getProductCode(), apiContext) ? "TRUE" : "FALSE");
+
+			kitLineList.add(0, kitLine);
 		}
 	}
 

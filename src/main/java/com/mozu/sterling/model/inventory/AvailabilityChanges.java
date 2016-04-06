@@ -22,41 +22,41 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "alternateUOM"
+    "availabilityChange"
 })
-@XmlRootElement(name = "AlternateUOMList")
-public class AlternateUOMList {
+@XmlRootElement(name = "AvailabilityChanges")
+public class AvailabilityChanges {
 
-    @XmlElement(name = "AlternateUOM")
-    protected List<AlternateUOM> alternateUOM;
+    @XmlElement(name = "AvailabilityChange")
+    protected List<AvailabilityChange> availabilityChange;
 
     /**
-     * Gets the value of the alternateUOM property.
+     * Gets the value of the availabilityChange property.
      *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the alternateUOM property.
+     * This is why there is not a <CODE>set</CODE> method for the availabilityChange property.
      *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getAlternateUOM().add(newItem);
+     *    getAvailabilityChange().add(newItem);
      * </pre>
      *
      *
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link AlternateUOM }
+     * {@link AvailabilityChange }
      *
      *
      */
-    public List<AlternateUOM> getAlternateUOM() {
-        if (alternateUOM == null) {
-            alternateUOM = new ArrayList<AlternateUOM>();
+    public List<AvailabilityChange> getAvailabilityChange() {
+        if (availabilityChange == null) {
+            availabilityChange = new ArrayList<AvailabilityChange>();
         }
-        return this.alternateUOM;
+        return this.availabilityChange;
     }
 
 }

@@ -25,43 +25,43 @@ public class SterlingInventoryToMozuMapper {
 	return Integer.valueOf(availabilityChange.getOnhandAvailableQuantity());
     }
 
-    public String getProductCode(com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange) {
-	return availabilityChange.getItem().getItemID();
-    }
-
     protected String getLocationCode(com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange, Setting setting) {
 	String mozuLocation = null;
 	String shipnode = availabilityChange.getNode();
+	Map<String, String> locationMap = setting.getLocationMap();
 
         if (StringUtils.isNotBlank(shipnode)) {
-            Map<String, String> locationMap = setting.getLocationMap();
             for (Entry<String, String> entry : locationMap.entrySet()) {
                 if (shipnode.equals(entry.getValue())) {
                     mozuLocation = entry.getKey();
                     break;
                 }
             }
+        } else {
+		mozuLocation = locationMap.keySet().iterator().next();
         }
+
         return mozuLocation;
     }
 
     /**
-     * Map a Sterling order to a Mozu order
+     * Map Sterling inventory to a Mozu adjustment.
      *
-     * @param sterlingOrder
-     *            Sterling order
+     * @param productCode
+     * @param availabilityChange
      * @param apiContext
-     * @return Mozu order
+     * @param setting
+     * @return
      * @throws Exception
      */
-    public List<LocationInventoryAdjustment> availabilityChangeToLocationInventoryAdjustment(com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange, ApiContext apiContext, Setting setting)
+    public List<LocationInventoryAdjustment> availabilityChangeToLocationInventoryAdjustment(String productCode, com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange, ApiContext apiContext, Setting setting)
             throws Exception {
 	List<LocationInventoryAdjustment> locationInventoryAdjustments = new ArrayList<LocationInventoryAdjustment>();
 		LocationInventoryAdjustment locationInventoryAdjustment = new LocationInventoryAdjustment();
 		locationInventoryAdjustments.add(locationInventoryAdjustment);
 
 		locationInventoryAdjustment.setLocationCode(getLocationCode(availabilityChange, setting));
-		locationInventoryAdjustment.setProductCode(getProductCode(availabilityChange));
+		locationInventoryAdjustment.setProductCode(productCode);
 		locationInventoryAdjustment.setType(INVENTORY_ADJUSTMENT_TYPE);
 		locationInventoryAdjustment.setValue(getInventoryQuantity(availabilityChange));
 

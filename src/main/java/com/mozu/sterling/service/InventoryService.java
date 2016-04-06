@@ -10,12 +10,11 @@ import org.springframework.stereotype.Service;
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.productadmin.LocationInventoryAdjustment;
 import com.mozu.api.resources.commerce.catalog.admin.products.LocationInventoryResource;
-import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.handler.SterlingInventoryToMozuMapper;
 import com.mozu.sterling.model.Setting;
 
 /**
- * Service for reading, mapping, and sending Orders from to Mozu to Sterling.
+ * Service for mapping, and sending inventory from sterling to mozu.
  *
  * @author bob_hewett
  *
@@ -24,17 +23,6 @@ import com.mozu.sterling.model.Setting;
 public class InventoryService extends SterlingClient {
 	private static final Logger logger = LoggerFactory
 			.getLogger(InventoryService.class);
-
-	public final static String ORDER_SERVICE_NAME = "createOrder";
-	public final static String GET_ORDER_LIST_SERVICE_NAME = "getOrderList";
-	public final static String GET_ORDER_SERVICE_NAME = "getOrderDetails";
-	public final static String UPDATE_ORDER_SERVICE_NAME = "changeOrder";
-
-	@Autowired
-	SterlingClient sterlingClient;
-
-	@Autowired
-	ConfigHandler configHandler;
 
 	@Autowired
 	SterlingInventoryToMozuMapper sterlingInventoryToMozuMapper;
@@ -52,26 +40,25 @@ public class InventoryService extends SterlingClient {
 	public boolean updateInventory(
 			ApiContext apiContext,
 			Setting setting,
+			String productCode,
 			com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange
 			) throws Exception {
 		List<LocationInventoryAdjustment> locationInventoryAdjustments = null;
 		if (availabilityChange != null) {
 
 			locationInventoryAdjustments = sterlingInventoryToMozuMapper
-					.availabilityChangeToLocationInventoryAdjustment(
+					.availabilityChangeToLocationInventoryAdjustment(productCode,
 							availabilityChange, apiContext, setting);
 
 			LocationInventoryResource locationInventoryResource = new LocationInventoryResource(
 					apiContext);
 
 			locationInventoryResource.updateLocationInventory(
-					locationInventoryAdjustments, sterlingInventoryToMozuMapper
-							.getProductCode(availabilityChange));
+					locationInventoryAdjustments, productCode);
 
 		} else {
 			logger.info("AvailabilityChange cannot be null.");
 		}
 		return locationInventoryAdjustments != null;
 	}
-
 }
