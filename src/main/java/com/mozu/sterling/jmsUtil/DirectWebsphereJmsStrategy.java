@@ -92,7 +92,7 @@ public class DirectWebsphereJmsStrategy implements JmsConnectionStrategy {
 			connectionFactory.setClientID(getJmsClientId());
 		}
 
-		return new SingleConnectionFactory(connectionFactory);
+		return connectionFactory;
 	}
 
 	protected Destination getCreateOrderDestination(Setting setting)
