@@ -1,4 +1,4 @@
-<!ELEMENT Shipment ( ServiceLine*,ToAddress?,BillToAddress?,FromAddress?,Shipnode?,DeliveryPlan?,PickList?,Manifest?,Containers?,Instructions?,OrderInvoiceList?,ShipmentLines?,OriginLoad?,DestinationLoad?,LoadShipments?,ShipmentCharges?,ShipmentStatusAudits?,AdditionalDates?,ScacAndService?,AllowedModifications*,Status?,AllowedTransactions?,PackListPriceInfo?,SpecialServices?,ShipmentHoldTypes?,DoNotMixAttributes? )>
+<!ELEMENT Shipment ( ServiceLine*,ToAddress?,BillToAddress?,FromAddress?,Shipnode?,DeliveryPlan?,PickList?,Manifest?,Containers?,Instructions?,OrderInvoiceList?,ShipmentLines?,OriginLoad?,DestinationLoad?,LoadShipments?,ShipmentCharges?,ShipmentStatusAudits?,AdditionalDates?,AllowedModifications*,Status?,AllowedTransactions?,PackListPriceInfo?,SpecialServices?,ShipmentHoldTypes?,DoNotMixAttributes? )>
 <!ATTLIST Shipment ActualDeliveryDate CDATA #IMPLIED>
 <!ATTLIST Shipment ActualFreightCharge CDATA #IMPLIED>
 <!ATTLIST Shipment ActualShipmentDate CDATA #IMPLIED>
@@ -99,7 +99,7 @@
 <!ATTLIST Shipment ReturnCarrierService CDATA #IMPLIED>
 <!ATTLIST Shipment ReturnFreightTerms CDATA #IMPLIED>
 <!ATTLIST Shipment SCAC CDATA #IMPLIED>
-
+<!ATTLIST Shipment ScacAndService CDATA #IMPLIED>
 <!ATTLIST Shipment ScacAndServiceKey CDATA #IMPLIED>
 <!ATTLIST Shipment ScacIntegrationRequired CDATA #IMPLIED>
 <!ATTLIST Shipment SealNo CDATA #IMPLIED>

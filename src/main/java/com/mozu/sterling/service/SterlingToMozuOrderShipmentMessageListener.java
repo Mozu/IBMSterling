@@ -81,7 +81,7 @@ public class SterlingToMozuOrderShipmentMessageListener implements TenantSiteMes
                 Shipment shipment = (com.mozu.sterling.model.shipment.Shipment) unmarshaller
                         .unmarshal(document);
                 logger.debug("Reading Shipment from the message queue.  Sterling Order No: "
-                        + shipment.getOrderNo());
+                        + shipment.getShipmentLines().getShipmentLine().get(0).getOrderNo());
 
                 if (setting.getSiteMap() != null
                         && !setting.getSiteMap().isEmpty()

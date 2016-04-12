@@ -2,7 +2,10 @@ package com.mozu.sterling.handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -10,7 +13,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.commerceruntime.fulfillment.Package;
 import com.mozu.api.contracts.commerceruntime.fulfillment.PackageItem;
@@ -19,9 +24,13 @@ import com.mozu.api.contracts.commerceruntime.fulfillment.PickupItem;
 import com.mozu.api.contracts.commerceruntime.orders.Order;
 import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.contracts.productruntime.Product;
+import com.mozu.sterling.model.MozuShippingCarrier;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.shipment.Container;
+import com.mozu.sterling.model.shipment.ContainerDetail;
 import com.mozu.sterling.model.shipment.Shipment;
 import com.mozu.sterling.model.shipment.ShipmentLine;
+import com.mozu.sterling.service.MozuShippingService;
 
 @Component
 public class SterlingShipmentToMozuMapper {
@@ -33,6 +42,9 @@ public class SterlingShipmentToMozuMapper {
     public static final String FULFILLED_STATUS = "Fulfilled";
     public static final String NOT_FULFILLED_STATUS = "NotFulfilled";
     public static final String PACKAGE_STATUS = "Pending";
+    
+    @Autowired
+    MozuShippingService mozuShippingService;
        /**
      * Map a Sterling order to a Mozu order
      * 
@@ -44,12 +56,18 @@ public class SterlingShipmentToMozuMapper {
     public Order mapSterlingShipmentToMozuFulFillment(Shipment sterlingShipment,Order order, ApiContext apiContext, Setting setting)
             throws Exception {
     	order.setFulfillmentStatus(FULFILLED_STATUS);
+    	String shippingMethodCode=null;
+    	if(sterlingShipment.getScacAndService() != null){
+    		shippingMethodCode = getShippingMethodCode(setting, sterlingShipment.getScacAndService());
+    		order.getFulfillmentInfo()
+    		.setShippingMethodCode(shippingMethodCode);
+    	}
     	order.setStatus("Processing");
-    	createPackages(order,sterlingShipment, FULFILLED_STATUS, setting, apiContext);
-		return order;
+    	createPackages(order,sterlingShipment, FULFILLED_STATUS, setting, apiContext, shippingMethodCode);
+    	return order;
    }
    
-    private void createPackages(Order order,Shipment sterlingShipment, String packageStatus, Setting setting,ApiContext apiContext) throws Exception {
+    private void createPackages(Order order,Shipment sterlingShipment, String packageStatus, Setting setting,ApiContext apiContext, String shippingMethodCode) throws Exception {
     	// Items set to Pickup go into pickups
         List<Pickup> pickups = new ArrayList<>();
         // Items set to Ship go into packages
@@ -89,7 +107,7 @@ public class SterlingShipmentToMozuMapper {
 				String fulfillmentLocation = getfulfillmentlocation(sterlingShipment.getShipNode(), setting);
 		        if (sterlingShipment.getDeliveryMethod().equals("PICK")) {
 		           
-		           Pickup pickup = createPickup(sterlingShipment, shipLine, Double.valueOf(shipLine.getQuantity()).intValue(), 
+		           Pickup pickup = createPickup(shipLine, Double.valueOf(shipLine.getQuantity()).intValue(), 
 		        			mozuLineId, sterlingTime, fulfillmentLocation);
 		          
 			       pickups.add(pickup);
@@ -97,8 +115,8 @@ public class SterlingShipmentToMozuMapper {
 		           order.getItems().get(0).getProduct().setFulfillmentStatus(FULFILLED_STATUS);
 		        } else if (sterlingShipment.getDeliveryMethod().equals("SHP")){
 		        	
-		        	Package pkg= createPackage(sterlingShipment, shipLine, Double.valueOf(shipLine.getQuantity()).intValue(), 
-		        			mozuLineId, sterlingTime ,fulfillmentLocation );
+		        	Package pkg= createPackage(getTrackingNumber(sterlingShipment, shipLine.getShipmentKey()), shipLine, Double.valueOf(shipLine.getQuantity()).intValue(), 
+		        			mozuLineId, sterlingTime ,fulfillmentLocation, shippingMethodCode );
 		            packages.add(pkg);
 		            order.setPackages(packages);
 		            order.getItems().get(0).getProduct().setFulfillmentStatus(FULFILLED_STATUS);
@@ -112,6 +130,18 @@ public class SterlingShipmentToMozuMapper {
 			}
 	      
 	}
+    }
+    
+    private String getTrackingNumber(Shipment sterlingShipment, String shipmentKey){
+    	String trackingNumber = "";
+    	for (Container container : sterlingShipment.getContainers().getContainer()) {
+    			if(container.getShipmentKey().equals(shipmentKey)){
+	    				trackingNumber=container.getTrackingNo();
+	    				break;
+	    			}
+			}
+		return trackingNumber;
+    	
     }
     
     private com.mozu.api.contracts.commerceruntime.products.Product getProduct(ApiContext apiContext,
@@ -170,16 +200,26 @@ public class SterlingShipmentToMozuMapper {
 		return lineId;
     	
     }
-	private static Package createPackage(Shipment sterlingShipment,ShipmentLine shipLine,
-		Integer unitQuantity, int lineId,DateTime fulfillmentTime, String storeLocation) {
+	private Package createPackage(String trackingNumber,ShipmentLine shipLine,
+		Integer unitQuantity, int lineId,DateTime fulfillmentTime, String storeLocation, String shippingMethodCode) {
 		
-		Package pkg = new Package();
-		
-        pkg.setTrackingNumber(sterlingShipment.getTrackingNo());
+		Package pkg = new Package();		
+        pkg.setTrackingNumber(trackingNumber);
         pkg.setStatus(FULFILLED_STATUS);
         pkg.setFulfillmentDate(fulfillmentTime);
         pkg.setFulfillmentLocationCode(storeLocation);
-        
+        List<MozuShippingCarrier> mozuShippingCarriers=null;
+        if(shippingMethodCode!=null){
+        	pkg.setShippingMethodCode(shippingMethodCode);
+        	mozuShippingCarriers = mozuShippingService.getMozuShippingCarriers();
+        	for (MozuShippingCarrier carrier : mozuShippingCarriers) {
+        		 if(carrier.getCode().equalsIgnoreCase(shippingMethodCode)){
+        			 pkg.setShippingMethodName(carrier.getDescription());
+        			 break;
+        		 }
+        	}
+        }
+     
        
         PackageItem pItem = new PackageItem();
 
@@ -196,7 +236,7 @@ public class SterlingShipmentToMozuMapper {
         return pkg;
 	}
 	
-	private static Pickup createPickup(Shipment sterlingShipment,ShipmentLine shipLine,
+	private Pickup createPickup(ShipmentLine shipLine,
 			Integer unitQuantity, int lineId,DateTime fulfillmentTime, String storeLocation) {
 			Pickup pickup = new Pickup();
 			pickup.setFulfillmentDate(fulfillmentTime);
@@ -237,6 +277,20 @@ public class SterlingShipmentToMozuMapper {
             dt = formatter.parseDateTime(timeString);
         }
         return dt;
+    }
+    
+    private String getShippingMethodCode(Setting setting, String sterlingShipCode) {
+        Map<String, String> shippingCodeMap = setting.getShipMethodMap();
+        String shippingMethodCode = null;
+        Set<Entry<String, String>> shippingEntries = shippingCodeMap.entrySet();
+        for (Entry<String, String> entry : shippingEntries) {
+            if (sterlingShipCode.equals(entry.getValue())) {
+                shippingMethodCode = entry.getKey();
+                break;
+            }
+        }
+
+        return shippingMethodCode;
     }
 
 }

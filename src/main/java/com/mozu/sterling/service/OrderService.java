@@ -58,7 +58,7 @@ public class OrderService extends SterlingClient {
     public final static String CHANGE_ORDER_STATUS_SERVICE_NAME = "changeOrderStatus ";
     public static final String CANCEL_ORDER_ACTION = "CancelOrder";
     public static final String VOID_PAYMENT_ACTION = "VoidPayment";
-    
+    public static final String CAPTURE_PAYMENT_ACTION = "CapturePayment";
     public static final String FULFILLED_STATUS = "Fulfilled";
     public static final String NOT_FULFILLED_STATUS = "NotFulfilled";
     
@@ -152,6 +152,7 @@ public class OrderService extends SterlingClient {
 
         Document outDoc = sterlingClient.invoke(ORDER_SERVICE_NAME, inDoc, setting);
 
+        com.mozu.sterling.model.order.Order createdSterlingOrder= (com.mozu.sterling.model.order.Order) convertXmlToObject(outDoc, com.mozu.sterling.model.order.Order.class);
         return outDoc != null;
     }
     
@@ -421,12 +422,36 @@ public class OrderService extends SterlingClient {
                 }else if(mozuOrder.getPickups().size()>0){
                 	pickOrder(mozuOrder, apiContext);
                 }
+                if(mozuOrder.getFulfillmentStatus().equals("Fulfilled")){
+                	completeOrder(mozuOrder, apiContext);
+                }
             }
                
         } else {
             logger.info ("Order cannot be null.");
         }
         return mozuOrder;
+    }
+    
+    private void completeOrder(Order mozuOrder, ApiContext apiContext) throws Exception{
+    	PaymentResource paymentResource = new PaymentResource(apiContext);
+    	for (Payment payment : mozuOrder.getPayments()) {
+    		if (StringUtils.equalsIgnoreCase(payment.getStatus(), "voided"))
+                continue;
+    		List<String> availabePaymentActions = paymentResource.getAvailablePaymentActions(mozuOrder.getId(), payment.getId());
+    		if(availabePaymentActions.contains(CAPTURE_PAYMENT_ACTION)){
+        		PaymentAction paymentAction = new PaymentAction();
+                paymentAction.setActionName(CAPTURE_PAYMENT_ACTION);
+                try {
+                	logger.debug("Perform CapturePayment  action for order number "+ mozuOrder.getOrderNumber()+" on tenanat "+apiContext.getTenantId());
+					paymentResource.performPaymentAction(paymentAction,
+							mozuOrder.getId(), payment.getId());
+				} catch (Exception e) {
+					logger.warn("Exception while capturing payment for Order no "+mozuOrder.getOrderNumber()+" on tenanat "+apiContext.getTenantId());
+					throw e;
+				}
+    		}
+ 		}
     }
     
     private void shipOrder(Order order, ApiContext context) throws Exception {
