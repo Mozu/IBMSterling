@@ -124,12 +124,20 @@ public class OrderService extends SterlingClient {
      * @return true if the order was created in Sterling w/o errors.
      */
     public boolean createOrder(ApiContext apiContext, Event event) throws Exception {
+	boolean success = false;
+	OrderActivity orderActivity = new OrderActivity();
+
         OrderResource orderResource = new OrderResource(apiContext);
         try {
             Order mozuOrder = orderResource.getOrder(event.getEntityId());
-            return createOrder(apiContext, mozuOrder);
+
+            if ((success = createOrder(apiContext, mozuOrder))){
+		orderActivity.sawOrder(mozuOrder.getId());
+            }
+
+            return success;
         } catch (Exception e) {
-        	 logger.debug(String.format("Correlation ID: %s. Unable to create Order with id %s in Sterling: %s",
+		 logger.debug(String.format("Correlation ID: %s. Unable to create Order with id %s in Sterling: %s",
                     event.getCorrelationId(), event.getEntityId(), e.getMessage()));
             throw e;
         }
@@ -383,20 +391,27 @@ public class OrderService extends SterlingClient {
     public Order importSterlingOrder (ApiContext apiContext, Setting setting, com.mozu.sterling.model.order.Order sterlingOrder) throws Exception {
         Order mozuOrder = null;
         if (sterlingOrder != null) {
-            
+
             mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, apiContext, setting);
             OrderResource orderResource = new OrderResource (apiContext);
+            //purpose is used to store mouzu order id
+            Order orderByPurpose = null;
+
+            if (StringUtils.isNotBlank(sterlingOrder.getPurpose())) {
+		orderByPurpose = orderResource.getOrder(sterlingOrder.getPurpose());
+            }
+
             OrderCollection existingOrders = orderResource.getOrders(0, null, null,
                     "externalId eq " + sterlingOrder.getOrderNo(), null, null, null);
-            if (existingOrders != null && existingOrders.getItems() != null &&  
-                    existingOrders.getItems().size() > 0) {
+            if (orderByPurpose != null || (existingOrders != null && existingOrders.getItems() != null &&
+                    existingOrders.getItems().size() > 0)) {
                 Order existingOrder = existingOrders.getItems().get(0);
                 if(sterlingOrder.getStatus().equalsIgnoreCase("Cancelled")){
-            		cancelMozuOrder(apiContext, existingOrder);
-            	}else{
-                    mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
-            	}
-            }else {
+					cancelMozuOrder(apiContext, existingOrder);
+				}else{
+		                    mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
+				}
+            } else {
                 mozuOrder = orderResource.createOrder(mozuOrder);
             }
         } else {

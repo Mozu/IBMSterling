@@ -207,13 +207,38 @@ public class SterlingOrderToMozuMapper {
                     if (item == null) {
                         throw new Exception ("No item found in order");
                     }
-                    String productCode = item.getItemID();
 
-                    boolean isVariant = (item.getPrimaryInformation() != null && "Y".equals(item.getPrimaryInformation().getIsModelItem()));
-                    com.mozu.api.contracts.commerceruntime.products.Product lineProduct = getProduct(apiContext,
-                            productCode, isVariant);
-                    replaceProductOptionsWithSterlingValues(lineProduct, saleLine, apiContext);
-                    orderItem.setProduct(lineProduct);
+                    String productCode = null;
+                    boolean isVariant = false;
+
+                    if ("Dynamic Physical Kit".equals(saleLine.getKitCode())) {
+			KitLine primaryProduct = saleLine.getKitLines().getKitLine().iterator().next();
+			productCode = primaryProduct.getItemID();
+			isVariant = Boolean.TRUE.equals(primaryProduct.getProductClass());
+
+			com.mozu.api.contracts.commerceruntime.products.Product lineProduct = getProduct(apiContext,
+                                productCode, isVariant);
+			replaceProductOptionsWithSterlingValues(lineProduct, saleLine, apiContext);
+			orderItem.setProduct(lineProduct);
+
+                    } else if ("BUNDLE".equals(saleLine.getKitCode())) {
+			productCode = item.getItemID();
+			isVariant = (item.getPrimaryInformation() != null && "Y".equals(item.getPrimaryInformation().getIsModelItem()));
+
+			com.mozu.api.contracts.commerceruntime.products.Product lineProduct = getProduct(apiContext,
+                                productCode, isVariant);
+                        orderItem.setProduct(lineProduct);
+                    } else if (saleLine.getBundleParentLine() != null) {
+			// don't add to order items, ignore.
+			continue;
+                    } else {
+			productCode = item.getItemID();
+			isVariant = (item.getPrimaryInformation() != null && "Y".equals(item.getPrimaryInformation().getIsModelItem()));
+
+			com.mozu.api.contracts.commerceruntime.products.Product lineProduct = getProduct(apiContext,
+                                productCode, isVariant);
+                        orderItem.setProduct(lineProduct);
+                    }
                 }
                 orderItems.add(orderItem);
 
@@ -251,32 +276,26 @@ public class SterlingOrderToMozuMapper {
     private void replaceProductOptionsWithSterlingValues (
 		com.mozu.api.contracts.commerceruntime.products.Product lineProduct,
 		OrderLine saleLine, ApiContext apiContext) throws Exception {
-	if (saleLine.getKitLines() != null) {
-		KitLines kitLines = saleLine.getKitLines();
-		if (kitLines.getKitLine() != null) {
-			List<KitLine> kitLineList = kitLines.getKitLine();
-			for (KitLine kitLine : kitLineList) {
-				com.mozu.api.contracts.commerceruntime.products.ProductOption matchedOption =
-						findProductOptonForName(lineProduct.getOptions(), kitLine.getItemShortDesc());
+	boolean firstTime = true;
 
-				if (matchedOption != null) {
-					if (matchedOption.getDataType() == null) {
-						// This is a product extra paried with the product.
-						if (StringUtils.isNotBlank(kitLine.getProductClass())) {
-							Product product = getProduct(apiContext, kitLine.getItemID(),
-									Boolean.TRUE.equals(kitLine.getProductClass()));
+		if (saleLine.getKitLines() != null) {
+			KitLines kitLines = saleLine.getKitLines();
+			if (kitLines.getKitLine() != null) {
+				List<KitLine> kitLineList = kitLines.getKitLine();
+				for (KitLine kitLine : kitLineList) {
+					if (firstTime) {
+						//skip the first kit line because this is the primary product
+						firstTime = false;
+						continue;
+					}
 
-							if (product != null) {
-								matchedOption.setValue(product.getProductCode());
-								matchedOption.setStringValue(product.getName());
-							}
-						} else {
-							matchedOption.setShopperEnteredValue(kitLine.getItemID());
-						}
-					} else {
-						// This is ideal if datatype is dependable
-						switch (matchedOption.getDataType().toLowerCase()) {
-							case "product":
+					com.mozu.api.contracts.commerceruntime.products.ProductOption matchedOption =
+							findProductOptonForName(lineProduct.getOptions(), kitLine.getItemShortDesc());
+
+					if (matchedOption != null) {
+						if (matchedOption.getDataType() == null) {
+							// This is a product extra paried with the product.
+							if (StringUtils.isNotBlank(kitLine.getProductClass())) {
 								Product product = getProduct(apiContext, kitLine.getItemID(),
 										Boolean.TRUE.equals(kitLine.getProductClass()));
 
@@ -284,37 +303,51 @@ public class SterlingOrderToMozuMapper {
 									matchedOption.setValue(product.getProductCode());
 									matchedOption.setStringValue(product.getName());
 								}
-								break;
-							case "text":
+							} else {
 								matchedOption.setShopperEnteredValue(kitLine.getItemID());
-								break;
-							case "number":
-								matchedOption.setShopperEnteredValue(Double.valueOf(kitLine.getItemID()));
-								break;
+							}
+						} else {
+							// This is ideal if datatype is dependable
+							switch (matchedOption.getDataType().toLowerCase()) {
+								case "product":
+									Product product = getProduct(apiContext, kitLine.getItemID(),
+											Boolean.TRUE.equals(kitLine.getProductClass()));
+
+									if (product != null) {
+										matchedOption.setValue(product.getProductCode());
+										matchedOption.setStringValue(product.getName());
+									}
+									break;
+								case "text":
+									matchedOption.setShopperEnteredValue(kitLine.getItemID());
+									break;
+								case "number":
+									matchedOption.setShopperEnteredValue(Double.valueOf(kitLine.getItemID()));
+									break;
+							}
 						}
+					} else {
+						logger.warn("Product option {} not found in mozu product.", kitLine.getItemShortDesc());
 					}
-				} else {
-					logger.warn("Product option {} not found in mozu product.", kitLine.getItemShortDesc());
 				}
 			}
 		}
-	}
     }
 
     private com.mozu.api.contracts.commerceruntime.products.ProductOption findProductOptonForName(
 		List<com.mozu.api.contracts.commerceruntime.products.ProductOption> productOptions, String optionName) {
 	com.mozu.api.contracts.commerceruntime.products.ProductOption matchedOption = null;
 
-	if (productOptions != null) {
-		for (com.mozu.api.contracts.commerceruntime.products.ProductOption option : productOptions) {
-			if (option.getName().equals(optionName)) {
-				matchedOption = option;
-				break;
-			}
-		}
-	}
+	    if (productOptions != null) {
+		    for (com.mozu.api.contracts.commerceruntime.products.ProductOption option : productOptions) {
+			    if (option.getName().equals(optionName)) {
+				    matchedOption = option;
+				    break;
+			    }
+		    }
+	    }
 
-	return matchedOption;
+	    return matchedOption;
     }
 
     private String getOrderStatus(String orderStatus) {

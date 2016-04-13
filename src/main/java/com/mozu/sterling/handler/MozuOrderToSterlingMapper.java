@@ -67,6 +67,7 @@ public class MozuOrderToSterlingMapper {
 	com.mozu.sterling.model.order.Order	sterlingOrder = new com.mozu.sterling.model.order.Order();
         String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
         sterlingOrder.setOrderNo(orderNoStr);
+        sterlingOrder.setPurpose(mozuOrder.getId());
         sterlingOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
         if (setting.getSiteMap() != null) {
             String sellerCode = setting.getSiteMap().get(mozuOrder.getSiteId().toString());
@@ -107,43 +108,43 @@ public class MozuOrderToSterlingMapper {
         OrderLine orderLine = null;
        List<OrderLine> existingSterlingOrderLines=new ArrayList<OrderLine>();
         for (OrderItem orderItem : orderItems) {
-        	OrderLine existingSterlingOrderLine=null;
-        	orderLine = new OrderLine();
-        	if(sterlingOrderLines!=null){
-        		existingSterlingOrderLine = getExistingSterlingOrderLine(sterlingOrderLines.getOrderLine(), orderItem);
-        		
-        	}
-         	if(existingSterlingOrderLine!=null){
-         		orderLine.setOrderLineKey(existingSterlingOrderLine.getOrderLineKey());
-         		existingSterlingOrderLines.add(existingSterlingOrderLine);
-         	}
-         	
+			OrderLine existingSterlingOrderLine=null;
+			orderLine = new OrderLine();
+			if(sterlingOrderLines!=null){
+				existingSterlingOrderLine = getExistingSterlingOrderLine(sterlingOrderLines.getOrderLine(), orderItem);
+
+			}
+			if(existingSterlingOrderLine!=null){
+				orderLine.setOrderLineKey(existingSterlingOrderLine.getOrderLineKey());
+				existingSterlingOrderLines.add(existingSterlingOrderLine);
+			}
+
             orderLine.setPrimeLineNo(orderItem.getLineId().toString());
             orderLine.setShipNode(setting.getLocationMap().get(orderItem.getFulfillmentLocationCode()));
             orderLine.setScacAndService(serviceCode);
-             if(personInfoShipTo!=null){
-            	orderLine.setPersonInfoShipTo(personInfoShipTo);
+            if(personInfoShipTo!=null){
+				orderLine.setPersonInfoShipTo(personInfoShipTo);
             }
             orderLine.setOrderedQty(String.valueOf(orderItem.getQuantity()));
-            
-           
+
+
             if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Ship")){
-            	orderLine.setDeliveryMethod("SHP");
+		orderLine.setDeliveryMethod("SHP");
             }else if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Pickup")){
-            	orderLine.setDeliveryMethod("PICK");
+		orderLine.setDeliveryMethod("PICK");
             }
             ProductPrice productPrice = null;
             if (orderItem.getProduct() != null) {
                 Item sItem = new Item();
                 Product product = orderItem.getProduct();
                 if(product.getVariationProductCode()!=null){
-                	sItem.setItemID(product.getVariationProductCode());
-                	PrimaryInformation primaryInformation=new PrimaryInformation();
-                	primaryInformation.setIsModelItem("Y");
-                	sItem.setPrimaryInformation(primaryInformation);
-                }else{
-                	sItem.setItemID(product.getProductCode());
-                }
+					sItem.setItemID(product.getVariationProductCode());
+					PrimaryInformation primaryInformation=new PrimaryInformation();
+					primaryInformation.setIsModelItem("Y");
+					sItem.setPrimaryInformation(primaryInformation);
+	            }else{
+	                sItem.setItemID(product.getProductCode());
+	            }
                 sItem.setUPCCode(product.getUpc());
                 sItem.setItemShortDesc((product.getName()!=null && product.getName().length()>200)?product.getName().substring(0, 199):product.getName());
                 sItem.setItemDesc((product.getDescription()!=null && product.getDescription().length()>500) ? product.getDescription().substring(0, 499):product.getDescription());
@@ -156,11 +157,11 @@ public class MozuOrderToSterlingMapper {
                 orderLine.setKitLines(kitLines);
 
                 if (kitLines.getKitLine() != null && !kitLines.getKitLine().isEmpty()) {
-			sItem.setUPCCode("");
-			sItem.setItemDesc("Mozu dynamic physical kit.");
-			sItem.setItemID("MozuKit");
+					sItem.setUPCCode("");
+					sItem.setItemDesc("Mozu dynamic physical kit.");
+					sItem.setItemID("MozuKit");
 
-			orderLine.setKitCode("Dynamic Physical Kit");
+					orderLine.setKitCode("Dynamic Physical Kit");
                 } else {
 	                if(product.getBundledProducts()!=null && product.getBundledProducts().size()>0){
 				orderLine.setKitCode("BUNDLE");
@@ -168,10 +169,9 @@ public class MozuOrderToSterlingMapper {
                 }
                 if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Digital")){
 			sItem.setProductLine("DigitalProduct");
-                	
                 }
            }
-            
+
             orderLine.setLinePriceInfo(getLinePriceInfo(orderItem, productPrice));
             
           //  if (orderItem.getIsTaxable()!=null && orderItem.getIsTaxable()) {
