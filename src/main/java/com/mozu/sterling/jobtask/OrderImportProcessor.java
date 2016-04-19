@@ -30,8 +30,7 @@ public class OrderImportProcessor extends BaseBatchJob implements ItemProcessor<
         logger.debug("OrderImportProcessor");
         ApiContext apiContext = new MozuApiContext(tenantId, siteId);
         Setting setting = configHandler.getSetting(tenantId); 
-        Order order = orderMapper.saleToOrder(sterlingOrder, apiContext, setting);
-        
+        Order order = orderMapper.saleToOrder(sterlingOrder,null, apiContext, setting);
         return order;
     }
 }

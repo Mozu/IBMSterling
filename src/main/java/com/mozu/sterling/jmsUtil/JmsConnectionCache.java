@@ -66,6 +66,7 @@ public class JmsConnectionCache {
 		if (resource != null) {
 			if (resource.isListening()) {
 				resource.stopListening();
+				jmsResourceMap.remove(resource);
 			} 
 			isListening = resource.isListening();
 		}

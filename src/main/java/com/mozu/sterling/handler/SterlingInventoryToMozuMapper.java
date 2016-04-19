@@ -22,7 +22,7 @@ public class SterlingInventoryToMozuMapper {
 
 
     protected Integer getInventoryQuantity(com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange) {
-	return Integer.valueOf(availabilityChange.getOnhandAvailableQuantity());
+	return Double.valueOf(availabilityChange.getOnhandAvailableQuantity()).intValue();
     }
 
     protected String getLocationCode(com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange, Setting setting) {

@@ -105,7 +105,7 @@ public class JmsResource {
 	public void stopListening() {
 		for (DefaultMessageListenerContainer container : messageListenerContainers) {
 			if (container.isRunning()) {
-				container.stop();
+				container.shutdown();
 			}
 		}
 

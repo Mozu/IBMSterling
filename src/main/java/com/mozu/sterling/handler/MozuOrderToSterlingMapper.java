@@ -65,8 +65,8 @@ public class MozuOrderToSterlingMapper {
      */
     public com.mozu.sterling.model.order.Order mapMozuOrderToSterling(Order mozuOrder, com.mozu.sterling.model.order.Order existingSterlingOrder, Setting setting, ApiContext apiContext) throws Exception {
 	com.mozu.sterling.model.order.Order	sterlingOrder = new com.mozu.sterling.model.order.Order();
-        String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
-        sterlingOrder.setOrderNo(orderNoStr);
+        //String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
+       // sterlingOrder.setOrderNo(orderNoStr);
         sterlingOrder.setPurpose(mozuOrder.getId());
         sterlingOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
         if (setting.getSiteMap() != null) {
