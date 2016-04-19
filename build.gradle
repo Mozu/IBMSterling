@@ -40,7 +40,7 @@ task wrapper(type: Wrapper) {
 
 repositories {
     maven {
-          url "http://aus02bpnexs001.corp.volusion.com:8080/nexus/content/groups/public"
+          url "http://nexus.corp.volusion.com:8080/nexus/content/groups/public"
     }  
     maven {
         url "http://oss.sonatype.org/content/groups/staging"
@@ -125,10 +125,10 @@ test {
 uploadArchives {
     repositories {
         mavenDeployer {
-           repository(url: "http://aus02bpnexs001.corp.volusion.com:8080/nexus/content/repositories/releases/") {
+           repository(url: "http://nexus.corp.volusion.com:8080/nexus/content/repositories/releases/") {
              authentication(userName: "deployment", password: "deployment123")
            }
-           snapshotRepository(url: "http://aus02bpnexs001.corp.volusion.com:8080/nexus/content/repositories/snapshots/") {
+           snapshotRepository(url: "http://nexus.corp.volusion.com:8080/nexus/content/repositories/snapshots/") {
                authentication(userName: "deployment", password: "deployment123")
            }
        }
