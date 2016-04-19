@@ -75,9 +75,11 @@ public class SterlingOrderToMozuMapper {
      * @return Mozu order
      * @throws Exception
      */
-    public Order saleToOrder(com.mozu.sterling.model.order.Order sterlingOrder, ApiContext apiContext, Setting setting)
+    public Order saleToOrder(com.mozu.sterling.model.order.Order sterlingOrder,Order order, ApiContext apiContext, Setting setting)
             throws Exception {
-        Order order = new Order();
+    	if(order==null){
+    		order = new Order();
+    	}
 
         order.setTenantId(apiContext.getTenantId());
         order.setSiteId(apiContext.getSiteId());
@@ -251,13 +253,14 @@ public class SterlingOrderToMozuMapper {
             // This section is where we have to makeup default values if not
             String orderStatus = sterlingOrder.getStatus();
             if (orderStatus != null) {
-                if (orderStatus.equals("Shipped") || orderStatus.equals("Included In Shipment")) {
+                if (orderStatus.equals("Shipped")) {
                     order.setFulfillmentStatus(FULFILLED_STATUS);
                     order.setPaymentStatus("Paid");
-                    createFulfilledPackages(order);
+                   // createFulfilledPackages(order);
                 } else {
                     order.setFulfillmentStatus(NOT_FULFILLED_STATUS);
-                    createPendingPackages(order);
+                    order.setPaymentStatus(null);
+                   // createPendingPackages(order);
                 }
                 order.setStatus(getOrderStatus(orderStatus));
             } else {
@@ -363,7 +366,7 @@ public class SterlingOrderToMozuMapper {
         case "Draft Order Created":
             return "Pending";
         case "Created":
-            return "Pending";
+            return "Accepted";
         }
         return "Processing";
     }
@@ -432,9 +435,9 @@ public class SterlingOrderToMozuMapper {
             fulfillmentInfo.setFulfillmentContact(populateContact(personShipTo));
             fulfillmentInfo.setIsDestinationCommercial("Y".equals(personShipTo.getIsCommercialAddress()));
         }
-        if (StringUtils.isNotBlank(sterlingOrder.getCarrierServiceCode())) {
+        if (StringUtils.isNotBlank(sterlingOrder.getScacAndService())) {
             fulfillmentInfo
-                    .setShippingMethodCode(getShippingMethodCode(setting, sterlingOrder.getCarrierServiceCode()));
+                    .setShippingMethodCode(getShippingMethodCode(setting, sterlingOrder.getScacAndService()));
         }
 
         return fulfillmentInfo;

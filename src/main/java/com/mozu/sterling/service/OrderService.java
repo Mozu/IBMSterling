@@ -97,6 +97,7 @@ public class OrderService extends SterlingClient {
                 inOrder.setFromOrderDate(orderDateTime.toString(TIME_FORMAT));
                 inOrder.setToOrderDate(new DateTime().toString(TIME_FORMAT));
                 inOrder.setOrderDateQryType(ORDER_DATE_QRY);
+               
             }
 
             Document inDoc = convertObjectToXml(inOrder, com.mozu.sterling.model.order.Order.class);
@@ -124,15 +125,12 @@ public class OrderService extends SterlingClient {
      * @return true if the order was created in Sterling w/o errors.
      */
     public boolean createOrder(ApiContext apiContext, Event event) throws Exception {
-	boolean success = false;
-	OrderActivity orderActivity = new OrderActivity();
-
-        OrderResource orderResource = new OrderResource(apiContext);
+       boolean success = false;
+       OrderResource orderResource = new OrderResource(apiContext);
         try {
             Order mozuOrder = orderResource.getOrder(event.getEntityId());
-
-            if ((success = createOrder(apiContext, mozuOrder))){
-		orderActivity.sawOrder(mozuOrder.getId());
+            if(mozuOrder.getExternalId()==null){
+	            createOrder(apiContext, mozuOrder);
             }
 
             return success;
@@ -161,6 +159,15 @@ public class OrderService extends SterlingClient {
         Document outDoc = sterlingClient.invoke(ORDER_SERVICE_NAME, inDoc, setting);
 
         com.mozu.sterling.model.order.Order createdSterlingOrder= (com.mozu.sterling.model.order.Order) convertXmlToObject(outDoc, com.mozu.sterling.model.order.Order.class);
+        
+        if(createdSterlingOrder!=null && createdSterlingOrder.getOrderNo() !=null){
+        	OrderActivity orderActivity = new OrderActivity();
+        	orderActivity.sawOrder(mozuOrder.getId());
+        	mozuOrder.setExternalId(createdSterlingOrder.getOrderNo());
+        	OrderResource orderResource = new OrderResource (apiContext);
+            orderResource.updateOrder(mozuOrder, mozuOrder.getId());
+            logger.info("Updated mozu order "+ mozuOrder.getOrderNumber()+" with external Id "+ createdSterlingOrder.getOrderNo());
+        }
         return outDoc != null;
     }
     
@@ -179,9 +186,15 @@ public class OrderService extends SterlingClient {
         Setting setting = configHandler.getSetting(apiContext.getTenantId());
         try {
             Order mozuOrder = orderResource.getOrder(event.getEntityId());
-            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
-            if(sterlingOrder !=null){
-		status= updateSterlingOrder(setting, mozuOrder, sterlingOrder, apiContext);
+            if(mozuOrder.getExternalId()!=null){
+            	OrderActivity orderActivity = new OrderActivity();
+            	if(!orderActivity.contains(mozuOrder.getId())){
+		            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
+		            if(sterlingOrder !=null){
+		            	logger.info("Update sterling order "+ sterlingOrder.getOrderNo());
+		            	status= updateSterlingOrder(setting, mozuOrder, sterlingOrder, apiContext);
+		            }
+            	}
             }
         } catch (Exception e) {
             logger.debug(String.format("Correlation ID: %s. Unable to get Order with id %s from Mozu: %s",
@@ -391,28 +404,47 @@ public class OrderService extends SterlingClient {
     public Order importSterlingOrder (ApiContext apiContext, Setting setting, com.mozu.sterling.model.order.Order sterlingOrder) throws Exception {
         Order mozuOrder = null;
         if (sterlingOrder != null) {
-
-            mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, apiContext, setting);
+        	//purpose is used to store mouzu order id
+            Order orderByPurpose = null;
             OrderResource orderResource = new OrderResource (apiContext);
-            //purpose is used to store mouzu order id
+            if (StringUtils.isNotBlank(sterlingOrder.getPurpose())) {
+            	orderByPurpose = orderResource.getOrder(sterlingOrder.getPurpose());
+            }
+            OrderCollection existingOrders = orderResource.getOrders(0, null, null,
+                    "externalId eq " + sterlingOrder.getOrderNo(), null, null, null);
+            if (orderByPurpose == null && existingOrders != null && (existingOrders.getItems()==null || existingOrders.getItems().size() ==0)) {
+            	mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, null, apiContext, setting);
+            	mozuOrder = orderResource.createOrder(mozuOrder);
+            }else{
+            	logger.info("Order with externalId "+sterlingOrder.getOrderNo()+" already exists in Mozu. So skipping the record");
+            }
+        } else {
+            logger.info ("Order cannot be null.");
+        }
+        return mozuOrder;
+    }
+    
+    public Order updateSterlingOrder (ApiContext apiContext, Setting setting, com.mozu.sterling.model.order.Order sterlingOrder) throws Exception {
+        Order mozuOrder = null;
+        if (sterlingOrder != null) {
+            OrderResource orderResource = new OrderResource (apiContext);
+          //purpose is used to store mouzu order id
             Order orderByPurpose = null;
 
             if (StringUtils.isNotBlank(sterlingOrder.getPurpose())) {
-		orderByPurpose = orderResource.getOrder(sterlingOrder.getPurpose());
+            	orderByPurpose = orderResource.getOrder(sterlingOrder.getPurpose());
             }
-
             OrderCollection existingOrders = orderResource.getOrders(0, null, null,
                     "externalId eq " + sterlingOrder.getOrderNo(), null, null, null);
             if (orderByPurpose != null || (existingOrders != null && existingOrders.getItems() != null &&
                     existingOrders.getItems().size() > 0)) {
-                Order existingOrder = existingOrders.getItems().get(0);
+            	Order existingOrder = existingOrders.getItems().get(0);
+            	mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder,existingOrder, apiContext, setting);
                 if(sterlingOrder.getStatus().equalsIgnoreCase("Cancelled")){
-					cancelMozuOrder(apiContext, existingOrder);
-				}else{
-		                    mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
-				}
-            } else {
-                mozuOrder = orderResource.createOrder(mozuOrder);
+            		cancelMozuOrder(apiContext, existingOrder);
+            	}else{
+                    mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
+            	}
             }
         } else {
             logger.info ("Order cannot be null.");
@@ -427,15 +459,17 @@ public class OrderService extends SterlingClient {
         if (sterlingShipment != null) {
         	OrderResource orderResource = new OrderResource (apiContext);
             OrderCollection existingOrders = orderResource.getOrders(0, null, null,
-                    "orderNumber eq " + sterlingShipment.getShipmentLines().getShipmentLine().get(0).getOrderNo(), null, null, null);
+                    "externalId eq " + sterlingShipment.getShipmentLines().getShipmentLine().get(0).getOrderNo(), null, null, null);
             if (existingOrders != null && existingOrders.getItems() != null &&  
                     existingOrders.getItems().size() > 0) {
                 Order existingOrder = existingOrders.getItems().get(0);
                 mozuOrder = sterlingShipmentToMozuMapper.mapSterlingShipmentToMozuFulFillment(sterlingShipment,existingOrder, apiContext, setting);
                 if(mozuOrder.getPackages().size()>0){
                 	shipOrder(mozuOrder, apiContext);
+                	logger.info("Fulfilled the shipment for order no: "+mozuOrder.getOrderNumber());
                 }else if(mozuOrder.getPickups().size()>0){
                 	pickOrder(mozuOrder, apiContext);
+                	logger.info("Fulfilled the pickup for order no: "+mozuOrder.getOrderNumber());
                 }
                 if(mozuOrder.getFulfillmentStatus().equals("Fulfilled")){
                 	completeOrder(mozuOrder, apiContext);

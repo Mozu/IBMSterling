@@ -30,7 +30,9 @@ public class OrderImportWriter extends BaseBatchJob implements ItemWriter<Order>
         ApiContext apiContext = new MozuApiContext(tenantId, siteId);
         Setting setting = configHandler.getSetting(tenantId);
         for (Order sterlingOrder : items) {
-            orderService.importSterlingOrder(apiContext, setting, sterlingOrder.getOrderNo());
+        	if(sterlingOrder.getStatus().equalsIgnoreCase("Created")){
+        		orderService.importSterlingOrder(apiContext, setting, sterlingOrder.getOrderNo());
+        	}
         }
     }
 }
