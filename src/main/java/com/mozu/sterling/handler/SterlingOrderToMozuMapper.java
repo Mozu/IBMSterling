@@ -12,6 +12,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.mozu.api.ApiContext;
@@ -52,6 +53,9 @@ import com.mozu.sterling.model.order.OverallTotals;
 import com.mozu.sterling.model.order.PaymentMethod;
 import com.mozu.sterling.model.order.PersonInfoShipTo;
 import com.mozu.sterling.model.order.RemainingFinancialTotals;
+import com.mozu.sterling.model.organization.ShipNode;
+import com.mozu.sterling.model.organization.ShipNodePersonInfo;
+import com.mozu.sterling.service.SterlingOrganizationService;
 
 @Component
 public class SterlingOrderToMozuMapper {
@@ -63,8 +67,8 @@ public class SterlingOrderToMozuMapper {
     public static final String FULFILLED_STATUS = "Fulfilled";
     public static final String NOT_FULFILLED_STATUS = "NotFulfilled";
     public static final String PACKAGE_STATUS = "Pending";
-    // @Autowired
-    // SaleToReturnMapper saleToReturnMapper;
+     @Autowired
+     SterlingOrganizationService sterlingOrganizationService;
 
     /**
      * Map a Sterling order to a Mozu order
@@ -427,12 +431,12 @@ public class SterlingOrderToMozuMapper {
         return mozuLocation;
     }
 
-    private FulfillmentInfo getFulfillmentInfo(com.mozu.sterling.model.order.Order sterlingOrder, Setting setting) {
+    private FulfillmentInfo getFulfillmentInfo(com.mozu.sterling.model.order.Order sterlingOrder, Setting setting) throws Exception {
         FulfillmentInfo fulfillmentInfo = new FulfillmentInfo();
-
         PersonInfoShipTo personShipTo = sterlingOrder.getPersonInfoShipTo();
+        ShipNodePersonInfo shipNodePersonInfo=getShipNodeAddress(sterlingOrder, setting);
         if (personShipTo != null) {
-            fulfillmentInfo.setFulfillmentContact(populateContact(personShipTo));
+            fulfillmentInfo.setFulfillmentContact(populateShippingContact(personShipTo,shipNodePersonInfo));
             fulfillmentInfo.setIsDestinationCommercial("Y".equals(personShipTo.getIsCommercialAddress()));
         }
         if (StringUtils.isNotBlank(sterlingOrder.getScacAndService())) {
@@ -441,6 +445,28 @@ public class SterlingOrderToMozuMapper {
         }
 
         return fulfillmentInfo;
+    }
+    
+    private ShipNodePersonInfo getShipNodeAddress(com.mozu.sterling.model.order.Order sterlingOrder, Setting setting) throws Exception{
+    	String shipNodeId = null;
+        if(sterlingOrder.getOrderLines()!=null &&
+        		sterlingOrder.getOrderLines().getOrderLine()!=null &&
+        		sterlingOrder.getOrderLines().getOrderLine().get(0)!=null 
+        	){
+        	shipNodeId = sterlingOrder.getOrderLines().getOrderLine().get(0).getShipNode();
+        }
+        List<ShipNode> shipNodes = sterlingOrganizationService.getShipNodes(setting);
+        ShipNode shipNodeObject =null;
+        if(shipNodeId!=null){
+            for (ShipNode shipNode : shipNodes) {
+				if(shipNode.getShipNode().equalsIgnoreCase(shipNodeId)){
+					shipNodeObject=shipNode;
+					break;
+				}
+			}
+        }
+		return shipNodeObject!=null?shipNodeObject.getShipNodePersonInfo():null;
+    	
     }
 
     private String getShippingMethodCode(Setting setting, String sterlingShipCode) {
@@ -495,6 +521,45 @@ public class SterlingOrderToMozuMapper {
             address.setCountryCode(StringUtils.isNotBlank(contactInfo.getCountry()) ? contactInfo.getCountry() : "US");
             address.setPostalOrZipCode(StringUtils.isNotBlank(contactInfo.getZipCode()) ? contactInfo.getZipCode() : "00000");
             address.setStateOrProvince(contactInfo.getState());
+    
+            contact.setAddress(address);
+            Phone phone = new Phone();
+            phone.setHome(contactInfo.getEveningPhone());
+            phone.setMobile(contactInfo.getMobilePhone());
+            phone.setWork(contactInfo.getDayPhone());
+            if (StringUtils.isBlank(phone.getHome()) && 
+                    StringUtils.isBlank(phone.getWork()) &&
+                    StringUtils.isBlank(phone.getMobile())) {
+                phone.setHome("212-555-1212");
+            }
+            contact.setPhoneNumbers(phone);
+        }
+        return contact;
+    }
+    
+    private Contact populateShippingContact(ContactInfo contactInfo,ShipNodePersonInfo shipNodeContactInfo) {
+        Contact contact = new Contact();
+        if (contactInfo != null) {
+            contact.setCompanyOrOrganization(contactInfo.getCompany());
+            contact.setEmail(StringUtils.isNotBlank(contactInfo.getEMailID()) ? contactInfo.getEMailID() : ANONYMOUS_EMAIL);
+            contact.setFirstName(StringUtils.isNotBlank(contactInfo.getFirstName()) ? contactInfo.getFirstName() : ANONYMOUS_FIRST_NAME);
+            contact.setMiddleNameOrInitial(contactInfo.getMiddleName());
+            contact.setLastNameOrSurname(StringUtils.isNotBlank(contactInfo.getLastName()) ? contactInfo.getLastName() : ANONYMOUS_LAST_NAME);
+    
+            Address address = new Address();
+            address.setAddress1(contactInfo.getAddressLine1());
+            address.setAddress2(contactInfo.getAddressLine2());
+            address.setCityOrTown(contactInfo.getCity());
+            address.setCountryCode(StringUtils.isNotBlank(contactInfo.getCountry()) ? contactInfo.getCountry() : "US");
+            address.setPostalOrZipCode(StringUtils.isNotBlank(contactInfo.getZipCode()) ? contactInfo.getZipCode() : "00000");
+            address.setStateOrProvince(contactInfo.getState());
+            
+            if(shipNodeContactInfo!=null){
+            	address.setAddress1(StringUtils.isBlank(address.getAddress1())?shipNodeContactInfo.getAddressLine1():address.getAddress1());
+            	address.setAddress2(StringUtils.isBlank(address.getAddress2())?shipNodeContactInfo.getAddressLine2():address.getAddress2());
+            	address.setCityOrTown(StringUtils.isBlank(address.getCityOrTown())?shipNodeContactInfo.getCity():address.getCityOrTown());
+            	address.setStateOrProvince(StringUtils.isBlank(address.getStateOrProvince())?shipNodeContactInfo.getState():address.getStateOrProvince());
+          }
     
             contact.setAddress(address);
             Phone phone = new Phone();
