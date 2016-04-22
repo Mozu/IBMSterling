@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.mozu.api.ApiContext;
 import com.mozu.api.contracts.productadmin.LocationInventoryAdjustment;
+import com.mozu.api.contracts.productadmin.Product;
+import com.mozu.api.resources.commerce.catalog.admin.ProductResource;
 import com.mozu.api.resources.commerce.catalog.admin.products.LocationInventoryResource;
 import com.mozu.sterling.handler.SterlingInventoryToMozuMapper;
 import com.mozu.sterling.model.Setting;
@@ -44,7 +46,7 @@ public class InventoryService extends SterlingClient {
 			com.mozu.sterling.model.inventory.AvailabilityChange availabilityChange
 			) throws Exception {
 		List<LocationInventoryAdjustment> locationInventoryAdjustments = null;
-		if (availabilityChange != null) {
+		if (availabilityChange != null && !isBaseProduct(productCode, apiContext)) {
 
 			locationInventoryAdjustments = sterlingInventoryToMozuMapper
 					.availabilityChangeToLocationInventoryAdjustment(productCode,
@@ -60,5 +62,13 @@ public class InventoryService extends SterlingClient {
 			logger.info("AvailabilityChange cannot be null.");
 		}
 		return locationInventoryAdjustments != null;
+	}
+	
+	private boolean isBaseProduct(String productCode, ApiContext apiContext) throws Exception {
+		ProductResource productResource = new ProductResource(apiContext);
+		
+		Product product = productResource.getProduct(productCode, "isVariation");
+		
+		return product != null && !product.getIsVariation();
 	}
 }
