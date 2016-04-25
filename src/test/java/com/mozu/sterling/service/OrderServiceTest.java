@@ -2,6 +2,10 @@ package com.mozu.sterling.service;
 
 import java.util.List;
 
+
+
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +42,14 @@ public class OrderServiceTest {
         assertTrue(items.size() > 0);
     }
     
+    @Ignore
     @Test 
     public void getOrderDetail() throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
         Order sterlingOrder = orderService.getSterlingOrderDetail(setting, "Y100001204");
         assertNotNull(sterlingOrder);
     }
-    
+    @Ignore
     @Test 
     public void importOrderDetail () throws Exception {
         Setting setting = configHandler.getSetting(TENANT_ID);
