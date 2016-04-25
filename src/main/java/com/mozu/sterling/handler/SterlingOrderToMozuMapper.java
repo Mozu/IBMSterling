@@ -366,7 +366,7 @@ public class SterlingOrderToMozuMapper {
         case "Released":
             return "Processing";
         case "Cancelled":
-            return "Canceled";
+            return "Cancelled";
         case "Draft Order Created":
             return "Pending";
         case "Created":

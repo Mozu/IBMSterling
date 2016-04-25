@@ -239,7 +239,7 @@ public class OrderService extends SterlingClient {
         Setting setting = configHandler.getSetting(apiContext.getTenantId());
         try {
             Order mozuOrder = orderResource.getOrder(event.getEntityId());
-            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
+            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getExternalId());
             if(sterlingOrder !=null){
             	status= cancelSterlingOrder(setting, mozuOrder, sterlingOrder);
             }
@@ -439,8 +439,10 @@ public class OrderService extends SterlingClient {
             if (orderByPurpose != null || (existingOrders != null && existingOrders.getItems() != null &&
                     existingOrders.getItems().size() > 0)) {
             	Order existingOrder = existingOrders.getItems().get(0);
+            	
+            	String status = existingOrder.getStatus();
             	mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder,existingOrder, apiContext, setting);
-                if(sterlingOrder.getStatus().equalsIgnoreCase("Cancelled")){
+                if(sterlingOrder.getStatus().equalsIgnoreCase("Cancelled") && status!=null && !status.equals("Cancelled")){
             		cancelMozuOrder(apiContext, existingOrder);
             	}else{
                     mozuOrder = orderResource.updateOrder(mozuOrder, existingOrder.getId());
