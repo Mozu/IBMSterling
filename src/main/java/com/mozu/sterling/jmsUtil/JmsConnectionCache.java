@@ -64,9 +64,16 @@ public class JmsConnectionCache {
         boolean isListening = false;
 
 		if (resource != null) {
-			if (resource.isListening()) {
+			if (resource.isAnyListening()) {
 				resource.stopListening();
-				jmsResourceMap.remove(resource);
+				resource = jmsResourceMap.remove(tenantId);
+				
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+				
 			} 
 			isListening = resource.isListening();
 		}

@@ -29,7 +29,7 @@ public class JmsResource {
 	private Destination shipmentDestination;
 	
 
-	private List<DefaultMessageListenerContainer> messageListenerContainers;
+	private List<RestartableMessageListenerContainer> messageListenerContainers;
 
 	public JmsResource(JmsResourceSetting setting) {
 		jmsTemplate = new JmsTemplate();
@@ -42,7 +42,7 @@ public class JmsResource {
 		this.inventoryDestination = setting.getInventoryDestination();
 		this.shipmentDestination = setting.getShipmentDestination();
 
-		messageListenerContainers = new ArrayList<DefaultMessageListenerContainer>();
+		messageListenerContainers = new ArrayList<RestartableMessageListenerContainer>();
 
 		if (createOrderDestination != null) {
 			messageListenerContainers.add(setupListener(
@@ -93,9 +93,17 @@ public class JmsResource {
 	}
 
 	public void startListening() {
-		for (DefaultMessageListenerContainer container : messageListenerContainers) {
+		for (RestartableMessageListenerContainer container : messageListenerContainers) {
 			if (!container.isRunning()) {
 				container.start();
+			} else if (container.isNeedsRestart()) {
+				container.stop();
+				try {
+					Thread.sleep(2000);
+					container.start();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
 			}
 		}
 
@@ -104,7 +112,7 @@ public class JmsResource {
 
 	public void stopListening() {
 		for (DefaultMessageListenerContainer container : messageListenerContainers) {
-			if (container.isRunning()) {
+			if (container.isActive()) {
 				container.shutdown();
 			}
 		}
@@ -113,8 +121,21 @@ public class JmsResource {
 	}
 
 	public boolean isListening() {
-		return messageListenerContainers.get(0) != null
-				&& messageListenerContainers.get(0).isRunning();
+		boolean isListening = false;
+		
+		for (RestartableMessageListenerContainer container : messageListenerContainers) {
+			isListening &= container != null && container.isRunning() && !container.isNeedsRestart();
+		}
+		return isListening;
+	}
+	
+	public boolean isAnyListening() {
+		boolean isListening = false;
+		
+		for (RestartableMessageListenerContainer container : messageListenerContainers) {
+			isListening |= container != null && container.isRunning() && !container.isNeedsRestart();
+		}
+		return isListening;
 	}
 
 	public void addSite(Integer siteId) {
@@ -137,10 +158,10 @@ public class JmsResource {
 		updateOrderDestination = null;
 	}
 
-	protected DefaultMessageListenerContainer setupListener(
+	protected RestartableMessageListenerContainer setupListener(
 			MessageListener listener, Destination destination,
 			DestinationTypeEnum destinationType) {
-		DefaultMessageListenerContainer listenerContainer = new DefaultMessageListenerContainer();
+		RestartableMessageListenerContainer listenerContainer = new RestartableMessageListenerContainer();
 		listenerContainer.setConnectionFactory(connectionFactory);
 		listenerContainer.setDestination(destination);
 		listenerContainer
