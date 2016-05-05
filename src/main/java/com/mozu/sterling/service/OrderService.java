@@ -2,6 +2,8 @@ package com.mozu.sterling.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,16 +22,22 @@ import com.mozu.api.contracts.commerceruntime.orders.Order;
 import com.mozu.api.contracts.commerceruntime.orders.OrderAction;
 import com.mozu.api.contracts.commerceruntime.orders.OrderCollection;
 import com.mozu.api.contracts.event.Event;
+import com.mozu.api.contracts.location.Location;
+import com.mozu.api.contracts.productadmin.LocationInventoryAdjustment;
 import com.mozu.api.resources.commerce.OrderResource;
+import com.mozu.api.resources.commerce.admin.LocationResource;
+import com.mozu.api.resources.commerce.catalog.admin.products.LocationInventoryResource;
 import com.mozu.api.resources.commerce.orders.FulfillmentActionResource;
 import com.mozu.api.resources.commerce.orders.PackageResource;
 import com.mozu.api.resources.commerce.orders.PaymentResource;
 import com.mozu.api.resources.commerce.orders.PickupResource;
 import com.mozu.sterling.handler.ConfigHandler;
 import com.mozu.sterling.handler.MozuOrderToSterlingMapper;
+import com.mozu.sterling.handler.ProductMappingUtils;
 import com.mozu.sterling.handler.SterlingOrderToMozuMapper;
 import com.mozu.sterling.handler.SterlingShipmentToMozuMapper;
 import com.mozu.sterling.model.Setting;
+import com.mozu.sterling.model.order.OrderLine;
 import com.mozu.sterling.model.order.OrderList;
 import com.mozu.sterling.model.shipment.Shipment;
 import com.mozu.sterling.model.changeorderstatus.OrderLines;
@@ -37,6 +45,7 @@ import com.mozu.sterling.model.changeorderstatus.OrderStatusChange;
 import com.mozu.api.contracts.commerceruntime.orders.OrderItem;
 import com.mozu.api.contracts.commerceruntime.payments.Payment;
 import com.mozu.api.contracts.commerceruntime.payments.PaymentAction;
+import com.mozu.api.contracts.commerceruntime.products.BundledProduct;
 
 
 /**
@@ -189,7 +198,7 @@ public class OrderService extends SterlingClient {
             if(mozuOrder.getExternalId()!=null){
             	OrderActivity orderActivity = new OrderActivity();
             	if(!orderActivity.contains(mozuOrder.getId())){
-		            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
+		            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getExternalId());
 		            if(sterlingOrder !=null){
 		            	logger.info("Update sterling order "+ sterlingOrder.getOrderNo());
 		            	status= updateSterlingOrder(setting, mozuOrder, sterlingOrder, apiContext);
@@ -285,7 +294,7 @@ public class OrderService extends SterlingClient {
         Setting setting = configHandler.getSetting(apiContext.getTenantId());
         try {
             Order mozuOrder = orderResource.getOrder(event.getEntityId());
-            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getOrderNumber().toString());
+            com.mozu.sterling.model.order.Order sterlingOrder = getSterlingOrderDetail(setting, mozuOrder.getExternalId());
             if(sterlingOrder !=null){
 	            for(OrderItem orderItem : mozuOrder.getItems()){
 	            	if(orderItem.getFulfillmentMethod().equalsIgnoreCase("Digital")){
@@ -415,6 +424,7 @@ public class OrderService extends SterlingClient {
             if (orderByPurpose == null && existingOrders != null && (existingOrders.getItems()==null || existingOrders.getItems().size() ==0)) {
             	mozuOrder = sterlingOrderToMozuMapper.saleToOrder(sterlingOrder, null, apiContext, setting);
             	mozuOrder = orderResource.createOrder(mozuOrder);
+            	
             }else{
             	logger.info("Order with externalId "+sterlingOrder.getOrderNo()+" already exists in Mozu. So skipping the record");
             }
@@ -473,6 +483,9 @@ public class OrderService extends SterlingClient {
                 	pickOrder(mozuOrder, apiContext);
                 	logger.info("Fulfilled the pickup for order no: "+mozuOrder.getOrderNumber());
                 }
+                if(mozuOrder.getIsImport()!=null&& mozuOrder.getIsImport()){
+                	updateInventory(mozuOrder, sterlingShipment.getShipNode(), apiContext, setting);
+                }
                 if(mozuOrder.getFulfillmentStatus().equals("Fulfilled")){
                 	completeOrder(mozuOrder, apiContext);
                 }
@@ -492,6 +505,9 @@ public class OrderService extends SterlingClient {
     		List<String> availabePaymentActions = paymentResource.getAvailablePaymentActions(mozuOrder.getId(), payment.getId());
     		if(availabePaymentActions.contains(CAPTURE_PAYMENT_ACTION)){
         		PaymentAction paymentAction = new PaymentAction();
+        		if(payment.getPaymentType().equalsIgnoreCase("Check")){
+        			paymentAction.setCheckNumber("Check Number");
+        		}
                 paymentAction.setActionName(CAPTURE_PAYMENT_ACTION);
                 try {
                 	logger.debug("Perform CapturePayment  action for order number "+ mozuOrder.getOrderNumber()+" on tenanat "+apiContext.getTenantId());
@@ -609,6 +625,80 @@ public class OrderService extends SterlingClient {
         return sterlingShipment;
 
     }
-   
+    
+    public void updateInventory(Order order, String shipNode, ApiContext apiContext, Setting setting ) throws Exception {
+        Location storeLocation = null;
+        String locationCode = null;
+        try {
+            if (StringUtils.isNotBlank(shipNode)) {
+            	locationCode = getStoreLocation(setting, shipNode);
+            }
+            
+          
+            LocationResource locationResource = new LocationResource(apiContext);
+            storeLocation = locationResource.getLocation(locationCode);
+        } catch (Exception e) {
+            logger.warn(apiContext.getTenantId().toString(), "Unable to get the store location: " + e.getMessage()
+                    + " Unable to update inventory");
+            throw e;
+        }
 
+        LocationInventoryResource lir = new LocationInventoryResource(apiContext);
+
+        List<LocationInventoryAdjustment> adjustments = new ArrayList<>();
+        LocationInventoryAdjustment inventory = new LocationInventoryAdjustment();
+        inventory.setLocationCode(storeLocation.getCode());
+        adjustments.add(inventory);
+
+        for (OrderItem item : order.getItems()) {
+            if (item.getProduct().getProductUsage() == null
+                    || !item.getProduct().getProductUsage().equals("Bundle")) {
+                String productCode = ProductMappingUtils.getActualProductCode(item.getProduct());
+                inventory.setProductCode(productCode);
+                inventory.setType("Delta");
+                inventory.setValue(-1 * item.getQuantity());
+                try {
+                    lir.updateLocationInventory(adjustments, productCode);
+                } catch (Exception e) {
+                    logger.error("Unable to update inventory for product code "
+                            + item.getProduct().getProductCode() + " for tenant " +apiContext.getTenantId() + e.getMessage());
+                }
+            } else {
+                logger.debug("Product " + item.getProduct().getProductCode()
+                        +" for tenant "+apiContext.getTenantId()+" is a bundle, updating inventory for bundle items");
+                List<BundledProduct> bundledProducts = item.getProduct().getBundledProducts();
+                for (BundledProduct bp : bundledProducts) {
+                    inventory.setProductCode(bp.getProductCode());
+                    inventory.setType("Delta");
+                    inventory.setValue(-1 * item.getQuantity() * bp.getQuantity());
+                    try {
+                        lir.updateLocationInventory(adjustments, bp.getProductCode());
+                    } catch (Exception e) {
+                        logger.error("Unable to update inventory for product code "
+                                + item.getProduct().getProductCode() + " for tenant " +apiContext.getTenantId()  + e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+   
+    private String getStoreLocation(Setting setting, String shipnode) {
+        String mozuLocation = null;
+        if (StringUtils.isNotBlank(shipnode)) {
+            Map<String, String> locationMap = setting.getLocationMap();
+            for (Entry<String, String> entry : locationMap.entrySet()) {
+                if (shipnode.equals(entry.getValue())) {
+                    mozuLocation = entry.getKey();
+                    break;
+                }
+            }
+        }
+
+	if (StringUtils.isBlank(mozuLocation)) {
+	    //default to the first location
+	    mozuLocation = setting.getLocationMap().keySet().iterator().next();
+	}
+        return mozuLocation;
+    }
+    
 }

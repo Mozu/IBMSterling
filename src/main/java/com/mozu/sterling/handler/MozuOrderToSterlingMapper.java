@@ -65,8 +65,8 @@ public class MozuOrderToSterlingMapper {
      */
     public com.mozu.sterling.model.order.Order mapMozuOrderToSterling(Order mozuOrder, com.mozu.sterling.model.order.Order existingSterlingOrder, Setting setting, ApiContext apiContext) throws Exception {
 	com.mozu.sterling.model.order.Order	sterlingOrder = new com.mozu.sterling.model.order.Order();
-        //String orderNoStr = mozuOrder.getOrderNumber() != null ? String.valueOf(mozuOrder.getOrderNumber()) : "";
-       // sterlingOrder.setOrderNo(orderNoStr);
+        String orderNoStr = mozuOrder.getExternalId() != null ? mozuOrder.getExternalId() : "";
+        sterlingOrder.setOrderNo(orderNoStr);
         sterlingOrder.setPurpose(mozuOrder.getId());
         sterlingOrder.setEnterpriseCode(setting.getSterlingEnterpriseCode());
         if (setting.getSiteMap() != null) {
@@ -174,7 +174,6 @@ public class MozuOrderToSterlingMapper {
 
             orderLine.setLinePriceInfo(getLinePriceInfo(orderItem, productPrice));
             
-          //  if (orderItem.getIsTaxable()!=null && orderItem.getIsTaxable()) {
                 LineTaxes lineTaxes = new LineTaxes();
                 LineTax lineTax = new LineTax();
                 lineTax.setTaxName("Tax");
@@ -182,8 +181,7 @@ public class MozuOrderToSterlingMapper {
                 lineTax.setTax(orderItem.getItemTaxTotal() != null ? orderItem.getItemTaxTotal().toString(): null );
                 lineTaxes.getLineTax().add(lineTax);
                 orderLine.setLineTaxes(lineTaxes);
-                
-          //  }
+    
                 LineCharges lineCharges=new LineCharges();
                 LineCharge lineChargeDiscount=new LineCharge();
                 lineChargeDiscount.setChargePerLine(orderItem.getDiscountTotal().toString());
@@ -429,20 +427,21 @@ public class MozuOrderToSterlingMapper {
                    paymentMethod.setCreditCardName(mozuCard.getNameOnCard());
                    paymentMethod.setCreditCardType(mozuCard.getPaymentOrCardType());
                    paymentMethod.setCreditCardExpDate(String.valueOf(mozuCard.getExpireMonth())+"/"+String.valueOf(mozuCard.getExpireYear()));
+                   paymentMethod.setPaymentReference1(validPayment.getInteractions().get(0).getPaymentId());
                   
                  }
         	}else if(validPayment.getPaymentType().equalsIgnoreCase("Check")){
         		paymentMethod.setPaymentType("CHECK");
-        	//	paymentDetails.setChargeType("AUTHORIZATION");
-            	//paymentDetails.setRequestAmount(validPayment.getAmountRequested().toString());
-            	//paymentMethod.getPaymentDetails().add(paymentDetails);
-        		
+        		paymentMethod.setPaymentReference1(validPayment.getInteractions().get(0).getPaymentId());
         	}else{
         		paymentMethod.setPaymentType("OTHER");
         	}
-        	
-        	
+         	
         	if(validPayment.getStatus().equalsIgnoreCase("Authorized")){
+        		paymentDetails.setChargeType("AUTHORIZATION");
+            	paymentDetails.setProcessedAmount(validPayment.getAmountRequested().toString());
+            	paymentMethod.getPaymentDetails().add(paymentDetails);
+        	}else if(validPayment.getPaymentType().equalsIgnoreCase("Check") && !validPayment.getStatus().equalsIgnoreCase("Collected")){
         		paymentDetails.setChargeType("AUTHORIZATION");
             	paymentDetails.setProcessedAmount(validPayment.getAmountRequested().toString());
             	paymentMethod.getPaymentDetails().add(paymentDetails);
