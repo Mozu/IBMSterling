@@ -59,7 +59,7 @@
                     </div>
                      
                     <div class="tab-view">
-                        <form name="settingForm" id="settingForm" ng-controller="SettingsController">
+                        <form name="settingForm" id="settingForm" ng-controller="SettingsController" novalidate>
 	                        <div class="tab-section" ng-view>
 	                        </div>
 		                    <div id="buttons" ng-show="showBtns"
